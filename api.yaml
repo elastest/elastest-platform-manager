@@ -1,0 +1,317 @@
+swagger: '2.0'
+info:
+  description: REST API description of the ElasTest Platform Manager Module.
+  version: 1.0.0
+  title: EPM REST API
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+basePath: /v1
+tags:
+  - name: testmanagement
+    description: Test Management
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: testorchestration
+    description: Test Orchestation
+schemes:
+  - http
+paths:
+  /network:
+    post:
+      tags:
+        - Network
+      summary: Creates a new network
+      description: Creates a new network in the target cloud environment with the given IP range
+      operationId: createNetwork
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Defintion of a VDU which defines resources that have to be deployed
+          required: true
+          schema:
+            $ref: '#/definitions/Network'
+      responses:
+        '200':
+          description: Network creation OK
+          schema:
+            $ref: '#/definitions/Network'
+        '400':
+          description: Bad Request
+    get:
+      tags:
+        - Network
+      summary: Returns all existing networks.
+      description: Returns all networks with all details.
+      operationId: getAllNetworks
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Network'
+  '/network/{id}':
+    get:
+      tags:
+        - Network
+      summary: Returns a network.
+      description: Returns the network with the given ID. Returns all its details.
+      operationId: getNetworkById
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/Network'
+        '404':
+          description: Network not found
+    patch:
+      tags:
+        - Network
+      summary: Updates a Network.
+      description: Updates an existing Network.
+      operationId: updateNetwork
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Network that needs to be updated.
+          required: true
+          schema:
+            $ref: '#/definitions/Network'
+      responses:
+        '200':
+          description: Network Update OK
+          schema:
+            $ref: '#/definitions/Network'
+        '400':
+          description: Bad Request
+        '404':
+          description: Network not found
+    delete:
+      tags:
+        - Network
+      summary: Deletes a network.
+      description: Deletes the network that matches with a given ID.
+      operationId: deleteNetwork
+      responses:
+        '200':
+          description: Network deleted successfully
+          schema:
+            type: string
+        '400':
+          description: Bad Request
+        '404':
+          description: Network not found
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: ID of Network
+  /vdu:
+    post:
+      tags:
+        - VDU
+      summary: Allocates resources in the cloud
+      description: 'Allocates resources defined as a VDU in the cloud to be deployed in the target cloud environment. It instantiates computing resources, deploys artifacts on them and manages the their lifecycle'
+      operationId: deployVdu
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Defintion of a VDU which defines resources that have to be deployed
+          required: true
+          schema:
+            $ref: '#/definitions/VDU'
+      responses:
+        '200':
+          description: VDU allocation OK
+          schema:
+            $ref: '#/definitions/VDU'
+        '400':
+          description: Bad Request
+    get:
+      tags:
+        - VDU
+      summary: Returns all VDUs.
+      description: Returns all VDUs with all its details.
+      operationId: getAllVdus
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/VDU'
+  '/vdu/{id}':
+    get:
+      tags:
+        - VDU
+      summary: Returns a VDU.
+      description: Returns the VDU with the given ID. Returns all its details.
+      operationId: getVduById
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/VDU'
+        '404':
+          description: VDU not found.
+    patch:
+      tags:
+        - VDU
+      summary: Updates a VDU.
+      description: Updates an already deployed VDU.
+      operationId: updateVdu
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: VDU object that needs to be updated.
+          required: true
+          schema:
+            $ref: '#/definitions/VDU'
+      responses:
+        '200':
+          description: VDU Update OK
+          schema:
+            $ref: '#/definitions/VDU'
+        '400':
+          description: Bad Request
+        '404':
+          description: VDU not found
+    delete:
+      tags:
+        - VDU
+      summary: Terminates a VDU.
+      description: Terminates the VDU that matches with a given ID.
+      operationId: deleteVdu
+      responses:
+        '200':
+          description: VDU terminated successfully
+          schema:
+            type: string
+        '400':
+          description: Bad Request
+        '404':
+          description: VDU not found
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: ID of VDU
+definitions:
+  VDU:
+    description: 'A Virtual Deployment Unit (VDU) describes the capabilities of virtualized computing (Containers, VMs) and networking resources.'
+    type: object
+    required:
+      - name
+      - imageName
+      - netId
+    properties:
+      id:
+        type: string
+        example: 1234-abcd
+      name:
+        type: string
+        example: testVdu1
+      imageName:
+        type: string
+        example: testImage1
+      ip:
+        type: string
+        example: 127.0.0.1
+      netId:
+        type: string
+        example: 1234-abcd
+      status:
+        type: string
+        enum:
+          - initializing
+          - initialized
+          - deploying
+          - deployed
+          - undeploying
+          - undeployed
+          - error
+      metadata:
+        type: array
+        items:
+          $ref: '#/definitions/Metadata'
+      events:
+        type: array
+        items:
+          $ref: '#/definitions/Event'
+  Event:
+    description: An event contains certain life cycle information of the VDU at a specific time.
+    type: object
+    required:
+      - timestamp
+      - description
+    properties:
+      id:
+        type: string
+        example: 1234-abcd
+      timestamp:
+        type: string
+        format: date-time
+      description:
+        type: string
+        example: testEvent1
+  Network:
+    description: This entity defines the network connectivity and details where the VDUs are connected to.
+    type: object
+    required:
+      - name
+      - cidr
+    properties:
+      id:
+        type: string
+        example: 1234-abcd
+      name:
+        type: string
+        example: testNetwork1
+      cidr:
+        type: string
+        example: 192.168.1.1/24
+  Metadata:
+    description: The metadata object contains additional information (key -> value) which are related to a certain VDU.
+    type: object
+    required:
+      - key
+      - value
+    properties:
+      id:
+        type: string
+        example: 1234-abcd
+      key:
+        type: string
+        example: testKey1
+      value:
+        type: string
+        example: testValue1
+
