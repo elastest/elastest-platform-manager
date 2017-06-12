@@ -232,6 +232,7 @@ definitions:
       - name
       - imageName
       - netId
+      - vimInfo
     properties:
       id:
         type: string
@@ -248,6 +249,8 @@ definitions:
       netId:
         type: string
         example: 1234-abcd
+      vimInfo:
+        $ref: '#/definitions/VimInfo'
       status:
         type: string
         enum:
@@ -261,7 +264,7 @@ definitions:
       metadata:
         type: array
         items:
-          $ref: '#/definitions/Metadata'
+          $ref: '#/definitions/KeyValuePair'
       events:
         type: array
         items:
@@ -298,8 +301,42 @@ definitions:
       cidr:
         type: string
         example: 192.168.1.1/24
-  Metadata:
-    description: The metadata object contains additional information (key -> value) which are related to a certain VDU.
+  VimInfo:
+    description: This entity contains information about the Virtualised Infrastructure Manager (VIM)
+    type: object
+    required:
+      - name
+      - interfaceInfo
+      - accessInfo
+      - interfaceEndpoint
+    properties:
+      id:
+        description: Identifier of the VIM
+        type: string
+        example: 1234-abcd
+      name:
+        description: Human-readable identifier of this VimInfo information element
+        type: string
+        example: testVimName
+      interfaceInfo:
+        description: 'Information about the interface(s) to the VIM, including VIM provider type, API version, and protocol type.'
+        type: array
+        items:
+          $ref: '#/definitions/KeyValuePair'
+        example:
+          - key: type
+            value: docker
+      accessInfo:
+        description: 'Authentication credentials for accessing the VIM. Examples may include those to support different authentication schemes, e.g. OAuth, Token, etc.'
+        type: array
+        items:
+          $ref: '#/definitions/KeyValuePair'
+      interfaceEndpoint:
+        description: Information about the interface endpoint. An example is a URL.
+        type: string
+        example: localhost
+  KeyValuePair:
+    description: This entity is a Key-Value pair for storing metadata contained in other entities
     type: object
     required:
       - key
