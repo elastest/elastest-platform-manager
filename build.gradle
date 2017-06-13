@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE")
+    }
+}
+plugins {
+    id "nebula.os-package" version "2.2.6"
+    id 'com.github.sherter.google-java-format' version '0.6'
+}
+group 'io.elastest.epm'
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+repositories {
+    mavenCentral()
+}
+
+project.ext {
+    /**
+     * Application Related Version
+     */
+    springVersion = '4.3.9.RELEASE'
+    springBootVersion = '1.5.4.RELEASE'
+    springFoxVersion = '2.7.0'
+    /**
+     * Application Related Version
+     */
+    applicationDate = new Date()
+    applicationVersion = version
+    applicationVersionDebian = "1";
+    applicationVersionFull = "${applicationVersion}"
+}
+dependencies {
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: springBootVersion
+    // https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
+
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion
+    // https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion
+
+    // https://mvnrepository.com/artifact/joda-time/joda-time
+    compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
+}
+bootRepackage {
+    mainClass = 'io.elastest.epm.main.Application'
+}
+//apply from: 'gradle/gradle/packaging.project.debian.gradle'
+
+build.dependsOn verifyGoogleJavaFormat
