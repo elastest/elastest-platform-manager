@@ -4,6 +4,7 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE")
+        classpath "se.transmode.gradle:gradle-docker:1.2"
     }
 }
 plugins {
@@ -18,6 +19,7 @@ repositories {
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'docker'
 
 repositories {
     mavenCentral()
@@ -40,11 +42,15 @@ project.ext {
 }
 dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: springBootVersion
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
     // https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
 
     compile group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion
     // https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui
     compile group: 'io.springfox', name: 'springfox-swagger-ui', version: springFoxVersion
+
+    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa
+    compile group: 'org.springframework.data', name: 'spring-data-jpa', version: '1.11.4.RELEASE'
 
     // https://mvnrepository.com/artifact/joda-time/joda-time
     compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
@@ -52,6 +58,18 @@ dependencies {
 bootRepackage {
     mainClass = 'io.elastest.epm.main.Application'
 }
-//apply from: 'gradle/gradle/packaging.project.debian.gradle'
+
+task buildDocker(type: Docker) {
+    baseImage = 'openjdk:8-jre-alpine'
+    push = project.hasProperty('push')
+    tag = 'elastest/epm'
+    addFile {
+        from jar
+        rename {'app.jar'}
+    }
+    entryPoint(['java', '-jar', '/app.jar'])
+    exposePort(8080)
+}
+buildDocker.dependsOn(build)
 
 build.dependsOn verifyGoogleJavaFormat
