@@ -1,0 +1,78 @@
+version: '2.1'
+services:
+    rabbitmq:
+        container_name: rabbitmq-server
+        build: ./rabbitmq
+        image: services/rabbitmq
+        env_file:
+            - env
+        expose:
+            - 15672
+            - 5672
+        ports:
+            - 15672:15672
+            - 5672:5672
+        networks:
+            - elastest
+    kibana:
+        container_name: kibana-server
+        build: ./kibana/
+        image: services/kibana
+        env_file:
+          - env
+        ports:
+          - 5601:5601
+        networks:
+          - elastest
+        links:
+          - elasticsearch
+    elasticsearch:
+        container_name: elasticsearch-server
+        build: ./elasticsearch
+        image: services/elasticsearch
+        env_file:
+            - env
+        expose:
+            - 9200
+            - 9300
+        ports:
+            - 9200:9200
+            - 9300:9300
+        networks:
+            - elastest
+        links:
+            - rabbitmq
+    logstash:
+        container_name: logstash-server
+        build: ./logstash
+        image: services/logstash
+        env_file:
+            - env
+        expose:
+            - 5044
+            - 5000
+            - 9600
+        ports:
+            - 9600:9600
+            - 5044:5044
+            - 5000:5000
+        networks:
+            - elastest
+        links:
+            - elasticsearch
+            - rabbitmq
+    dockbeat:
+        container_name: dockbeat-server
+        build: ./dockbeat
+        image: services/dockbeat
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        env_file:
+            - env
+        networks:
+            - elastest
+        links:
+            - elasticsearch
+networks:
+    elastest:
+        driver: bridge
