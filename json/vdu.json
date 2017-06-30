@@ -1,0 +1,6 @@
+{
+  "name": "testContainer9",
+  "imageName": "ubuntu",
+  "netName": "testNetwork123",
+  "poPName": "docker-local"
+}
