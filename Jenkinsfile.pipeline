@@ -1,0 +1,30 @@
+#!/usr/bin/env groovy
+pipeline {
+    agent any
+    stages {
+        stage('Test') {
+            echo 'Executing tests'
+            steps {
+                sh './gradlew test'
+            }
+        }
+        stage('Build') {
+            echo 'Compile source code'
+            steps {
+                sh './gradlew -x test build'
+            }
+        }
+        stage('Dockerize') {
+            echo 'Create Docker image'
+            steps {
+                sh './gradlew buildDocker'
+            }
+        }
+        stage('Publish') {
+            echo 'Publishing docker image to the Docker hub'
+            steps {
+                echo 'After docker login on machine ./gradlew buildDocker -Ppush is possible'
+            }
+        }
+    }
+}
