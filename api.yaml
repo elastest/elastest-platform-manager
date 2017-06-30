@@ -1,30 +1,50 @@
 swagger: '2.0'
 info:
   description: REST API description of the ElasTest Platform Manager Module.
-  version: 0.1.0
+  version: 0.1.1
   title: EPM REST API
+  contact: {}
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: 'localhost:8180'
 basePath: /v1
 tags:
-  - name: testmanagement
-    description: Test Management
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: testorchestration
-    description: Test Orchestation
-schemes:
-  - http
+  - name: vdu-api-controller
+    description: the vdu API
+  - name: po-p-api-controller
+    description: the PoP API
+  - name: network-api-controller
+    description: the network API
 paths:
   /network:
+    get:
+      tags:
+        - Network
+      summary: Returns all existing networks.
+      description: Returns all networks with all details.
+      operationId: getAllNetworksUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/Network'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
     post:
       tags:
         - Network
-      summary: Creates a new network
-      description: Creates a new network in the target cloud environment with the given IP range
-      operationId: createNetwork
+      summary: Creates a new network.
+      description: Creates a new network in the target cloud environment with the given CIDR.
+      operationId: createNetworkUsingPOST
       consumes:
         - application/json
       produces:
@@ -32,7 +52,7 @@ paths:
       parameters:
         - in: body
           name: body
-          description: Defintion of a VDU which defines resources that have to be deployed
+          description: Defintion of a Network which has to be created on a certain PoP
           required: true
           schema:
             $ref: '#/definitions/Network'
@@ -41,50 +61,99 @@ paths:
           description: Network creation OK
           schema:
             $ref: '#/definitions/Network'
+        '201':
+          description: Created
         '400':
           description: Bad Request
-    get:
-      tags:
-        - Network
-      summary: Returns all existing networks.
-      description: Returns all networks with all details.
-      operationId: getAllNetworks
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Successful operation
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Network'
+            $ref: '#/definitions/Network'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
   '/network/{id}':
     get:
       tags:
         - Network
       summary: Returns a network.
       description: Returns the network with the given ID. Returns all its details.
-      operationId: getNetworkById
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Successful operation
-          schema:
-            $ref: '#/definitions/Network'
-        '404':
-          description: Network not found
-    patch:
-      tags:
-        - Network
-      summary: Updates a Network.
-      description: Updates an existing Network.
-      operationId: updateNetwork
+      operationId: getNetworkByIdUsingGET
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
+        - name: id
+          in: path
+          description: ID of Network
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/Network'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Network not found
+          schema:
+            $ref: '#/definitions/Network'
+    delete:
+      tags:
+        - Network
+      summary: Deletes a network.
+      description: Deletes the network that matches with a given ID.
+      operationId: deleteNetworkUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: path
+          description: ID of Network
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Network deleted successfully
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Network not found
+          schema:
+            type: string
+    patch:
+      tags:
+        - Network
+      summary: Updates a Network.
+      description: Updates an existing Network.
+      operationId: updateNetworkUsingPATCH
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of Network
+          required: true
+          type: string
         - in: body
           name: body
           description: Network that needs to be updated.
@@ -96,38 +165,210 @@ paths:
           description: Network Update OK
           schema:
             $ref: '#/definitions/Network'
+        '204':
+          description: No Content
         '400':
           description: Bad Request
+          schema:
+            $ref: '#/definitions/Network'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
           description: Network not found
-    delete:
+          schema:
+            $ref: '#/definitions/Network'
+  /pop:
+    get:
       tags:
-        - Network
-      summary: Deletes a network.
-      description: Deletes the network that matches with a given ID.
-      operationId: deleteNetwork
+        - PoP
+      summary: Returns all PoPs.
+      description: Returns all PoPs with all its details.
+      operationId: getAllPoPsUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
       responses:
         '200':
-          description: Network deleted successfully
+          description: Successful operation
           schema:
-            type: string
+            $ref: '#/definitions/PoP'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    post:
+      tags:
+        - PoP
+      summary: Registers a new PoP
+      description: Registers a new Point-of-Presence represented by a PoP
+      operationId: registerPoPUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Defintion of a PoP which defines a Point-of-Presence used to host resources
+          required: true
+          schema:
+            $ref: '#/definitions/PoP'
+      responses:
+        '200':
+          description: PoP registration OK
+          schema:
+            $ref: '#/definitions/PoP'
+        '201':
+          description: Created
         '400':
           description: Bad Request
+          schema:
+            $ref: '#/definitions/PoP'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
-          description: Network not found
-    parameters:
-      - name: id
-        in: path
-        required: true
-        type: string
-        description: ID of Network
+          description: Not Found
+  '/pop/{id}':
+    get:
+      tags:
+        - PoP
+      summary: Returns a PoP.
+      description: Returns the PoP with the given ID. Returns all its details.
+      operationId: getPoPByIdUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of PoP
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/PoP'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: PoP not found.
+          schema:
+            $ref: '#/definitions/PoP'
+    delete:
+      tags:
+        - PoP
+      summary: Unregisters a PoP.
+      description: Unregisters the PoP that matches with a given ID.
+      operationId: unregisterPoPUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: path
+          description: ID of PoP
+          required: true
+          type: string
+      responses:
+        '200':
+          description: PoP unregistered successfully
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: PoP not found
+          schema:
+            type: string
+    patch:
+      tags:
+        - PoP
+      summary: Updates a PoP.
+      description: Updates an already registered PoP.
+      operationId: updatePoPUsingPATCH
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of PoP
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: PoP object that needs to be updated.
+          required: true
+          schema:
+            $ref: '#/definitions/PoP'
+      responses:
+        '200':
+          description: PoP Update OK
+          schema:
+            $ref: '#/definitions/PoP'
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/PoP'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: PoP not found
+          schema:
+            $ref: '#/definitions/PoP'
   /vdu:
+    get:
+      tags:
+        - VDU
+      summary: Returns all VDUs.
+      description: Returns all VDUs with all its details.
+      operationId: getAllVdusUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/VDU'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
     post:
       tags:
         - VDU
-      summary: Allocates resources in the cloud
+      summary: Allocates resources in the target cloud.
       description: 'Allocates resources defined as a VDU in the cloud to be deployed in the target cloud environment. It instantiates computing resources, deploys artifacts on them and manages the their lifecycle'
-      operationId: deployVdu
+      operationId: deployVduUsingPOST
       consumes:
         - application/json
       produces:
@@ -144,50 +385,99 @@ paths:
           description: VDU allocation OK
           schema:
             $ref: '#/definitions/VDU'
+        '201':
+          description: Created
         '400':
           description: Bad Request
-    get:
-      tags:
-        - VDU
-      summary: Returns all VDUs.
-      description: Returns all VDUs with all its details.
-      operationId: getAllVdus
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Successful operation
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/VDU'
+            $ref: '#/definitions/VDU'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
   '/vdu/{id}':
     get:
       tags:
         - VDU
       summary: Returns a VDU.
       description: Returns the VDU with the given ID. Returns all its details.
-      operationId: getVduById
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Successful operation
-          schema:
-            $ref: '#/definitions/VDU'
-        '404':
-          description: VDU not found.
-    patch:
-      tags:
-        - VDU
-      summary: Updates a VDU.
-      description: Updates an already deployed VDU.
-      operationId: updateVdu
+      operationId: getVduByIdUsingGET
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
+        - name: id
+          in: path
+          description: ID of VDU
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/VDU'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: VDU not found.
+          schema:
+            $ref: '#/definitions/VDU'
+    delete:
+      tags:
+        - VDU
+      summary: Terminates a VDU.
+      description: Terminates the VDU that matches with a given ID.
+      operationId: deleteVduUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: path
+          description: ID of VDU
+          required: true
+          type: string
+      responses:
+        '200':
+          description: VDU terminated successfully
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: VDU not found
+          schema:
+            type: string
+    patch:
+      tags:
+        - VDU
+      summary: Updates a VDU.
+      description: Updates an already deployed VDU.
+      operationId: updateVduUsingPATCH
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of VDU
+          required: true
+          type: string
         - in: body
           name: body
           description: VDU object that needs to be updated.
@@ -199,144 +489,38 @@ paths:
           description: VDU Update OK
           schema:
             $ref: '#/definitions/VDU'
+        '204':
+          description: No Content
         '400':
           description: Bad Request
-        '404':
-          description: VDU not found
-    delete:
-      tags:
-        - VDU
-      summary: Terminates a VDU.
-      description: Terminates the VDU that matches with a given ID.
-      operationId: deleteVdu
-      responses:
-        '200':
-          description: VDU terminated successfully
           schema:
-            type: string
-        '400':
-          description: Bad Request
+            $ref: '#/definitions/VDU'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
           description: VDU not found
-    parameters:
-      - name: id
-        in: path
-        required: true
-        type: string
-        description: ID of VDU
+          schema:
+            $ref: '#/definitions/VDU'
 definitions:
-  VDU:
-    description: 'A Virtual Deployment Unit (VDU) describes the capabilities of virtualized computing (Containers, VMs) and networking resources.'
-    type: object
-    required:
-      - name
-      - imageName
-      - netId
-      - vimInfo
-    properties:
-      id:
-        type: string
-        example: 1234-abcd
-      name:
-        type: string
-        example: testVdu1
-      imageName:
-        type: string
-        example: testImage1
-      ip:
-        type: string
-        example: 127.0.0.1
-      netId:
-        type: string
-        example: 1234-abcd
-      vimInfo:
-        $ref: '#/definitions/VimInfo'
-      status:
-        type: string
-        enum:
-          - initializing
-          - initialized
-          - deploying
-          - deployed
-          - undeploying
-          - undeployed
-          - error
-      metadata:
-        type: array
-        items:
-          $ref: '#/definitions/KeyValuePair'
-      events:
-        type: array
-        items:
-          $ref: '#/definitions/Event'
   Event:
-    description: An event contains certain life cycle information of the VDU at a specific time.
     type: object
     required:
-      - timestamp
       - description
+      - timestamp
     properties:
+      description:
+        type: string
+        example: testEvent1
       id:
         type: string
         example: 1234-abcd
       timestamp:
         type: string
         format: date-time
-      description:
-        type: string
-        example: testEvent1
-  Network:
-    description: This entity defines the network connectivity and details where the VDUs are connected to.
-    type: object
-    required:
-      - name
-      - cidr
-    properties:
-      id:
-        type: string
-        example: 1234-abcd
-      name:
-        type: string
-        example: testNetwork1
-      cidr:
-        type: string
-        example: 192.168.1.1/24
-  VimInfo:
-    description: This entity contains information about the Virtualised Infrastructure Manager (VIM)
-    type: object
-    required:
-      - name
-      - interfaceInfo
-      - accessInfo
-      - interfaceEndpoint
-    properties:
-      id:
-        description: Identifier of the VIM
-        type: string
-        example: 1234-abcd
-      name:
-        description: Human-readable identifier of this VimInfo information element
-        type: string
-        example: testVimName
-      interfaceInfo:
-        description: 'Information about the interface(s) to the VIM, including VIM provider type, API version, and protocol type.'
-        type: array
-        items:
-          $ref: '#/definitions/KeyValuePair'
-        example:
-          - key: type
-            value: docker
-      accessInfo:
-        description: 'Authentication credentials for accessing the VIM. Examples may include those to support different authentication schemes, e.g. OAuth, Token, etc.'
-        type: array
-        items:
-          $ref: '#/definitions/KeyValuePair'
-      interfaceEndpoint:
-        description: Information about the interface endpoint. An example is a URL.
-        type: string
-        example: localhost
+    description: An event contains certain life cycle information of the VDU at a specific time.
   KeyValuePair:
-    description: This entity is a Key-Value pair for storing metadata contained in other entities
     type: object
     required:
       - key
@@ -351,4 +535,109 @@ definitions:
       value:
         type: string
         example: testValue1
+    description: This entity is a Key-Value pair for storing metadata contained in other entities
+  Network:
+    type: object
+    required:
+      - cidr
+      - name
+      - networkId
+      - poPName
+    properties:
+      cidr:
+        type: string
+        example: 192.168.1.1/24
+      id:
+        type: string
+        example: 1234-abcd
+      name:
+        type: string
+        example: testNetwork1
+      networkId:
+        type: string
+        example: 1234-abcd
+      poPName:
+        type: string
+    description: This entity defines the network connectivity and details where the VDUs are connected to.
+  PoP:
+    type: object
+    required:
+      - accessInfo
+      - interfaceEndpoint
+      - interfaceInfo
+      - name
+    properties:
+      accessInfo:
+        type: array
+        description: 'Authentication credentials for accessing the PoP. Examples may include those to support different authentication schemes, e.g. OAuth, Token, etc.'
+        items:
+          $ref: '#/definitions/KeyValuePair'
+      id:
+        type: string
+        example: 1234-abcd
+        description: Identifier of the PoP
+      interfaceEndpoint:
+        type: string
+        example: localhost
+        description: Information about the interface endpoint. An example is a URL.
+      interfaceInfo:
+        type: array
+        example: '[{&quot;key&quot;:&quot;type&quot;,&quot;value&quot;:&quot;docker&quot;}]'
+        description: 'Information about the interface(s) to the PoP, including PoP provider type, API version, and protocol type.'
+        items:
+          $ref: '#/definitions/KeyValuePair'
+      name:
+        type: string
+        example: testPoPName
+        description: Human-readable identifier of this PoP information element
+    description: This entity contains information about the Point-of-Presence (PoP)
+  VDU:
+    type: object
+    required:
+      - computeId
+      - imageName
+      - ip
+      - name
+      - netName
+      - poPName
+    properties:
+      computeId:
+        type: string
+        example: 1234-abcd
+      events:
+        type: array
+        items:
+          $ref: '#/definitions/Event'
+      id:
+        type: string
+        example: 1234-abcd
+      imageName:
+        type: string
+        example: testImage1
+      ip:
+        type: string
+        example: 172.0.0.1
+      metadata:
+        type: array
+        items:
+          $ref: '#/definitions/KeyValuePair'
+      name:
+        type: string
+        example: testVdu1
+      netName:
+        type: string
+        example: testNetworkName
+      poPName:
+        type: string
+      status:
+        type: string
+        enum:
+          - initializing
+          - initialized
+          - deploying
+          - deployed
+          - undeploying
+          - undeployed
+          - error
+    description: 'A Virtual Deployment Unit (VDU) describes the capabilities of virtualized computing (Containers, VMs) and networking resources.'
 
