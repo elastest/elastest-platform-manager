@@ -1,10 +1,14 @@
 package io.elastest.epm.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.validation.constraints.*;
 /** An event contains certain life cycle information of the VDU at a specific time. */
 @ApiModel(
@@ -14,7 +18,9 @@ import javax.validation.constraints.*;
   value = "io.swagger.codegen.languages.SpringCodegen",
   date = "2017-06-12T17:49:47.810+02:00"
 )
+@Entity
 public class Event {
+  @Id
   @JsonProperty("id")
   private String id = null;
 
@@ -27,6 +33,11 @@ public class Event {
   public Event id(String id) {
     this.id = id;
     return this;
+  }
+
+  @PrePersist
+  public void ensureId() {
+    id = IdGenerator.createUUID();
   }
 
   /**

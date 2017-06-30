@@ -3,11 +3,13 @@ package io.elastest.epm.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.*;
 import javax.validation.constraints.*;
 /**
  * A Virtual Deployment Unit (VDU) describes the capabilities of virtualized computing (Containers,
@@ -21,9 +23,14 @@ import javax.validation.constraints.*;
   value = "io.swagger.codegen.languages.SpringCodegen",
   date = "2017-06-12T17:49:47.810+02:00"
 )
+@Entity
 public class VDU {
+  @Id
   @JsonProperty("id")
   private String id = null;
+
+  @JsonProperty("computeId")
+  private String computeId = null;
 
   @JsonProperty("name")
   private String name = null;
@@ -34,11 +41,11 @@ public class VDU {
   @JsonProperty("ip")
   private String ip = null;
 
-  @JsonProperty("netId")
-  private String netId = null;
+  @JsonProperty("netName")
+  private String netName = null;
 
-  @JsonProperty("vimInfo")
-  private VimInfo vimInfo = null;
+  @JsonProperty("poPName")
+  private String poPName = null;
 
   /** Gets or Sets status */
   public enum StatusEnum {
@@ -82,15 +89,22 @@ public class VDU {
   @JsonProperty("status")
   private StatusEnum status = null;
 
+  @OneToMany(cascade = CascadeType.ALL)
   @JsonProperty("metadata")
   private List<KeyValuePair> metadata = new ArrayList<KeyValuePair>();
 
+  @OneToMany(cascade = CascadeType.ALL)
   @JsonProperty("events")
   private List<Event> events = new ArrayList<Event>();
 
   public VDU id(String id) {
     this.id = id;
     return this;
+  }
+
+  @PrePersist
+  public void ensureId() {
+    id = IdGenerator.createUUID();
   }
 
   /**
@@ -113,22 +127,22 @@ public class VDU {
   }
 
   /**
-   * Get name
+   * Get computeId
    *
-   * @return name
+   * @return computeId
    */
-  @ApiModelProperty(example = "testVdu1", required = true, value = "")
+  @ApiModelProperty(example = "1234-abcd", required = true, value = "")
   @NotNull
-  public String getName() {
-    return name;
+  public String getComputeId() {
+    return computeId;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setComputeId(String computeId) {
+    this.computeId = computeId;
   }
 
-  public VDU imageName(String imageName) {
-    this.imageName = imageName;
+  public VDU computeId(String computeId) {
+    this.computeId = computeId;
     return this;
   }
 
@@ -147,8 +161,8 @@ public class VDU {
     this.imageName = imageName;
   }
 
-  public VDU ip(String ip) {
-    this.ip = ip;
+  public VDU imageName(String imageName) {
+    this.imageName = imageName;
     return this;
   }
 
@@ -157,7 +171,8 @@ public class VDU {
    *
    * @return ip
    */
-  @ApiModelProperty(example = "127.0.0.1", value = "")
+  @ApiModelProperty(example = "172.0.0.1", required = true, value = "")
+  @NotNull
   public String getIp() {
     return ip;
   }
@@ -166,44 +181,59 @@ public class VDU {
     this.ip = ip;
   }
 
-  public VDU netId(String netId) {
-    this.netId = netId;
+  public VDU ip(String ip) {
+    this.ip = ip;
     return this;
   }
 
   /**
-   * Get netId
+   * Get name
    *
-   * @return netId
+   * @return name
    */
-  @ApiModelProperty(example = "1234-abcd", required = true, value = "")
+  @ApiModelProperty(example = "testVdu1", required = true, value = "")
   @NotNull
-  public String getNetId() {
-    return netId;
+  public String getName() {
+    return name;
   }
 
-  public void setNetId(String netId) {
-    this.netId = netId;
+  public void setName(String name) {
+    this.name = name;
   }
 
-  public VDU vimInfo(VimInfo vimInfo) {
-    this.vimInfo = vimInfo;
+  /**
+   * Get netName
+   *
+   * @return netName
+   */
+  @ApiModelProperty(example = "testNetworkName", required = true, value = "")
+  @NotNull
+  public String getNetName() {
+    return netName;
+  }
+
+  public void setNetName(String netName) {
+    this.netName = netName;
+  }
+
+  public VDU poPName(String poPName) {
+    this.poPName = poPName;
     return this;
   }
 
   /**
-   * Get vimInfo
+   * Get poPName
    *
-   * @return vimInfo
+   * @return poPName
    */
   @ApiModelProperty(required = true, value = "")
   @NotNull
-  public VimInfo getVimInfo() {
-    return vimInfo;
+  public String getPoPName() {
+    return poPName;
   }
 
-  public void setVimInfo(VimInfo vimInfo) {
-    this.vimInfo = vimInfo;
+  public void setPoPName(String poPName) {
+    this.poPName = poPName;
   }
 
   public VDU status(StatusEnum status) {
@@ -286,8 +316,8 @@ public class VDU {
         && Objects.equals(this.name, VDU.name)
         && Objects.equals(this.imageName, VDU.imageName)
         && Objects.equals(this.ip, VDU.ip)
-        && Objects.equals(this.netId, VDU.netId)
-        && Objects.equals(this.vimInfo, VDU.vimInfo)
+        && Objects.equals(this.netName, VDU.netName)
+        && Objects.equals(this.poPName, VDU.poPName)
         && Objects.equals(this.status, VDU.status)
         && Objects.equals(this.metadata, VDU.metadata)
         && Objects.equals(this.events, VDU.events);
@@ -295,7 +325,7 @@ public class VDU {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, imageName, ip, netId, vimInfo, status, metadata, events);
+    return Objects.hash(id, name, imageName, ip, netName, poPName, status, metadata, events);
   }
 
   @Override
@@ -307,8 +337,8 @@ public class VDU {
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    imageName: ").append(toIndentedString(imageName)).append("\n");
     sb.append("    ip: ").append(toIndentedString(ip)).append("\n");
-    sb.append("    netId: ").append(toIndentedString(netId)).append("\n");
-    sb.append("    vimInfo: ").append(toIndentedString(vimInfo)).append("\n");
+    sb.append("    netName: ").append(toIndentedString(netName)).append("\n");
+    sb.append("    poPName: ").append(toIndentedString(poPName)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
     sb.append("    events: ").append(toIndentedString(events)).append("\n");

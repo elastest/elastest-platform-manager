@@ -1,9 +1,13 @@
 package io.elastest.epm.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.validation.constraints.*;
 /** This entity is a Key-Value pair for storing metadata contained in other entities */
 @ApiModel(
@@ -13,7 +17,9 @@ import javax.validation.constraints.*;
   value = "io.swagger.codegen.languages.SpringCodegen",
   date = "2017-06-12T17:49:47.810+02:00"
 )
+@Entity
 public class KeyValuePair {
+  @Id
   @JsonProperty("id")
   private String id = null;
 
@@ -23,9 +29,21 @@ public class KeyValuePair {
   @JsonProperty("value")
   private String value = null;
 
+  public KeyValuePair() {}
+
+  public KeyValuePair(String key, String value) {
+    this.key = key;
+    this.value = value;
+  }
+
   public KeyValuePair id(String id) {
     this.id = id;
     return this;
+  }
+
+  @PrePersist
+  public void ensureId() {
+    id = IdGenerator.createUUID();
   }
 
   /**

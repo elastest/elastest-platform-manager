@@ -1,48 +1,57 @@
 package io.elastest.epm.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.*;
 import javax.validation.constraints.*;
-/** This entity contains information about the Virtualised Infrastructure Manager (VIM) */
-@ApiModel(
-  description =
-      "This entity contains information about the Virtualised Infrastructure Manager (VIM)"
-)
+/** This entity contains information about the Point-of-Presence (PoP) */
+@ApiModel(description = "This entity contains information about the Point-of-Presence (PoP)")
 @javax.annotation.Generated(
   value = "io.swagger.codegen.languages.SpringCodegen",
   date = "2017-06-12T17:49:47.810+02:00"
 )
-public class VimInfo {
+@Entity
+public class PoP {
+  @Id
   @JsonProperty("id")
   private String id = null;
 
+  @Column(unique = true)
   @JsonProperty("name")
   private String name = null;
 
+  @OneToMany(cascade = CascadeType.ALL)
   @JsonProperty("interfaceInfo")
   private List<KeyValuePair> interfaceInfo = new ArrayList<KeyValuePair>();
 
+  @OneToMany(cascade = CascadeType.ALL)
   @JsonProperty("accessInfo")
   private List<KeyValuePair> accessInfo = new ArrayList<KeyValuePair>();
 
   @JsonProperty("interfaceEndpoint")
   private String interfaceEndpoint = null;
 
-  public VimInfo id(String id) {
+  public PoP id(String id) {
     this.id = id;
     return this;
   }
 
+  @PrePersist
+  public void ensureId() {
+    id = IdGenerator.createUUID();
+  }
+
   /**
-   * Identifier of the VIM
+   * Identifier of the PoP
    *
    * @return id
    */
-  @ApiModelProperty(example = "1234-abcd", value = "Identifier of the VIM")
+  @ApiModelProperty(example = "1234-abcd", value = "Identifier of the PoP")
   public String getId() {
     return id;
   }
@@ -51,20 +60,20 @@ public class VimInfo {
     this.id = id;
   }
 
-  public VimInfo name(String name) {
+  public PoP name(String name) {
     this.name = name;
     return this;
   }
 
   /**
-   * Human-readable identifier of this VimInfo information element
+   * Human-readable identifier of this PoP information element
    *
    * @return name
    */
   @ApiModelProperty(
-    example = "testVimName",
+    example = "testPoPName",
     required = true,
-    value = "Human-readable identifier of this VimInfo information element"
+    value = "Human-readable identifier of this PoP information element"
   )
   @NotNull
   public String getName() {
@@ -75,18 +84,18 @@ public class VimInfo {
     this.name = name;
   }
 
-  public VimInfo interfaceInfo(List<KeyValuePair> interfaceInfo) {
+  public PoP interfaceInfo(List<KeyValuePair> interfaceInfo) {
     this.interfaceInfo = interfaceInfo;
     return this;
   }
 
-  public VimInfo addInterfaceInfoItem(KeyValuePair interfaceInfoItem) {
+  public PoP addInterfaceInfoItem(KeyValuePair interfaceInfoItem) {
     this.interfaceInfo.add(interfaceInfoItem);
     return this;
   }
 
   /**
-   * Information about the interface(s) to the VIM, including VIM provider type, API version, and
+   * Information about the interface(s) to the PoP, including PoP provider type, API version, and
    * protocol type.
    *
    * @return interfaceInfo
@@ -95,7 +104,7 @@ public class VimInfo {
     example = "[{&quot;key&quot;:&quot;type&quot;,&quot;value&quot;:&quot;docker&quot;}]",
     required = true,
     value =
-        "Information about the interface(s) to the VIM, including VIM provider type, API version, and protocol type."
+        "Information about the interface(s) to the PoP, including PoP provider type, API version, and protocol type."
   )
   @NotNull
   public List<KeyValuePair> getInterfaceInfo() {
@@ -106,18 +115,18 @@ public class VimInfo {
     this.interfaceInfo = interfaceInfo;
   }
 
-  public VimInfo accessInfo(List<KeyValuePair> accessInfo) {
+  public PoP accessInfo(List<KeyValuePair> accessInfo) {
     this.accessInfo = accessInfo;
     return this;
   }
 
-  public VimInfo addAccessInfoItem(KeyValuePair accessInfoItem) {
+  public PoP addAccessInfoItem(KeyValuePair accessInfoItem) {
     this.accessInfo.add(accessInfoItem);
     return this;
   }
 
   /**
-   * Authentication credentials for accessing the VIM. Examples may include those to support
+   * Authentication credentials for accessing the PoP. Examples may include those to support
    * different authentication schemes, e.g. OAuth, Token, etc.
    *
    * @return accessInfo
@@ -125,7 +134,7 @@ public class VimInfo {
   @ApiModelProperty(
     required = true,
     value =
-        "Authentication credentials for accessing the VIM. Examples may include those to support different authentication schemes, e.g. OAuth, Token, etc."
+        "Authentication credentials for accessing the PoP. Examples may include those to support different authentication schemes, e.g. OAuth, Token, etc."
   )
   @NotNull
   public List<KeyValuePair> getAccessInfo() {
@@ -136,7 +145,7 @@ public class VimInfo {
     this.accessInfo = accessInfo;
   }
 
-  public VimInfo interfaceEndpoint(String interfaceEndpoint) {
+  public PoP interfaceEndpoint(String interfaceEndpoint) {
     this.interfaceEndpoint = interfaceEndpoint;
     return this;
   }
@@ -168,12 +177,12 @@ public class VimInfo {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    VimInfo vimInfo = (VimInfo) o;
-    return Objects.equals(this.id, vimInfo.id)
-        && Objects.equals(this.name, vimInfo.name)
-        && Objects.equals(this.interfaceInfo, vimInfo.interfaceInfo)
-        && Objects.equals(this.accessInfo, vimInfo.accessInfo)
-        && Objects.equals(this.interfaceEndpoint, vimInfo.interfaceEndpoint);
+    PoP poP = (PoP) o;
+    return Objects.equals(this.id, poP.id)
+        && Objects.equals(this.name, poP.name)
+        && Objects.equals(this.interfaceInfo, poP.interfaceInfo)
+        && Objects.equals(this.accessInfo, poP.accessInfo)
+        && Objects.equals(this.interfaceEndpoint, poP.interfaceEndpoint);
   }
 
   @Override
@@ -184,7 +193,7 @@ public class VimInfo {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class VimInfo {\n");
+    sb.append("class PoP {\n");
 
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
