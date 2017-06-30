@@ -23,7 +23,7 @@ public class SwaggerDocumentationConfig {
         .license("Apache 2.0")
         .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
         .termsOfServiceUrl("")
-        .version("1.0.0")
+        .version("0.1.1")
         .contact(new Contact("", "", ""))
         .build();
   }
