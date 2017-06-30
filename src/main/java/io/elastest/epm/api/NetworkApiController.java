@@ -1,9 +1,13 @@
 package io.elastest.epm.api;
 
+import io.elastest.epm.core.NetworkManagement;
+import io.elastest.epm.exception.BadRequestException;
+import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Network;
+import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.swagger.annotations.ApiParam;
 import java.util.List;
-import javax.validation.constraints.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,32 +21,40 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Controller
 public class NetworkApiController implements NetworkApi {
 
+  @Autowired private NetworkManagement networkManagement;
+
   public ResponseEntity<Network> createNetwork(
       @ApiParam(
-            value = "Defintion of a VDU which defines resources that have to be deployed",
+            value = "Defintion of a Network which has to be created on a certain PoP",
             required = true
           )
           @RequestBody
-          Network body) {
+          Network body)
+      throws AdapterException, BadRequestException, NotFoundException {
     // do some magic!
-    return new ResponseEntity<Network>(HttpStatus.OK);
+    Network network = networkManagement.createNetwork(body);
+    return new ResponseEntity<Network>(network, HttpStatus.OK);
   }
 
   public ResponseEntity<String> deleteNetwork(
-      @ApiParam(value = "ID of Network", required = true) @PathVariable("id") String id) {
+      @ApiParam(value = "ID of Network", required = true) @PathVariable("id") String id)
+      throws AdapterException {
     // do some magic!
+    networkManagement.deleteNetwork(id);
     return new ResponseEntity<String>(HttpStatus.OK);
   }
 
   public ResponseEntity<List<Network>> getAllNetworks() {
     // do some magic!
-    return new ResponseEntity<List<Network>>(HttpStatus.OK);
+    List<Network> allNetworks = networkManagement.getAllNetworks();
+    return new ResponseEntity<List<Network>>(allNetworks, HttpStatus.OK);
   }
 
   public ResponseEntity<Network> getNetworkById(
       @ApiParam(value = "ID of Network", required = true) @PathVariable("id") String id) {
     // do some magic!
-    return new ResponseEntity<Network>(HttpStatus.OK);
+    Network network = networkManagement.getNetworkById(id);
+    return new ResponseEntity<Network>(network, HttpStatus.OK);
   }
 
   public ResponseEntity<Network> updateNetwork(
@@ -50,6 +62,7 @@ public class NetworkApiController implements NetworkApi {
       @ApiParam(value = "Network that needs to be updated.", required = true) @RequestBody
           Network body) {
     // do some magic!
-    return new ResponseEntity<Network>(HttpStatus.OK);
+    Network network = networkManagement.updateNetwork(id, body);
+    return new ResponseEntity<Network>(network, HttpStatus.OK);
   }
 }

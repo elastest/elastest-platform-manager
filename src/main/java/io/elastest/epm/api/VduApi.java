@@ -1,9 +1,12 @@
 package io.elastest.epm.api;
 
+import io.elastest.epm.exception.AllocationException;
+import io.elastest.epm.exception.NotFoundException;
+import io.elastest.epm.exception.TerminationException;
 import io.elastest.epm.model.VDU;
+import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.swagger.annotations.*;
 import java.util.List;
-import javax.validation.constraints.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,13 +38,14 @@ public interface VduApi {
   )
   @RequestMapping(value = "/vdu/{id}", method = RequestMethod.DELETE)
   default ResponseEntity<String> deleteVdu(
-      @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id) {
+      @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id)
+      throws AdapterException, TerminationException, NotFoundException {
     // do some magic!
     return new ResponseEntity<String>(HttpStatus.OK);
   }
 
   @ApiOperation(
-    value = "Allocates resources in the cloud",
+    value = "Allocates resources in the target cloud.",
     notes =
         "Allocates resources defined as a VDU in the cloud to be deployed in the target cloud environment. It instantiates computing resources, deploys artifacts on them and manages the their lifecycle",
     response = VDU.class,
@@ -67,7 +71,8 @@ public interface VduApi {
             required = true
           )
           @RequestBody
-          VDU body) {
+          VDU body)
+      throws AdapterException, AllocationException, NotFoundException {
     // do some magic!
     return new ResponseEntity<VDU>(HttpStatus.OK);
   }

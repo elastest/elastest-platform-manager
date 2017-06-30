@@ -1,9 +1,13 @@
 package io.elastest.epm.api;
 
+import io.elastest.epm.core.VduManagement;
+import io.elastest.epm.exception.AllocationException;
+import io.elastest.epm.exception.NotFoundException;
+import io.elastest.epm.exception.TerminationException;
 import io.elastest.epm.model.VDU;
 import io.swagger.annotations.ApiParam;
 import java.util.List;
-import javax.validation.constraints.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,10 +21,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Controller
 public class VduApiController implements VduApi {
 
+  @Autowired private VduManagement vduManagement;
+
   public ResponseEntity<String> deleteVdu(
-      @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id) {
+      @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id)
+      throws TerminationException, NotFoundException {
     // do some magic!
-    return new ResponseEntity<String>(HttpStatus.OK);
+    vduManagement.terminateVdu(id);
+    return new ResponseEntity<String>("VDU terminated successfully", HttpStatus.OK);
   }
 
   public ResponseEntity<VDU> deployVdu(
@@ -29,14 +37,17 @@ public class VduApiController implements VduApi {
             required = true
           )
           @RequestBody
-          VDU body) {
+          VDU body)
+      throws AllocationException, NotFoundException {
     // do some magic!
-    return new ResponseEntity<VDU>(HttpStatus.OK);
+    VDU vdu = vduManagement.deployVdu(body);
+    return new ResponseEntity<VDU>(vdu, HttpStatus.OK);
   }
 
   public ResponseEntity<List<VDU>> getAllVdus() {
     // do some magic!
-    return new ResponseEntity<List<VDU>>(HttpStatus.OK);
+    List<VDU> allVdus = vduManagement.getAllVdus();
+    return new ResponseEntity<List<VDU>>(allVdus, HttpStatus.OK);
   }
 
   public ResponseEntity<VDU> getVduById(

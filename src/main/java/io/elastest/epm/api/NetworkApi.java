@@ -1,9 +1,11 @@
 package io.elastest.epm.api;
 
+import io.elastest.epm.exception.BadRequestException;
+import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Network;
+import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.swagger.annotations.*;
 import java.util.List;
-import javax.validation.constraints.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,8 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface NetworkApi {
 
   @ApiOperation(
-    value = "Creates a new network",
-    notes = "Creates a new network in the target cloud environment with the given IP range",
+    value = "Creates a new network.",
+    notes = "Creates a new network in the target cloud environment with the given CIDR.",
     response = Network.class,
     tags = {
       "Network",
@@ -40,11 +42,12 @@ public interface NetworkApi {
   )
   default ResponseEntity<Network> createNetwork(
       @ApiParam(
-            value = "Defintion of a VDU which defines resources that have to be deployed",
+            value = "Defintion of a VDU which defines resources that have to be deployed.",
             required = true
           )
           @RequestBody
-          Network body) {
+          Network body)
+      throws AdapterException, BadRequestException, NotFoundException {
     // do some magic!
     return new ResponseEntity<Network>(HttpStatus.OK);
   }
@@ -66,7 +69,8 @@ public interface NetworkApi {
   )
   @RequestMapping(value = "/network/{id}", method = RequestMethod.DELETE)
   default ResponseEntity<String> deleteNetwork(
-      @ApiParam(value = "ID of Network", required = true) @PathVariable("id") String id) {
+      @ApiParam(value = "ID of Network", required = true) @PathVariable("id") String id)
+      throws AdapterException {
     // do some magic!
     return new ResponseEntity<String>(HttpStatus.OK);
   }
