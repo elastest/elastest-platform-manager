@@ -10,33 +10,34 @@ node('docker'){
         git 'https://github.com/elastest/elastest-platform-manager'
 
         stage "Unit tests"
-        echo ("Starting unit tests...")
-        echo ("No tests yet")
+            echo ("Starting unit tests...")
+            echo ("No tests yet")
 
         stage "Package"
-        echo ("Compiling EPM ...")
-        sh './gradlew build -x test'
+            echo ("Compiling EPM ...")
+            sh './gradlew build -x test'
 
         stage "Build image - Package"
-        echo ("building...")
-        sh 'cp build/libs/elastest-platform-manager-*.jar docker/elastest-platform-manager/epm.jar'
-        def myimage = docker.build "elastest/elastest-platform-manager"
+            echo ("Building docker image...")
+            sh 'cp build/libs/elastest-platform-manager-*.jar docker/elastest-platform-manager/epm.jar'
+            sh 'cd docker/elastest-platform-manager'
+            def myimage = docker.build "elastest/elastest-platform-manager"
 
         stage "Run image"
-        echo "Run the image..."
-        myimage.run()
+            echo "Run the image..."
+            myimage.run()
 
         stage "Integration tests"
-        echo ("Starting integration tests...")
-        echo ("No tests yet")
+            echo ("Starting integration tests...")
+            echo ("No tests yet")
 
         stage "Publish"
-        echo ("Publishing as all tests succeeded...")
-        //this is work arround as withDockerRegistry is not working properly
-        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
-                          usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-            sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
-            myimage.push()
+            echo ("Publishing as all tests succeeded...")
+            //this is work arround as withDockerRegistry is not working properly
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                              usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                myimage.push()
         }
     }
 }
