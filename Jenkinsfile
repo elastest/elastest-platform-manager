@@ -13,8 +13,13 @@ node('docker'){
         echo ("Starting unit tests...")
         echo ("No tests yet")
 
+        stage "Package"
+        echo ("Compiling EPM ...")
+        sh './gradlew build -x test'
+
         stage "Build image - Package"
         echo ("building...")
+        sh 'cp build/libs/elastest-platform-manager-*.jar docker/elastest-platform-manager/epm.jar'
         def myimage = docker.build "elastest/elastest-platform-manager"
 
         stage "Run image"
