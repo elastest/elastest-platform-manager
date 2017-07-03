@@ -14,7 +14,7 @@ node('docker'){
         echo ("No tests yet")
 
         stage "Build image - Package"
-        echo ("building...
+        echo ("building...")
         def myimage = docker.build "elastest/elastest-platform-manager"
 
         stage "Run image"
