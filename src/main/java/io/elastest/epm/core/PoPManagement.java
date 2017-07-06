@@ -81,6 +81,7 @@ public class PoPManagement {
         dockerAdapter.queryVirtualisedNetworkResource(queryNetworkRequest, poP);
     List<Network> networks = new ArrayList<>();
     for (VirtualNetwork virtualNetwork : queryNetworkResponse.getQueryResult()) {
+      log.debug("Translate VirtualNetwork: " + virtualNetwork);
       Network network = new Network();
       network.setName(virtualNetwork.getNetworkResourceName());
       network.setNetworkId(virtualNetwork.getNetworkResourceId());

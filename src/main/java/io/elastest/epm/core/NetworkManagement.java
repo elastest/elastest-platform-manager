@@ -51,8 +51,8 @@ public class NetworkManagement {
     }
     PoP poP = poPRepository.findOneByName(network.getPoPName());
     if (poP == null) {
-      log.error("Not found PoP " + network.getName());
-      throw new NotFoundException("Not found PoP " + network.getName());
+      log.error("Not found PoP " + network.getPoPName());
+      throw new NotFoundException("Not found PoP " + network.getPoPName());
     }
     AllocateNetworkRequest allocateNetworkRequest = new AllocateNetworkRequest();
     allocateNetworkRequest.setNetworkResourceType(NetworkResourceType.NETWORK);

@@ -107,6 +107,7 @@ public class VduManagement {
                 : new ArrayList<KeyValuePair>());
     for (VirtualNetworkInterface virtualNetworkInterface :
         updateComputeResponse.getComputeData().getVirtualNetworkInterface()) {
+      log.debug("VirtualNetworkInterface: " + virtualNetworkInterface);
       for (IpAddress ipAddress : virtualNetworkInterface.getIpAddress()) {
         vdu.setIp(ipAddress.getAddress());
       }
