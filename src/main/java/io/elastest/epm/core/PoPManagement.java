@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.Network;
 import io.elastest.epm.model.PoP;
-import io.elastest.epm.pop.adapter.DockerAdapter;
+import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.messages.network.QueryNetworkRequest;
 import io.elastest.epm.pop.messages.network.QueryNetworkResponse;
