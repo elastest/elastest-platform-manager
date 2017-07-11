@@ -11,7 +11,7 @@ node('docker'){
 
         stage "Unit tests"
             echo ("Starting unit tests...")
-            echo ("No tests yet")
+            sh './gradlew test'
 
         stage "Package"
             echo ("Compiling EPM ...")
@@ -28,7 +28,7 @@ node('docker'){
 
         stage "Integration tests"
             echo ("Starting integration tests...")
-            echo ("No tests yet")
+            echo ("No integration tests yet")
 
         stage "Publish"
             echo ("Publishing as all tests succeeded...")
