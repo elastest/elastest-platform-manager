@@ -1,13 +1,35 @@
-package io.elastest.epm.core;
+/*
+ *
+ *  * (C) Copyright 2016 NUBOMEDIA (http://www.nubomedia.eu)
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *   http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *  *
+ *
+ */
+
+package io.elastest.unit.core;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+import io.elastest.epm.core.NetworkManagement;
+import io.elastest.epm.core.PoPManagement;
+import io.elastest.epm.core.VduManagement;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.Network;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.VDU;
-import io.elastest.epm.pop.adapter.DockerAdapter;
+import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.messages.compute.AllocateComputeRequest;
 import io.elastest.epm.pop.messages.compute.AllocateComputeResponse;
@@ -26,6 +48,7 @@ import io.elastest.epm.pop.model.network.VirtualNetworkInterface;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.VduRepository;
+import io.elastest.unit.MockedConfig;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -48,11 +71,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @Profile("test")
 @RunWith(SpringJUnit4ClassRunner.class)
 @Configuration
-@ContextConfiguration(classes = CoreTest.class)
+@ContextConfiguration(classes = {CoreTest.class, MockedConfig.class})
 public class CoreTest {
 
   private final Logger log = LoggerFactory.getLogger(CoreTest.class);
   @Autowired private ConfigurableApplicationContext context;
+
+  @Autowired Network network;
+  @Autowired PoP pop;
+  @Autowired VDU vdu;
 
   @Before
   public void init() {
@@ -81,55 +108,22 @@ public class CoreTest {
   }
 
   @Bean
-  Network network() {
-    Network network = new Network();
-    network.setId("mocked_id");
-    network.setName("mocked_network_name");
-    network.setCidr("mocked_cidr");
-    network.setNetworkId("mocked_net_id");
-    network.setPoPName("mocked_pop_name");
-    return network;
-  }
-
-  @Bean
   List<Network> networks() {
     List<Network> networks = new ArrayList<>();
-    networks.add(network());
+    networks.add(network);
     return networks;
-  }
-
-  @Bean
-  PoP pop() {
-    PoP pop = new PoP();
-    pop.setId("mocked_id");
-    pop.setName("mocked_pop_name");
-    pop.setInterfaceEndpoint("mocked_url");
-    return pop;
-  }
-
-  @Bean
-  VDU vdu() {
-    VDU vdu = new VDU();
-    vdu.setId("mocked_id");
-    vdu.setName("mocked_name");
-    vdu.setComputeId("mocked_compute_id");
-    vdu.setNetName("mocked_network_name");
-    vdu.setImageName("mocked_image_name");
-    vdu.setPoPName("mocked_pop_name");
-    return vdu;
   }
 
   @Bean
   NetworkRepository networkRepository() {
     NetworkRepository networkRepository = mock(NetworkRepository.class);
-    Network network = network();
 
     //    List<Network> networks = new ArrayList<>();
     //    networks.add(network);
 
-    when(networkRepository.findOneByName(network().getName())).thenReturn(network);
+    when(networkRepository.findOneByName(network.getName())).thenReturn(network);
     when(networkRepository.save(network)).thenReturn(network);
-    when(networkRepository.findByName(network().getName())).thenReturn(networks());
+    when(networkRepository.findByName(network.getName())).thenReturn(networks());
     when(networkRepository.findAll()).thenReturn(networks());
     when(networkRepository.findOne(network.getId())).thenReturn(network);
     doNothing().when(networkRepository).delete(network.getId());
@@ -139,12 +133,11 @@ public class CoreTest {
   @Bean
   PoPRepository poPRepository() {
     PoPRepository poPRepository = mock(PoPRepository.class);
-    PoP pop = pop();
 
     List<PoP> pops = new ArrayList<>();
     pops.add(pop);
 
-    when(poPRepository.findOneByName(pop().getName())).thenReturn(pop);
+    when(poPRepository.findOneByName(pop.getName())).thenReturn(pop);
     when(poPRepository.save(pop)).thenReturn(pop);
     when(poPRepository.findAll()).thenReturn(pops);
     when(poPRepository.findOne(pop.getId())).thenReturn(pop);
@@ -156,7 +149,6 @@ public class CoreTest {
   @Bean
   VduRepository vduRepository() {
     VduRepository vduRepository = mock(VduRepository.class);
-    VDU vdu = vdu();
 
     List<VDU> vdus = new ArrayList<>();
     vdus.add(vdu);
@@ -170,7 +162,6 @@ public class CoreTest {
 
   @Bean
   VirtualNetwork virtualNetwork() {
-    Network network = network();
     VirtualNetwork virtualNetwork = new VirtualNetwork();
     virtualNetwork.setOperationalState(OperationalState.enabled);
 
@@ -215,13 +206,13 @@ public class CoreTest {
         .thenReturn(allocateNetworkResponse);
 
     VirtualCompute virtualCompute = new VirtualCompute();
-    virtualCompute.setComputeId(vdu().getComputeId());
-    virtualCompute.setComputeName(vdu().getName());
-    virtualCompute.setVcImageId(vdu().getImageName());
+    virtualCompute.setComputeId(vdu.getComputeId());
+    virtualCompute.setComputeName(vdu.getName());
+    virtualCompute.setVcImageId(vdu.getImageName());
 
     Set<VirtualNetworkInterface> virtualNetworkInterfaces = new HashSet<>();
     VirtualNetworkInterface virtualNetworkInterface = new VirtualNetworkInterface();
-    virtualNetworkInterface.setNetworkId(network().getNetworkId());
+    virtualNetworkInterface.setNetworkId(network.getNetworkId());
     Set<IpAddress> ipAddresses = new HashSet<>();
     IpAddress ipAddress = new IpAddress();
     ipAddress.setAddress("mocked_ip_address");
