@@ -80,6 +80,13 @@ dependencies {
     // https://mvnrepository.com/artifact/junit/junit
     testCompile group: 'junit', name: 'junit', version: '4.12'
 
+    // https://mvnrepository.com/artifact/org.powermock/powermock-mockito-release-full
+    testCompile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.4'
+
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.4.RELEASE'
+
+
 }
 bootRepackage {
     mainClass = 'io.elastest.epm.main.Application'
