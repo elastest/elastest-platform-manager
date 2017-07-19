@@ -1,6 +1,12 @@
 {
-  "name": "testContainer9",
+  "name": "testContainer",
   "imageName": "ubuntu",
   "netName": "testNetwork123",
-  "poPName": "docker-local"
+  "poPName": "docker-local",
+  "metadata": [
+    {
+      "key": "LOGSTASH_ADDRESS",
+      "value": "tcp://localhost:5000"
+    }
+  ]
 }
