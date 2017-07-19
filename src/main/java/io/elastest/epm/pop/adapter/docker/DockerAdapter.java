@@ -3,10 +3,12 @@ package io.elastest.epm.pop.adapter.docker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.CreateNetworkResponse;
+import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.command.PullImageResultCallback;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
@@ -32,26 +34,12 @@ public class DockerAdapter
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
   private DockerClient getDockerClient(PoP poP) throws AdapterException {
-    //      String username = null;
-    //      String password = null;
-    //      for (KeyValuePair keyValue : poP.getAccessInfo()) {
-    //        if (keyValue.getKey().equals("username")) {
-    //          username = keyValue.getValue();
-    //        } else if (keyValue.getKey().equals("password")) {
-    //          password = keyValue.getValue();
-    //        }
-    //      }
-    //if (username.isEmpty() || password.isEmpty()) {
-    //  throw new AdapterException(400, "Not found username/password");
-    //}
-    //        DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerHost(poP.getInterfaceEndpoint()).withRegistryUsername(username).withRegistryPassword(password).build();
     log.debug("Preparing docker client for: " + poP);
     DockerClientConfig dockerClientConfig =
         DefaultDockerClientConfig.createDefaultConfigBuilder()
             .withDockerHost(poP.getInterfaceEndpoint())
             .build();
     DockerClient client = DockerClientBuilder.getInstance(dockerClientConfig).build();
-    //    DockerClient client = DockerClientBuilder.getInstance().build();
     return client;
   }
 
@@ -60,52 +48,19 @@ public class DockerAdapter
       AllocateComputeRequest allocateComputeRequest, PoP poP) throws AdapterException {
     log.info("Allocating container " + allocateComputeRequest.getComputeName());
     DockerClient dockerClient = getDockerClient(poP);
-    log.debug("Check if image " + allocateComputeRequest.getVcImageId() + " exists");
-    List<Image> availableImages = dockerClient.listImagesCmd().exec();
-    boolean imageExists = false;
-    for (Image availableImage : availableImages) {
-      log.debug("Image under consideration " + availableImage);
-      if (availableImage.getId().equals(allocateComputeRequest.getVcImageId())) {
-        log.debug("Found image " + availableImage);
-        imageExists = true;
-        break;
-      }
-      for (String tag : availableImage.getRepoTags()) {
-        if (tag.equals(allocateComputeRequest.getVcImageId())
-            || tag.equals(allocateComputeRequest.getVcImageId() + ":latest")) {
-          log.debug("Found image " + availableImage);
-          imageExists = true;
-        }
-        break;
-      }
-    }
-    if (!imageExists) {
-      log.error("Not Found image " + allocateComputeRequest.getVcImageId());
-      throw new AdapterException("Not found image " + allocateComputeRequest.getVcImageId());
-    }
+
     String containerName = allocateComputeRequest.getComputeName();
-    LogConfig logConfig = new LogConfig();
-    //logConfig.setType(LogConfig.LoggingType.GELF);
-    logConfig.setType(
-        LogConfig.LoggingType.valueOf(
-            getMetadataValueOfKey(
-                allocateComputeRequest.getMetaData(), "LOGSTASH_LOGGING_TYPE", "SYSLOG")));
-    HashMap logConfigMap = new HashMap();
-    //logConfigMap.put("gelf-address", "udp://10.147.66.246:5000");
-    logConfigMap.put(
-        "syslog-address",
-        getMetadataValueOfKey(
-            allocateComputeRequest.getMetaData(), "LOGSTASH_ADDRESS", "tcp://localhost:5000"));
-    logConfigMap.put("tag", containerName);
-    logConfig.setConfig(logConfigMap);
-    String imageName = allocateComputeRequest.getVcImageId();
-    //Link link = new Link("logstash-server", "logstash");
+    String imageId = allocateComputeRequest.getVcImageId();
+    if (!imageExists(poP, imageId)) {
+      log.info("Not found image " + imageId + ". Try to pull...");
+      pullImage(poP, imageId);
+    }
+    LogConfig logConfig = getLogConfig(containerName, allocateComputeRequest.getMetaData());
     CreateContainerResponse createdContainer =
-        //dockerClient.createContainerCmd(imageName).withName(containerName).withLogConfig(logConfig).withLinks(link).withNetworkMode("services_elastest").exec();
         dockerClient
-            .createContainerCmd(imageName)
+            .createContainerCmd(imageId)
             .withName(containerName)
-            //                        .withLogConfig(logConfig)
+            .withLogConfig(logConfig)
             .withNetworkDisabled(true)
             .exec();
     dockerClient.startContainerCmd(createdContainer.getId()).exec();
@@ -119,8 +74,64 @@ public class DockerAdapter
     AllocateComputeResponse allocateComputeResponse = new AllocateComputeResponse();
     allocateComputeResponse.setComputeData(translateContainerToVirtualCompute(deployedContainer));
     log.info("Allocated container " + allocateComputeResponse);
-
     return allocateComputeResponse;
+  }
+
+  private LogConfig getLogConfig(String containerName, List<KeyValuePair> metadata) {
+    log.info("Creating Log config for " + containerName + ": " + metadata);
+    LogConfig logConfig = new LogConfig();
+    logConfig.setType(
+        LogConfig.LoggingType.valueOf(
+            getMetadataValueOfKey(metadata, "LOGSTASH_LOGGING_TYPE", "SYSLOG")));
+    HashMap logConfigMap = new HashMap();
+    logConfigMap.put(
+        "syslog-address",
+        getMetadataValueOfKey(metadata, "LOGSTASH_ADDRESS", "tcp://localhost:5000"));
+    logConfigMap.put("tag", containerName);
+    logConfig.setConfig(logConfigMap);
+    log.info("Created Log config for " + containerName + ": " + logConfig);
+    return logConfig;
+  }
+
+  private boolean imageExists(PoP poP, String vcImageId) throws AdapterException {
+    log.debug("Checking if image " + vcImageId + " exists");
+    boolean imageExists = false;
+    DockerClient dockerClient = getDockerClient(poP);
+    List<Image> availableImages = dockerClient.listImagesCmd().exec();
+    for (Image availableImage : availableImages) {
+      log.debug("Image under consideration " + availableImage);
+      if (availableImage.getId().equals(vcImageId)) {
+        log.debug("Found image " + availableImage);
+        imageExists = true;
+        break;
+      }
+      if (availableImage.getRepoTags() != null) {
+        for (String tag : availableImage.getRepoTags()) {
+          if (tag.equals(vcImageId) || tag.equals(vcImageId + ":latest")) {
+            log.debug("Found image " + availableImage);
+            imageExists = true;
+            break;
+          }
+        }
+      }
+      if (imageExists) {
+        break;
+      }
+    }
+    return imageExists;
+  }
+
+  private void pullImage(PoP poP, String vcImageId) throws AdapterException {
+    log.info("Pull image " + vcImageId);
+    DockerClient dockerClient = getDockerClient(poP);
+    try {
+      PullImageCmd pullImageCmd = dockerClient.pullImageCmd(vcImageId);
+      pullImageCmd.exec(new PullImageResultCallback()).awaitSuccess();
+    } catch (Exception e) {
+      log.error("Not Found image " + vcImageId + " -> " + e.getMessage());
+      throw new AdapterException("Not found image " + vcImageId + " -> " + e.getMessage());
+    }
+    log.info("Pulled image " + vcImageId);
   }
 
   @Override
@@ -384,113 +395,4 @@ public class DockerAdapter
     }
     return value;
   }
-
-  //  public static void main(String[] args) throws AdapterException {
-  //    PoP poP = new PoP();
-  //    //    poP.setInterfaceEndpoint("tcp://localhost:2376");
-  //    poP.setInterfaceEndpoint("unix:///var/run/docker.sock");
-  //
-  //    DockerAdapter dockerAdapter = new DockerAdapter();
-  //    DockerClient dockerClient = dockerAdapter.getDockerClient(poP);
-  //    ListImagesCmd listImagesCmd = dockerClient.listImagesCmd();
-  //    for (Image image : listImagesCmd.exec()) {
-  //      for (String tag : image.getRepoTags()) {
-  //        System.out.println(tag);
-  //      }
-  //    }
-  //    for (Container container : dockerClient.listContainersCmd().withShowAll(true).exec()) {
-  //      System.out.println(container.toString());
-  //    }
-  //
-  //    AllocateComputeRequest allocateComputeRequest = new AllocateComputeRequest();
-  //    allocateComputeRequest.setVcImageId("ubuntu");
-  //    allocateComputeRequest.setComputeName("vdu_test_container5");
-  //    List<KeyValuePair> metadata = new ArrayList<>();
-  //    //    KeyValuePair logstashConf = new KeyValuePair("LOGSTASH_ADDRESS", "tcp://:5000");
-  //    //    metadata.add(logstashConf);
-  //    //    KeyValuePair logstashType = new KeyValuePair("LOGSTASH_LOGGING_TYPE", "SYSLOG");
-  //    //    metadata.add(logstashType);
-  //    allocateComputeRequest.setMetaData(metadata);
-  //    AllocateComputeResponse allocateComputeResponse =
-  //        dockerAdapter.allocateVirtualisedComputeResource(allocateComputeRequest, poP);
-  //    System.out.println(allocateComputeResponse);
-  //
-  //    QueryComputeRequest queryComputeRequest = new QueryComputeRequest();
-  //
-  //    List<Predicate> predicates = new ArrayList<>();
-  //    predicates.add(
-  //        virtualCompute ->
-  //            ((VirtualCompute) virtualCompute)
-  //                .getComputeName()
-  //                .matches(allocateComputeResponse.getComputeData().getComputeName()));
-  //    Filter filter = new Filter();
-  //    filter.setPredicates(predicates);
-  //    queryComputeRequest.setQueryComputeFilter(filter);
-  //    QueryComputeResponse queryComputeResponse =
-  //        dockerAdapter.queryVirtualisedComputeResource(queryComputeRequest, poP);
-  //    for (VirtualCompute virtualCompute : queryComputeResponse.getQueryResult()) {
-  //      System.out.println(virtualCompute.toString());
-  //      System.out.println(virtualCompute.toString());
-  //      System.out.println(virtualCompute.toString());
-  //      System.out.println(virtualCompute.toString());
-  //      System.out.println(virtualCompute.toString());
-  //      System.out.println(virtualCompute.toString());
-  //      System.out.println(virtualCompute.toString());
-  //    }
-  //    try {
-  //      Thread.sleep(30000);
-  //    } catch (InterruptedException e) {
-  //      e.printStackTrace();
-  //    }
-  //    TerminateComputeRequest terminateComputeRequest = new TerminateComputeRequest();
-  //    List<String> containers = new ArrayList<>();
-  //    containers.add(allocateComputeResponse.getComputeData().getComputeId());
-  //    terminateComputeRequest.setComputeId(containers);
-  //    TerminateComputeResponse terminateComputeResponse =
-  //        dockerAdapter.terminateVirtualisedComputeResource(terminateComputeRequest, poP);
-  //    System.out.println(terminateComputeResponse);
-  //
-  //    AllocateNetworkRequest allocateNetworkRequest = new AllocateNetworkRequest();
-  //    allocateNetworkRequest.setNetworkResourceName("test_network");
-  //    allocateNetworkRequest.setNetworkResourceType(NetworkResourceType.NETWORK);
-  //    VirtualNetworkData virtualNetworkData = new VirtualNetworkData();
-  //    NetworkSubnetData networkSubnetData = new NetworkSubnetData();
-  //    List<KeyValuePair> metadataNetwork = new ArrayList<>();
-  //    metadataNetwork.add(new KeyValuePair("DOCKER_NETWORK_DRIVER", "bridge"));
-  //    virtualNetworkData.setMetadata(metadataNetwork);
-  //
-  //    List<KeyValuePair> metadataSubnet = new ArrayList<>();
-  //    metadataSubnet.add(new KeyValuePair("CIDR", "192.168.125.0/24"));
-  //    networkSubnetData.setMetadata(metadataSubnet);
-  //    IpAddress gatewayIP = new IpAddress();
-  //    gatewayIP.setAddress("192.168.125.1");
-  //    networkSubnetData.setGatewayIp(gatewayIP);
-  //    List<NetworkSubnetData> subnetDataSet = new ArrayList<>();
-  //    subnetDataSet.add(networkSubnetData);
-  //    //        virtualNetworkData.setLayer3Attributes(subnetDataSet);
-  //
-  //    allocateNetworkRequest.setTypeNetworkData(virtualNetworkData);
-  //
-  //    AllocateNetworkResponse allocateNetworkResponse =
-  //        dockerAdapter.allocateVirtualisedNetworkResource(allocateNetworkRequest, poP);
-  //
-  //    List<Predicate> predicatesNetwork = new ArrayList<>();
-  //    predicates.add(
-  //        virtualNetwork ->
-  //            ((VirtualNetwork) virtualNetwork).getNetworkResourceName().matches("test_network"));
-  //    Filter filterNetwork = new Filter();
-  //    filterNetwork.setPredicates(predicates);
-  //    QueryNetworkRequest queryNetworkRequest = new QueryNetworkRequest();
-  //    queryNetworkRequest.setQueryNetworkFilter(filterNetwork);
-  //    QueryNetworkResponse queryNetworkResponse =
-  //        dockerAdapter.queryVirtualisedNetworkResource(queryNetworkRequest, poP);
-  //
-  //    List<String> networksToRemove = new ArrayList<>();
-  //    for (VirtualNetwork network : queryNetworkResponse.getQueryResult()) {
-  //      networksToRemove.add(network.getNetworkResourceId());
-  //    }
-  //    TerminateNetworkRequest terminateNetworkRequest = new TerminateNetworkRequest();
-  //    terminateNetworkRequest.setNetworkResourceId(networksToRemove);
-  //    dockerAdapter.terminateVirtualisedNetworkResource(terminateNetworkRequest, poP);
-  //  }
 }
