@@ -53,6 +53,7 @@ public class VduApiController implements VduApi {
   public ResponseEntity<VDU> getVduById(
       @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id) {
     // do some magic!
+    VDU vdu = vduManagement.getVduById(id);
     return new ResponseEntity<VDU>(HttpStatus.OK);
   }
 

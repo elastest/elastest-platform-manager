@@ -42,7 +42,7 @@ public class PoPApiController implements PoPApi {
     return new ResponseEntity<PoP>(poP, HttpStatus.OK);
   }
 
-  public ResponseEntity<List<PoP>> getAllPoPInfos() {
+  public ResponseEntity<List<PoP>> getAllPoPs() {
     // do some magic!
     List<PoP> allPoPs = popManagement.getAllPoPs();
     return new ResponseEntity<List<PoP>>(allPoPs, HttpStatus.OK);

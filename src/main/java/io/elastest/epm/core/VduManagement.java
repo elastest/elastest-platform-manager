@@ -154,4 +154,11 @@ public class VduManagement {
     log.info("Listed all VDUs: " + allVdus);
     return allVdus;
   }
+
+  public VDU getVduById(String id) {
+    log.info("Get VDU:" + id);
+    VDU vdu = vduRepository.findOne(id);
+    log.info("Got VDU:" + vdu);
+    return vdu;
+  }
 }
