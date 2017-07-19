@@ -55,7 +55,7 @@ curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json
 After registering a PoP and creating a network, you can allocate virtual compute resource with the following command:
 
 ```
-curl -i -X POST -H "Content-Type: application/json" -H "Accept: applications/json" -d '{"name": "testContainer", "imageName": "ubuntu", "netName": "testNetwork123", "poPName": "docker-local"}' localhost:8180/v1/vdu
+curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "testContainer", "imageName": "elastest/elastest-platform-manager:latest", "netName": "testNetwork123", "poPName": "docker-local", "metadata": [{"key": "LOGSTASH_ADDRESS","value": "tcp://localhost:5000"}]}' localhost:8180/v1/vdu
 ```
 
 In this example it will be created a docker container with name 'testContainer' with image 'ubuntu' connected to the previously created network 'testNetwork123'. 
