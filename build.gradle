@@ -68,6 +68,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.github.docker-java/docker-java
     compile group: 'com.github.docker-java', name: 'docker-java', version: '3.0.12'
 
+    //
+    compile 'org.yaml:snakeyaml:1.17'
 
     // https://mvnrepository.com/artifact/org.mockito/mockito-all
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'

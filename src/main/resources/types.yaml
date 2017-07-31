@@ -1,0 +1,47 @@
+##################################################################################
+#
+# Here we define all of the high level types
+#
+##################################################################################
+
+node_types:
+
+  # base type for provided cloudify types
+  elastest.nodes.Root:
+    properties:
+      name:
+        type: string
+        description: the name of the instance
+        type: type1
+
+
+  elastest.nodes.VDU:
+    derived_from: elastest.nodes.Root
+    properties:
+      imageName:
+        type: string
+      netName:
+        type: string
+      poPName:
+        type: string
+      metadata:
+        type: list
+
+
+  elastest.nodes.PoP:
+    derived_from: elastest.nodes.Root
+    properties:
+      name:
+        type: string
+      interfaceEndpoint:
+        type: string
+
+  elastest.nodes.Network:
+    derived_from: elastest.nodes.Network
+    properties:
+      name:
+        type: string
+      cidr:
+        type: string
+      poPName:
+        type: string
