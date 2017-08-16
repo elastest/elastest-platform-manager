@@ -26,7 +26,6 @@ public class VduApiController implements VduApi {
   public ResponseEntity<String> deleteVdu(
       @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id)
       throws TerminationException, NotFoundException {
-    // do some magic!
     vduManagement.terminateVdu(id);
     return new ResponseEntity<String>("VDU terminated successfully", HttpStatus.OK);
   }
@@ -39,20 +38,17 @@ public class VduApiController implements VduApi {
           @RequestBody
           VDU body)
       throws AllocationException, NotFoundException {
-    // do some magic!
     VDU vdu = vduManagement.deployVdu(body);
     return new ResponseEntity<VDU>(vdu, HttpStatus.OK);
   }
 
   public ResponseEntity<List<VDU>> getAllVdus() {
-    // do some magic!
     List<VDU> allVdus = vduManagement.getAllVdus();
     return new ResponseEntity<List<VDU>>(allVdus, HttpStatus.OK);
   }
 
   public ResponseEntity<VDU> getVduById(
       @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id) {
-    // do some magic!
     VDU vdu = vduManagement.getVduById(id);
     return new ResponseEntity<VDU>(HttpStatus.OK);
   }
@@ -61,7 +57,6 @@ public class VduApiController implements VduApi {
       @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id,
       @ApiParam(value = "VDU object that needs to be updated.", required = true) @RequestBody
           VDU body) {
-    // do some magic!
     return new ResponseEntity<VDU>(HttpStatus.OK);
   }
 }

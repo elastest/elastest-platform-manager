@@ -31,7 +31,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     log.error("Exception was thrown -> Return message: " + e.getMessage(), e);
 
-    ApiException exc = new ApiException(HttpStatus.NOT_FOUND.value(), e.getMessage());
+    ApiException exc = new ApiException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -45,6 +45,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     log.error("Exception was thrown -> Return message: " + e.getMessage(), e);
 
     ApiException exc = new ApiException(HttpStatus.NOT_FOUND.value(), e.getMessage());
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    return handleExceptionInternal(e, exc, headers, HttpStatus.NOT_FOUND, request);
+  }
+
+  @ExceptionHandler({Exception.class})
+  @ResponseStatus(value = HttpStatus.NOT_FOUND)
+  protected ResponseEntity<Object> handleOtherException(Exception e, WebRequest request) {
+
+    log.error("Exception was thrown -> Return message: " + e.getMessage(), e);
+
+    ApiException exc = new ApiException(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
