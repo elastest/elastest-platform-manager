@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: REST API description of the ElasTest Platform Manager Module.
-  version: 0.1.1
+  version: 0.1.2
   title: EPM REST API
   contact: {}
   license:
@@ -17,15 +17,204 @@ tags:
   - name: network-api-controller
     description: the network API
 paths:
+  /tosca:
+    post:
+      tags:
+        - TOSCA
+      summary: Deploys a Tosca template.
+      description: The TOSCA template defines VDUs, Networks and the PoPs where to allocate the virtual resources
+      operationId: deployToscaTemplate
+      parameters:
+        - in: body
+          name: body
+          description: TOSCA formatted template
+          required: true
+          schema:
+            $ref: '#/definitions/ResourceGroup'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/ResourceGroup'
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+          schema:
+            type: string
+        '403':
+          description: Forbidden
+          schema:
+            type: string
+        '404':
+          description: Not Found
+          schema:
+            type: string
+  /resourceGroup:
+    get:
+      tags:
+        - ResourceGroup
+      summary: Returns all Resource Groups.
+      description: Returns all Resource Groups with all details.
+      operationId: getAllResourceGroups
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/ResourceGroup'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - ResourceGroup
+      summary: Creates a new Resource Group.
+      description: Creates a new Resource Group and allocates the defined resources in the defined PoPs.
+      operationId: createResourceGroup
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Defintion of a Resource Group which includes all VDUs, Network and respective PoPs
+          required: true
+          schema:
+            $ref: '#/definitions/ResourceGroup'
+      responses:
+        '200':
+          description: Resource Group creation OK
+          schema:
+            $ref: '#/definitions/ResourceGroup'
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  '/resourceGroup/{id}':
+    get:
+      tags:
+        - ResourceGroup
+      summary: Returns a Resource Group.
+      description: Returns the Resource Group with the given ID. Returns all its details.
+      operationId: getResourceGroupById
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of ResourceGroup
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/ResourceGroup'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: ResourceGroup not found
+    delete:
+      tags:
+        - ResourceGroup
+      summary: Deletes a Resource Group.
+      description: Deletes the Resource Group that matches with a given ID.
+      operationId: deleteResourceGroup
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: path
+          description: ID of ResourceGroup
+          required: true
+          type: string
+      responses:
+        '200':
+          description: ResourceGroup deleted successfully
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: ResourceGroup not found
+          schema:
+            type: string
+    patch:
+      tags:
+        - ResourceGroup
+      summary: Updates a ResourceGroup.
+      description: Updates an existing ResourceGroup.
+      operationId: updateResourceGroup
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of ResourceGroup
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: ResourceGroup that needs to be updated.
+          required: true
+          schema:
+            $ref: '#/definitions/ResourceGroup'
+      responses:
+        '200':
+          description: ResourceGroup Update OK
+          schema:
+            $ref: '#/definitions/ResourceGroup'
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: ResourceGroup not found
+          schema:
+            type: string
   /network:
     get:
       tags:
         - Network
       summary: Returns all existing networks.
       description: Returns all networks with all details.
-      operationId: getAllNetworksUsingGET
-      consumes:
-        - application/json
+      operationId: getAllNetworks
       produces:
         - application/json
       responses:
@@ -33,18 +222,12 @@ paths:
           description: Successful operation
           schema:
             $ref: '#/definitions/Network'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: Not Found
     post:
       tags:
         - Network
       summary: Creates a new network.
       description: Creates a new network in the target cloud environment with the given CIDR.
-      operationId: createNetworkUsingPOST
+      operationId: createNetwork
       consumes:
         - application/json
       produces:
@@ -66,20 +249,22 @@ paths:
         '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/Network'
+            type: string
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '404':
           description: Not Found
+          schema:
+            type: string
   '/network/{id}':
     get:
       tags:
         - Network
       summary: Returns a network.
       description: Returns the network with the given ID. Returns all its details.
-      operationId: getNetworkByIdUsingGET
+      operationId: getNetworkById
       consumes:
         - application/json
       produces:
@@ -102,17 +287,13 @@ paths:
         '404':
           description: Network not found
           schema:
-            $ref: '#/definitions/Network'
+            type: string
     delete:
       tags:
         - Network
       summary: Deletes a network.
       description: Deletes the network that matches with a given ID.
-      operationId: deleteNetworkUsingDELETE
-      consumes:
-        - application/json
-      produces:
-        - '*/*'
+      operationId: deleteNetwork
       parameters:
         - name: id
           in: path
@@ -143,7 +324,7 @@ paths:
         - Network
       summary: Updates a Network.
       description: Updates an existing Network.
-      operationId: updateNetworkUsingPATCH
+      operationId: updateNetwork
       consumes:
         - application/json
       produces:
@@ -170,7 +351,7 @@ paths:
         '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/Network'
+            type: string
         '401':
           description: Unauthorized
         '403':
@@ -178,16 +359,14 @@ paths:
         '404':
           description: Network not found
           schema:
-            $ref: '#/definitions/Network'
+            type: string
   /pop:
     get:
       tags:
         - PoP
       summary: Returns all PoPs.
       description: Returns all PoPs with all its details.
-      operationId: getAllPoPsUsingGET
-      consumes:
-        - application/json
+      operationId: getAllPoPs
       produces:
         - application/json
       responses:
@@ -199,14 +378,12 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-        '404':
-          description: Not Found
     post:
       tags:
         - PoP
       summary: Registers a new PoP
       description: Registers a new Point-of-Presence represented by a PoP
-      operationId: registerPoPUsingPOST
+      operationId: registerPoP
       consumes:
         - application/json
       produces:
@@ -223,27 +400,23 @@ paths:
           description: PoP registration OK
           schema:
             $ref: '#/definitions/PoP'
-        '201':
-          description: Created
         '400':
           description: Bad Request
-          schema:
-            $ref: '#/definitions/PoP'
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '404':
           description: Not Found
+          schema:
+            type: string
   '/pop/{id}':
     get:
       tags:
         - PoP
       summary: Returns a PoP.
       description: Returns the PoP with the given ID. Returns all its details.
-      operationId: getPoPByIdUsingGET
-      consumes:
-        - application/json
+      operationId: getPoPById
       produces:
         - application/json
       parameters:
@@ -264,15 +437,13 @@ paths:
         '404':
           description: PoP not found.
           schema:
-            $ref: '#/definitions/PoP'
+            type: string
     delete:
       tags:
         - PoP
       summary: Unregisters a PoP.
       description: Unregisters the PoP that matches with a given ID.
-      operationId: unregisterPoPUsingDELETE
-      consumes:
-        - application/json
+      operationId: unregisterPoP
       produces:
         - '*/*'
       parameters:
@@ -305,7 +476,7 @@ paths:
         - PoP
       summary: Updates a PoP.
       description: Updates an already registered PoP.
-      operationId: updatePoPUsingPATCH
+      operationId: updatePoP
       consumes:
         - application/json
       produces:
@@ -327,12 +498,8 @@ paths:
           description: PoP Update OK
           schema:
             $ref: '#/definitions/PoP'
-        '204':
-          description: No Content
         '400':
           description: Bad Request
-          schema:
-            $ref: '#/definitions/PoP'
         '401':
           description: Unauthorized
         '403':
@@ -340,16 +507,14 @@ paths:
         '404':
           description: PoP not found
           schema:
-            $ref: '#/definitions/PoP'
+            type: string
   /vdu:
     get:
       tags:
         - VDU
       summary: Returns all VDUs.
       description: Returns all VDUs with all its details.
-      operationId: getAllVdusUsingGET
-      consumes:
-        - application/json
+      operationId: getAllVdus
       produces:
         - application/json
       responses:
@@ -368,7 +533,7 @@ paths:
         - VDU
       summary: Allocates resources in the target cloud.
       description: 'Allocates resources defined as a VDU in the cloud to be deployed in the target cloud environment. It instantiates computing resources, deploys artifacts on them and manages the their lifecycle'
-      operationId: deployVduUsingPOST
+      operationId: deployVdu
       consumes:
         - application/json
       produces:
@@ -389,23 +554,21 @@ paths:
           description: Created
         '400':
           description: Bad Request
-          schema:
-            $ref: '#/definitions/VDU'
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '404':
           description: Not Found
+          schema:
+            type: string
   '/vdu/{id}':
     get:
       tags:
         - VDU
       summary: Returns a VDU.
       description: Returns the VDU with the given ID. Returns all its details.
-      operationId: getVduByIdUsingGET
-      consumes:
-        - application/json
+      operationId: getVduById
       produces:
         - application/json
       parameters:
@@ -426,15 +589,13 @@ paths:
         '404':
           description: VDU not found.
           schema:
-            $ref: '#/definitions/VDU'
+            type: string
     delete:
       tags:
         - VDU
       summary: Terminates a VDU.
       description: Terminates the VDU that matches with a given ID.
-      operationId: deleteVduUsingDELETE
-      consumes:
-        - application/json
+      operationId: deleteVdu
       produces:
         - '*/*'
       parameters:
@@ -467,7 +628,7 @@ paths:
         - VDU
       summary: Updates a VDU.
       description: Updates an already deployed VDU.
-      operationId: updateVduUsingPATCH
+      operationId: updateVdu
       consumes:
         - application/json
       produces:
@@ -489,20 +650,14 @@ paths:
           description: VDU Update OK
           schema:
             $ref: '#/definitions/VDU'
-        '204':
-          description: No Content
         '400':
           description: Bad Request
-          schema:
-            $ref: '#/definitions/VDU'
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '404':
           description: VDU not found
-          schema:
-            $ref: '#/definitions/VDU'
 definitions:
   Event:
     type: object
@@ -592,6 +747,7 @@ definitions:
         description: Human-readable identifier of this PoP information element
     description: This entity contains information about the Point-of-Presence (PoP)
   VDU:
+    description: 'A Virtual Deployment Unit (VDU) describes the capabilities of virtualized computing (Containers, VMs) and networking resources.'
     type: object
     required:
       - computeId
@@ -639,5 +795,29 @@ definitions:
           - undeploying
           - undeployed
           - error
-    description: 'A Virtual Deployment Unit (VDU) describes the capabilities of virtualized computing (Containers, VMs) and networking resources.'
+  ResourceGroup:
+    description: 'A Resource Group defines a bundle of VDUs and virtual networks which belongs together. It includes also the Point-of-Presences where the virtual resources have to be allocated.'
+    type: object
+    required:
+      - name
+      - vdus
+    properties:
+      id:
+        type: string
+        example: 1234-abcd
+      name:
+        type: string
+        example: testResourceGroupName1
+      vdus:
+        type: array
+        items:
+          $ref: '#/definitions/VDU'
+      networks:
+        type: array
+        items:
+          $ref: '#/definitions/Network'
+      pops:
+        type: array
+        items:
+          $ref: '#/definitions/PoP'
 
