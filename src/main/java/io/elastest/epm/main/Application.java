@@ -11,7 +11,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableSwagger2
-@ComponentScan(basePackages = "io.elastest.epm")
+@ComponentScan(basePackages = {"io.elastest.epm", "io.elastest.epm.configuration"})
 @EntityScan(basePackages = "io.elastest.epm.model")
 @EnableJpaRepositories(value = "io.elastest.epm.repository")
 public class Application implements CommandLineRunner {

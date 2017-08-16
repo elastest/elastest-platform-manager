@@ -1,24 +1,18 @@
 package io.elastest.epm.tosca.parser;
 
-import io.elastest.epm.core.NetworkManagement;
-import io.elastest.epm.core.PoPManagement;
-import io.elastest.epm.core.VduManagement;
-import io.elastest.epm.model.KeyValuePair;
-import io.elastest.epm.model.Network;
-import io.elastest.epm.model.PoP;
-import io.elastest.epm.model.VDU;
+import io.elastest.epm.core.ResourceGroupManagement;
+import io.elastest.epm.model.*;
 import io.elastest.epm.tosca.templates.service.NodeTemplate;
 import io.elastest.epm.tosca.templates.service.ServiceTemplate;
 import io.elastest.epm.tosca.templates.types.NodeTypeTemplate;
 import io.elastest.epm.tosca.templates.types.NodeTypesRoot;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.TypeDescription;
@@ -29,20 +23,67 @@ import org.yaml.snakeyaml.constructor.Constructor;
 @Service
 public class ToscaParser {
 
-  @Autowired private PoPManagement poPManagement;
+  private Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired private VduManagement vduManagement;
+  //  @Autowired private PoPManagement poPManagement;
+  //
+  //  @Autowired private VduManagement vduManagement;
+  //
+  //  @Autowired private NetworkManagement networkManagement;
 
-  @Autowired private NetworkManagement networkManagement;
+  @Autowired private ResourceGroupManagement resourceGroupManagement;
+
+  public String getToscaTemplate() {
+    return "tosca_definitions_version: tosca_simple_yaml_1_0"
+        + "\n"
+        + "metadata:\n"
+        + "  vendor: ElasTest\n"
+        + "  name: TestTemplate\n"
+        + "  version: 0.1\n"
+        + "\n"
+        + "topology_template:\n"
+        + "\n"
+        + "  nodes_template:\n"
+        + "\n"
+        + "    VDU1:\n"
+        + "      type: elastest.nodes.VDU\n"
+        + "      properties:\n"
+        + "        imageName: \"ubuntu\"\n"
+        + "        netName: \"testNetwork123\"\n"
+        + "        poPName: \"docker-local\"\n"
+        + "        metadata:\n"
+        + "          - key: \"LOGSTASH_ADDRESS\"\n"
+        + "            value: \"tcp://localhost:5000\"\n"
+        + "\n"
+        + "    docker-local:\n"
+        + "      type: elastest.nodes.PoP\n"
+        + "      properties:\n"
+        + "        name: \"docker-local\"\n"
+        + "        interfaceEndpoint: \"unix:///var/run/docker.sock\"\n"
+        + "\n"
+        + "    testNetwork123:\n"
+        + "      type: elastest.nodes.Network\n"
+        + "      properties:\n"
+        + "        name: \"testNetwork123\"\n"
+        + "        cidr: \"192.168.4.1/24\"\n"
+        + "        poPName: \"docker-local\"\n";
+  }
 
   public static ServiceTemplate parseServiceTemplate(String t) throws FileNotFoundException {
-
     Constructor constructor = new Constructor(ServiceTemplate.class);
     TypeDescription typeDescription = new TypeDescription(ServiceTemplate.class);
     constructor.addTypeDescription(typeDescription);
     Yaml yaml = new Yaml(constructor);
-
     return yaml.loadAs(t, ServiceTemplate.class);
+    //    YAMLFactory yamlFactory = new YAMLFactory();
+    //    ObjectMapper mapper = new YAMLMapper(yamlFactory);
+    //    ServiceTemplate serviceTemplate = null;
+    //    try {
+    //      serviceTemplate = mapper.readValue(t, ServiceTemplate.class);
+    //    } catch (IOException e) {
+    //      e.printStackTrace();
+    //    }
+    //    return serviceTemplate;
   }
 
   public static Map<String, NodeTypeTemplate> loadNodeTypes(String fileLocation)
@@ -54,6 +95,7 @@ public class ToscaParser {
     constructor.addTypeDescription(typeDescription);
 
     Yaml yaml = new Yaml(constructor);
+
     NodeTypesRoot nodeTypes = yaml.loadAs(nodeTypesFile, NodeTypesRoot.class);
 
     return nodeTypes.getNode_types();
@@ -120,17 +162,19 @@ public class ToscaParser {
       ServiceTemplate serviceTemplate, Map<String, NodeTypeTemplate> nodes) throws Exception {
 
     for (String key : serviceTemplate.getTopology_template().getNodes_template().keySet()) {
-      ToscaParser.verifyNode(
-          serviceTemplate.getTopology_template().getNodes_template().get(key), nodes);
+      verifyNode(serviceTemplate.getTopology_template().getNodes_template().get(key), nodes);
     }
   }
 
-  public List<Object> templateToModel(String t) throws Exception {
+  public ResourceGroup templateToModel(String t) throws Exception {
 
     ServiceTemplate serviceTemplate = parseServiceTemplate(t);
+
+    String resourceGroupName = serviceTemplate.getMetadata().getName();
+
     Map<String, NodeTypeTemplate> nodeTypes = loadNodeTypes("src/main/resources/types.yaml");
 
-    verifyNodes(serviceTemplate, nodeTypes);
+    ToscaParser.verifyNodes(serviceTemplate, nodeTypes);
 
     Map<String, NodeTemplate> nodes = serviceTemplate.getTopology_template().getNodes_template();
 
@@ -197,24 +241,30 @@ public class ToscaParser {
       }
     }
 
-    List<PoP> updatePoPList = new ArrayList<>();
-    List<Network> updateNetworkList = new ArrayList<>();
-    List<VDU> updateVDUList = new ArrayList<>();
+    //    List<PoP> updatePoPList = new ArrayList<>();
+    //    List<Network> updateNetworkList = new ArrayList<>();
+    //    List<VDU> updateVDUList = new ArrayList<>();
 
-    if (poPManagement == null) throw new NotFoundException("Pop management is null");
+    //    if (poPManagement == null) throw new NotFoundException("Pop management is null");
+    //
+    //    for (PoP poP : poPList) updatePoPList.add(poPManagement.registerPoP(poP));
+    //
+    //    for (Network network : networksList)
+    //      updateNetworkList.add(networkManagement.createNetwork(network));
+    //
+    //    for (VDU vdu : vduList) updateVDUList.add(vduManagement.deployVdu(vdu));
+    //
+    //    List<Object> models = new ArrayList<>();
+    //    models.add(updateVDUList);
+    //    models.add(updatePoPList);
+    //     models.add(updateNetworkList);
 
-    for (PoP poP : poPList) updatePoPList.add(poPManagement.registerPoP(poP));
-
-    for (Network network : networksList)
-      updateNetworkList.add(networkManagement.createNetwork(network));
-
-    for (VDU vdu : vduList) updateVDUList.add(vduManagement.deployVdu(vdu));
-
-    List<Object> models = new ArrayList<>();
-    models.add(updateVDUList);
-    models.add(updatePoPList);
-    models.add(updateNetworkList);
-
-    return models;
+    ResourceGroup resourceGroup = new ResourceGroup();
+    resourceGroup.setName(resourceGroupName);
+    resourceGroup.setPops(poPList);
+    resourceGroup.setNetworks(networksList);
+    resourceGroup.setVdus(vduList);
+    resourceGroup = resourceGroupManagement.deployResourceGroup(resourceGroup);
+    return resourceGroup;
   }
 }

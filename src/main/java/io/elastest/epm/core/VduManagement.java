@@ -71,10 +71,21 @@ public class VduManagement {
       log.info("Allocated compute resources: " + allocateComputeResponse);
     } catch (AdapterException exc) {
       vdu.setStatus(VDU.StatusEnum.ERROR);
+      if (exc.getComputeId() != null) vdu.setComputeId(exc.getComputeId());
       vduRepository.save(vdu);
       log.error(exc.getMessage(), exc);
       throw new AllocationException(exc.getMessage());
     }
+
+    vdu.setStatus(VDU.StatusEnum.DEPLOYED);
+    vdu.setName(allocateComputeResponse.getComputeData().getComputeName());
+    vdu.setImageName(allocateComputeResponse.getComputeData().getVcImageId());
+    vdu.setComputeId(allocateComputeResponse.getComputeData().getComputeId());
+    vdu.getMetadata()
+            .addAll(
+                    allocateComputeResponse.getComputeData().getMetadata() != null
+                            ? allocateComputeResponse.getComputeData().getMetadata()
+                            : new ArrayList<KeyValuePair>());
 
     //Attaching computing resource to network resource
     UpdateComputeRequest updateComputeRequest = new UpdateComputeRequest();
@@ -92,19 +103,12 @@ public class VduManagement {
       log.info("Connected compute resources to network : " + updateComputeResponse);
     } catch (AdapterException exc) {
       vdu.setStatus(VDU.StatusEnum.ERROR);
+      if (exc.getComputeId() != null) vdu.setComputeId(exc.getComputeId());
       vduRepository.save(vdu);
       log.error(exc.getMessage(), exc);
       throw new AllocationException(exc.getMessage());
     }
-    vdu.setStatus(VDU.StatusEnum.DEPLOYED);
-    vdu.setName(updateComputeResponse.getComputeData().getComputeName());
-    vdu.setImageName(updateComputeResponse.getComputeData().getVcImageId());
-    vdu.setComputeId(updateComputeResponse.getComputeId());
-    vdu.getMetadata()
-        .addAll(
-            updateComputeResponse.getComputeData().getMetadata() != null
-                ? updateComputeResponse.getComputeData().getMetadata()
-                : new ArrayList<KeyValuePair>());
+
     for (VirtualNetworkInterface virtualNetworkInterface :
         updateComputeResponse.getComputeData().getVirtualNetworkInterface()) {
       log.debug("VirtualNetworkInterface: " + virtualNetworkInterface);

@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.Charsets;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /** Created by rvl on 27.07.17. */
@@ -22,6 +23,7 @@ public class ParserTest {
   }
 
   @Test
+  @Ignore
   public void testServiceTemplate() throws IOException {
     String text =
         Files.toString(new File("src/main/resources/service_template.yaml"), Charsets.UTF_8);
@@ -30,6 +32,7 @@ public class ParserTest {
   }
 
   @Test
+  @Ignore
   public void testNodeVerification() throws Exception {
 
     String text =

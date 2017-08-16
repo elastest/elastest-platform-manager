@@ -56,15 +56,20 @@ public class DockerAdapter
       pullImage(poP, imageId);
     }
     LogConfig logConfig = getLogConfig(containerName, allocateComputeRequest.getMetaData());
-    CreateContainerResponse createdContainer =
-        dockerClient
-            .createContainerCmd(imageId)
-            .withName(containerName)
-            .withLogConfig(logConfig)
-            .withNetworkDisabled(true)
-            .exec();
-    dockerClient.startContainerCmd(createdContainer.getId()).exec();
-
+    CreateContainerResponse createdContainer = null;
+    try {
+      createdContainer =
+          dockerClient
+              .createContainerCmd(imageId)
+              .withName(containerName)
+              .withLogConfig(logConfig)
+              .withNetworkDisabled(true)
+              .exec();
+      dockerClient.startContainerCmd(createdContainer.getId()).exec();
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+      throw new AdapterException(e.getMessage(), createdContainer.getId());
+    }
     Container deployedContainer = null;
     for (Container container : dockerClient.listContainersCmd().withShowAll(true).exec()) {
       if (container.getId().equals(createdContainer.getId())) {
@@ -87,8 +92,8 @@ public class DockerAdapter
     logConfigMap.put(
         "syslog-address",
         getMetadataValueOfKey(metadata, "LOGSTASH_ADDRESS", "tcp://localhost:5000"));
-    logConfigMap.put("tag", containerName);
-    logConfig.setConfig(logConfigMap);
+    //    logConfigMap.put("tag", containerName);
+    //    logConfig.setConfig(logConfigMap);
     log.info("Created Log config for " + containerName + ": " + logConfig);
     return logConfig;
   }
@@ -177,7 +182,6 @@ public class DockerAdapter
     queryComputeRequest.setQueryComputeFilter(filter);
     QueryComputeResponse queryComputeResponse =
         this.queryVirtualisedComputeResource(queryComputeRequest, poP);
-
     UpdateComputeResponse updateComputeResponse = new UpdateComputeResponse();
     updateComputeResponse.setComputeId(computeId);
     updateComputeResponse.setComputeData(queryComputeResponse.getQueryResult().get(0));
@@ -193,10 +197,21 @@ public class DockerAdapter
     terminateComputeResponse.setComputeId(new ArrayList<>());
     for (String computeId : terminateComputeRequest.getComputeId()) {
       log.info("Terminating container " + computeId);
-      dockerClient.stopContainerCmd(computeId).exec();
-      dockerClient.removeContainerCmd(computeId).exec();
-      log.info("Terminated container " + computeId);
-      terminateComputeResponse.getComputeId().add(computeId);
+      try {
+        log.debug("Stopping container " + computeId);
+        dockerClient.stopContainerCmd(computeId).exec();
+        log.debug("Stopped container " + computeId);
+      } catch (Exception exc) {
+        log.error(exc.getMessage(), exc);
+      }
+      try {
+        log.debug("Deleting container " + computeId);
+        dockerClient.removeContainerCmd(computeId).exec();
+        log.debug("Deleted container " + computeId);
+        terminateComputeResponse.getComputeId().add(computeId);
+      } catch (Exception exc) {
+        log.error(exc.getMessage(), exc);
+      }
     }
     return terminateComputeResponse;
   }

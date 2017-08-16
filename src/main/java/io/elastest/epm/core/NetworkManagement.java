@@ -64,7 +64,8 @@ public class NetworkManagement {
     List<NetworkSubnetData> networkSubnetDatas = new ArrayList<>();
     NetworkSubnetData networkSubnetData = new NetworkSubnetData();
     List<KeyValuePair> metadataSubnet = new ArrayList<>();
-    metadataSubnet.add(new KeyValuePair("CIDR", network.getCidr()));
+    if (network.getCidr() != null && !network.getCidr().isEmpty())
+      metadataSubnet.add(new KeyValuePair("CIDR", network.getCidr()));
     networkSubnetData.setMetadata(metadataSubnet);
     networkSubnetDatas.add(networkSubnetData);
     virtualNetworkData.setLayer3Attributes(networkSubnetDatas);
@@ -72,6 +73,14 @@ public class NetworkManagement {
     AllocateNetworkResponse allocateNetworkResponse =
         dockerAdapter.allocateVirtualisedNetworkResource(allocateNetworkRequest, poP);
     network.setNetworkId(allocateNetworkResponse.getNetworkData().getNetworkResourceId());
+    for (NetworkSubnet subnet : allocateNetworkResponse.getNetworkData().getSubnet()) {
+      for (KeyValuePair keyValuePair : subnet.getMetadata()) {
+        if (keyValuePair.getKey().equals("CIDR")) {
+          network.setCidr(keyValuePair.getValue());
+          break;
+        }
+      }
+    }
     networkRepository.save(network);
     log.info("Created Network: " + network);
     return network;

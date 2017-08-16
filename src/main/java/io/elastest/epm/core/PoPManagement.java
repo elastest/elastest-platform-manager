@@ -1,6 +1,7 @@
 package io.elastest.epm.core;
 
 import com.google.common.collect.Lists;
+import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.Network;
 import io.elastest.epm.model.PoP;
@@ -40,9 +41,18 @@ public class PoPManagement {
     return poP;
   }
 
-  public void unregisterPoP(String poPInfoId) {
+  public void unregisterPoP(String poPInfoId) throws NotFoundException {
     log.info("Unregistering PoP: " + poPInfoId);
-    poPRepository.delete(poPInfoId);
+    PoP poP = poPRepository.findOne(poPInfoId);
+    if (poP != null) {
+      Iterable<Network> networks = networkRepository.findAll();
+      for (Network network : networks) {
+        if (network.getPoPName().equals(poP.getName())) networkRepository.delete(network);
+      }
+      poPRepository.delete(poP);
+    } else {
+      throw new NotFoundException("Not found PoP " + poPInfoId);
+    }
     log.info("Unregistered PoP: " + poPInfoId);
   }
 
