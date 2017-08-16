@@ -10,6 +10,14 @@
         {
           "key": "LOGSTASH_ADDRESS",
           "value": "tcp://localhost:5000"
+        },
+        {
+          "key": "ENVIRONMENT_VARIABLE",
+          "value": "ENV1=test1"
+        },
+        {
+          "key": "ENVIRONMENT_VARIABLE",
+          "value": "ENV2=test2"
         }
       ]
     }

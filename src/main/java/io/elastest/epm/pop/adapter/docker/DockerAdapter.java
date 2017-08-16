@@ -56,16 +56,22 @@ public class DockerAdapter
       pullImage(poP, imageId);
     }
     LogConfig logConfig = getLogConfig(containerName, allocateComputeRequest.getMetaData());
+    List<String> environmentVariables = getEnvironmentVariables(allocateComputeRequest.getMetaData());
     CreateContainerResponse createdContainer = null;
     try {
+      log.debug("Creating Container...");
       createdContainer =
           dockerClient
               .createContainerCmd(imageId)
               .withName(containerName)
               .withLogConfig(logConfig)
+              .withEnv(environmentVariables)
               .withNetworkDisabled(true)
               .exec();
+      log.debug("Created Container: " + createdContainer);
+      log.debug("Starting Container: " + createdContainer.getId());
       dockerClient.startContainerCmd(createdContainer.getId()).exec();
+      log.debug("Started Container: " + createdContainer.getId());
     } catch (Exception e) {
       log.error(e.getMessage(), e);
       throw new AdapterException(e.getMessage(), createdContainer.getId());
@@ -82,6 +88,16 @@ public class DockerAdapter
     return allocateComputeResponse;
   }
 
+  private List<String> getEnvironmentVariables(List<KeyValuePair> metaData) {
+    List<String> environmentVariables = new ArrayList<>();
+    for (KeyValuePair keyValuePair : metaData) {
+      if (keyValuePair.getKey().equals("ENVIRONMENT_VARIABLE")) {
+        environmentVariables.add(keyValuePair.getValue());
+      }
+    }
+    return environmentVariables;
+  }
+
   private LogConfig getLogConfig(String containerName, List<KeyValuePair> metadata) {
     log.info("Creating Log config for " + containerName + ": " + metadata);
     LogConfig logConfig = new LogConfig();
@@ -92,8 +108,8 @@ public class DockerAdapter
     logConfigMap.put(
         "syslog-address",
         getMetadataValueOfKey(metadata, "LOGSTASH_ADDRESS", "tcp://localhost:5000"));
-    //    logConfigMap.put("tag", containerName);
-    //    logConfig.setConfig(logConfigMap);
+        logConfigMap.put("tag", containerName);
+        logConfig.setConfig(logConfigMap);
     log.info("Created Log config for " + containerName + ": " + logConfig);
     return logConfig;
   }
@@ -168,7 +184,7 @@ public class DockerAdapter
     for (VirtualNetworkInterfaceData virtualNetworkInterfaceData : networkInterfacesNew) {
       String networkId = virtualNetworkInterfaceData.getNetworkId();
       dockerClient.connectToNetworkCmd().withContainerId(computeId).withNetworkId(networkId).exec();
-      //      dockerClient.connectToNetworkCmd().withContainerId(computeId).withNetworkId(networkId);
+//            dockerClient.connectToNetworkCmd().withContainerId(computeId).withNetworkId(networkId);
     }
 
     QueryComputeRequest queryComputeRequest = new QueryComputeRequest();
