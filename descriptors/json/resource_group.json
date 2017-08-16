@@ -1,0 +1,29 @@
+{
+  "name": "testGroup1",
+  "vdus": [
+    {
+      "name": "testContainer",
+      "imageName": "elastest/elastest-platform-manager",
+      "netName": "testNetwork1234",
+      "poPName": "docker-local",
+      "metadata": [
+        {
+          "key": "LOGSTASH_ADDRESS",
+          "value": "tcp://localhost:5000"
+        }
+      ]
+    }
+  ],
+  "networks": [
+    {
+      "name":"testNetwork1234",
+      "poPName":"docker-local"
+    }
+  ],
+  "pops": [
+    {
+      "name": "docker-local",
+      "interfaceEndpoint": "unix:///var/run/docker.sock"
+    }
+  ]
+}
