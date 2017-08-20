@@ -5,8 +5,8 @@ import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.Network;
 import io.elastest.epm.model.PoP;
-import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
+import io.elastest.epm.pop.interfaces.VirtualisedNetworkResourceManagementInterface;
 import io.elastest.epm.pop.messages.network.QueryNetworkRequest;
 import io.elastest.epm.pop.messages.network.QueryNetworkResponse;
 import io.elastest.epm.pop.model.common.Filter;
@@ -31,7 +31,7 @@ public class PoPManagement {
 
   @Autowired private NetworkRepository networkRepository;
 
-  @Autowired private DockerAdapter dockerAdapter;
+  @Autowired private VirtualisedNetworkResourceManagementInterface adapter;
 
   public PoP registerPoP(PoP poP) throws AdapterException {
     log.info("Registering new PoP: " + poP);
@@ -88,7 +88,7 @@ public class PoPManagement {
     QueryNetworkRequest queryNetworkRequest = new QueryNetworkRequest();
     queryNetworkRequest.setQueryNetworkFilter(filterNetwork);
     QueryNetworkResponse queryNetworkResponse =
-        dockerAdapter.queryVirtualisedNetworkResource(queryNetworkRequest, poP);
+        adapter.queryVirtualisedNetworkResource(queryNetworkRequest, poP);
     List<Network> networks = new ArrayList<>();
     for (VirtualNetwork virtualNetwork : queryNetworkResponse.getQueryResult()) {
       log.debug("Translate VirtualNetwork: " + virtualNetwork);
@@ -108,5 +108,12 @@ public class PoPManagement {
     }
     log.info("Retrieved networks from PoP " + poP + " -> " + networks);
     return networks;
+  }
+
+  public PoP getPoPByName(String poPName) {
+    log.info("Getting PoP: " + poPName);
+    PoP poP = poPRepository.findOneByName(poPName);
+    log.info("Got PoP: " + poP);
+    return poP;
   }
 }

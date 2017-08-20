@@ -1,0 +1,4 @@
+{
+  "awaitCompletion": true,
+  "command": "cd /home && mkdir test"
+}

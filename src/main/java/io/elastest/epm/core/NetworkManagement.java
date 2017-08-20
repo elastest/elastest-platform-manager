@@ -6,8 +6,8 @@ import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.Network;
 import io.elastest.epm.model.PoP;
-import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
+import io.elastest.epm.pop.interfaces.VirtualisedNetworkResourceManagementInterface;
 import io.elastest.epm.pop.messages.network.AllocateNetworkRequest;
 import io.elastest.epm.pop.messages.network.AllocateNetworkResponse;
 import io.elastest.epm.pop.messages.network.TerminateNetworkRequest;
@@ -26,7 +26,7 @@ public class NetworkManagement {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired private DockerAdapter dockerAdapter;
+  @Autowired private VirtualisedNetworkResourceManagementInterface adapter;
 
   @Autowired private NetworkRepository networkRepository;
 
@@ -37,16 +37,17 @@ public class NetworkManagement {
     log.info("Creating new Network: " + network);
     for (Network networkToCheck : networkRepository.findByName(network.getName())) {
       if (networkToCheck.getPoPName().equals(network.getPoPName())) {
-        log.error(
+        log.warn(
             "Network "
                 + network.getName()
                 + " exists already managed by PoP "
                 + network.getPoPName());
-        throw new BadRequestException(
-            "Network "
-                + network.getName()
-                + " exists already managed by PoP "
-                + network.getPoPName());
+//        throw new BadRequestException(
+//            "Network "
+//                + network.getName()
+//                + " exists already managed by PoP "
+//                + network.getPoPName());
+        return networkToCheck;
       }
     }
     PoP poP = poPRepository.findOneByName(network.getPoPName());
@@ -71,7 +72,7 @@ public class NetworkManagement {
     virtualNetworkData.setLayer3Attributes(networkSubnetDatas);
     allocateNetworkRequest.setTypeNetworkData(virtualNetworkData);
     AllocateNetworkResponse allocateNetworkResponse =
-        dockerAdapter.allocateVirtualisedNetworkResource(allocateNetworkRequest, poP);
+        adapter.allocateVirtualisedNetworkResource(allocateNetworkRequest, poP);
     network.setNetworkId(allocateNetworkResponse.getNetworkData().getNetworkResourceId());
     for (NetworkSubnet subnet : allocateNetworkResponse.getNetworkData().getSubnet()) {
       for (KeyValuePair keyValuePair : subnet.getMetadata()) {
@@ -94,7 +95,7 @@ public class NetworkManagement {
     List<String> networkIds = new ArrayList<>();
     networkIds.add(network.getNetworkId());
     terminateNetworkRequest.setNetworkResourceId(networkIds);
-    dockerAdapter.terminateVirtualisedNetworkResource(terminateNetworkRequest, poP);
+    adapter.terminateVirtualisedNetworkResource(terminateNetworkRequest, poP);
     networkRepository.delete(networkId);
     log.info("Deleted Network: " + networkId);
   }

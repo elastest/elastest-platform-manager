@@ -8,8 +8,8 @@ import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.Network;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.VDU;
-import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
+import io.elastest.epm.pop.interfaces.VirtualisedComputeResourcesManagmentInterface;
 import io.elastest.epm.pop.messages.compute.*;
 import io.elastest.epm.pop.model.network.IpAddress;
 import io.elastest.epm.pop.model.network.VirtualNetworkInterface;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class VduManagement {
 
-  @Autowired private DockerAdapter dockerAdapter;
+  @Autowired private VirtualisedComputeResourcesManagmentInterface adapter;
 
   @Autowired private VduRepository vduRepository;
 
@@ -67,7 +67,7 @@ public class VduManagement {
     try {
       log.info("Allocating compute resources: " + allocateComputeRequest);
       allocateComputeResponse =
-          dockerAdapter.allocateVirtualisedComputeResource(allocateComputeRequest, poP);
+          adapter.allocateVirtualisedComputeResource(allocateComputeRequest, poP);
       log.info("Allocated compute resources: " + allocateComputeResponse);
     } catch (AdapterException exc) {
       vdu.setStatus(VDU.StatusEnum.ERROR);
@@ -99,7 +99,7 @@ public class VduManagement {
     try {
       log.info("Connecting compute resources to network : " + updateComputeRequest);
       updateComputeResponse =
-          dockerAdapter.updateVirtualisedComputeResource(updateComputeRequest, poP);
+          adapter.updateVirtualisedComputeResource(updateComputeRequest, poP);
       log.info("Connected compute resources to network : " + updateComputeResponse);
     } catch (AdapterException exc) {
       vdu.setStatus(VDU.StatusEnum.ERROR);
@@ -140,7 +140,7 @@ public class VduManagement {
     vduIds.add(computeId);
     terminateComputeRequest.setComputeId(vduIds);
     try {
-      dockerAdapter.terminateVirtualisedComputeResource(terminateComputeRequest, poP);
+      adapter.terminateVirtualisedComputeResource(terminateComputeRequest, poP);
     } catch (Exception exc) {
       vdu.setStatus(VDU.StatusEnum.ERROR);
       vduRepository.save(vdu);
@@ -159,10 +159,11 @@ public class VduManagement {
     return allVdus;
   }
 
-  public VDU getVduById(String id) {
-    log.info("Get VDU:" + id);
+  public VDU getVduById(String id) throws NotFoundException {
+    log.info("Get VDU: " + id);
     VDU vdu = vduRepository.findOne(id);
-    log.info("Got VDU:" + vdu);
+    if (vdu == null) throw new NotFoundException("Not found VDU " + id);
+    log.info("Got VDU: " + vdu);
     return vdu;
   }
 }

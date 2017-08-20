@@ -1,1 +1,10 @@
-{"name": "docker-local", "interfaceEndpoint": "unix:///var/run/docker.sock"}
+{
+  "name": "docker-local",
+  "interfaceInfo": [
+    {
+      "key": "type",
+      "value": "docker"
+    }
+  ],
+  "interfaceEndpoint": "unix:///var/run/docker.sock"
+}

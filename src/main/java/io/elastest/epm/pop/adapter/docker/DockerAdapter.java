@@ -3,15 +3,20 @@ package io.elastest.epm.pop.adapter.docker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.CreateNetworkResponse;
+import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.command.PullImageCmd;
+import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
+import io.elastest.epm.model.VDU;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
+import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
 import io.elastest.epm.pop.interfaces.VirtualisedComputeResourcesManagmentInterface;
 import io.elastest.epm.pop.interfaces.VirtualisedNetworkResourceManagementInterface;
 import io.elastest.epm.pop.messages.compute.*;
@@ -20,16 +25,22 @@ import io.elastest.epm.pop.model.common.Filter;
 import io.elastest.epm.pop.model.common.OperationalState;
 import io.elastest.epm.pop.model.compute.VirtualCompute;
 import io.elastest.epm.pop.model.network.*;
+
+import java.io.*;
 import java.util.*;
 import java.util.function.Predicate;
+
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class DockerAdapter
     implements VirtualisedComputeResourcesManagmentInterface,
-        VirtualisedNetworkResourceManagementInterface {
+        VirtualisedNetworkResourceManagementInterface, RuntimeManagmentInterface {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -184,7 +195,7 @@ public class DockerAdapter
     for (VirtualNetworkInterfaceData virtualNetworkInterfaceData : networkInterfacesNew) {
       String networkId = virtualNetworkInterfaceData.getNetworkId();
       dockerClient.connectToNetworkCmd().withContainerId(computeId).withNetworkId(networkId).exec();
-//            dockerClient.connectToNetworkCmd().withContainerId(computeId).withNetworkId(networkId);
+      //dockerClient.connectToNetworkCmd().withContainerId(computeId).withNetworkId(networkId);
     }
 
     QueryComputeRequest queryComputeRequest = new QueryComputeRequest();
@@ -426,4 +437,154 @@ public class DockerAdapter
     }
     return value;
   }
+
+  @Override
+  public InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop) throws AdapterException {
+    DockerClient dockerClient = getDockerClient(pop);
+    InputStream inputStream = null;
+    if (existsContainer(vdu.getComputeId(), pop)) {
+      log.trace("Copying {} from container {}", filepath, vdu.getName());
+      try {
+        inputStream = dockerClient.copyArchiveFromContainerCmd(vdu.getComputeId(), filepath).exec();
+      } catch (Exception exc) {
+        log.error(exc.getMessage(), exc);
+        throw new AdapterException(exc.getMessage());
+      }
+    }
+    return inputStream;
+  }
+
+  @Override
+  public String executeOnInstance(VDU vdu, String command, boolean awaitCompletion, PoP pop) throws AdapterException {
+    DockerClient dockerClient = getDockerClient(pop);
+    String output = null;
+    log.trace("Executing command {} in container {} (await completion {})",
+            command, vdu.getName(), awaitCompletion);
+    if (existsContainer(vdu.getComputeId(), pop)) {
+      ExecCreateCmdResponse exec = dockerClient.execCreateCmd(vdu.getComputeId()).withCmd(command)
+              .withTty(false).withAttachStdin(true).withAttachStdout(true)
+              .withAttachStderr(true).exec();
+
+      log.trace("Command executed. Exec id: {}", exec.getId());
+      OutputStream outputStream = new ByteArrayOutputStream();
+      try {
+        ExecStartResultCallback startResultCallback = dockerClient
+                .execStartCmd(exec.getId()).withDetach(false)
+                .withTty(true).exec(new ExecStartResultCallback(
+                        outputStream, System.err));
+        if (awaitCompletion) {
+          startResultCallback.awaitCompletion();
+        }
+        output = outputStream.toString();
+      } catch (InterruptedException e) {
+        log.warn("Exception executing command {} on container {}",
+                command, vdu.getName(), e);
+      } finally {
+        log.trace("Callback terminated. Result: {}", output);
+      }
+    }
+    return output;
+  }
+
+  @Override
+  public void startInstance(VDU vdu, PoP pop) throws AdapterException {
+    DockerClient dockerClient = getDockerClient(pop);
+    if (!isRunningContainer(vdu.getComputeId(), pop)) {
+      log.debug("Starting container {}", vdu.getName());
+      dockerClient.startContainerCmd(vdu.getComputeId()).exec();
+    } else {
+      log.debug("Container {} is already running", vdu.getName());
+    }
+  }
+
+  @Override
+  public void stopInstance(VDU vdu, PoP pop) throws AdapterException {
+    DockerClient dockerClient = getDockerClient(pop);
+    if (isRunningContainer(vdu.getComputeId(), pop)) {
+      log.debug("Stopping container {}", vdu.getName());
+      dockerClient.stopContainerCmd(vdu.getComputeId()).exec();
+    } else {
+      log.debug("Container {} is not running", vdu.getName());
+    }
+  }
+
+  @Override
+  public void uploadFileToInstance(VDU vdu, String remotePath, String hostPath, PoP pop) throws AdapterException, IOException {
+    DockerClient dockerClient = getDockerClient(pop);
+    if (existsContainer(vdu.getComputeId(), pop)) {
+        log.trace("Copying {} to container {}", remotePath, vdu.getName());
+        dockerClient.copyArchiveToContainerCmd(vdu.getComputeId()).withRemotePath(remotePath).withHostResource(hostPath).exec();
+    }
+  }
+
+  @Override
+  public void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop) throws AdapterException, IOException {
+    DockerClient dockerClient = getDockerClient(pop);
+    if (existsContainer(vdu.getComputeId(), pop)) {
+      if (file != null) {
+        log.debug("Copying {} to container {}", file.getOriginalFilename(), vdu.getName());
+        InputStream is = file.getInputStream();
+        if (!file.getName().endsWith(".tar")) {
+          File convFile = new File(file.getOriginalFilename());
+          file.transferTo(convFile);
+          convFile = compressFileToTar(convFile);
+          is = new FileInputStream(convFile);
+        }
+        dockerClient.copyArchiveToContainerCmd(vdu.getComputeId()).withRemotePath(remotePath).withTarInputStream(is).exec();
+      }
+    }
+  }
+
+  private File compressFileToTar(File file) throws IOException {
+    File temp = File.createTempFile("archive", ".tar");
+    FileOutputStream fileOutputStream = new FileOutputStream(temp);
+    TarOutputStream out = new TarOutputStream( new BufferedOutputStream(fileOutputStream));
+
+    // Files to tar
+    File[] filesToTar=new File[1];
+    filesToTar[0]= file;
+
+    for(File f:filesToTar){
+      out.putNextEntry(new TarEntry(f, f.getName()));
+      BufferedInputStream origin = new BufferedInputStream(new FileInputStream( f ));
+
+      int count;
+      byte data[] = new byte[2048];
+      while((count = origin.read(data)) != -1) {
+        out.write(data, 0, count);
+      }
+
+      out.flush();
+      origin.close();
+    }
+
+    out.close();
+    return temp;
+  }
+
+  public boolean existsContainer(String containerId, PoP pop) throws AdapterException {
+    DockerClient dockerClient = getDockerClient(pop);
+    boolean exists = true;
+    try {
+      dockerClient.inspectContainerCmd(containerId).exec();
+      log.trace("Container {} already exist", containerId);
+
+    } catch (NotFoundException e) {
+      log.trace("Container {} does not exist", containerId);
+      exists = false;
+    }
+    return exists;
+  }
+
+  public boolean isRunningContainer(String containerId, PoP pop) throws AdapterException {
+    DockerClient dockerClient = getDockerClient(pop);
+    boolean isRunning = false;
+    if (existsContainer(containerId, pop)) {
+      isRunning = dockerClient.inspectContainerCmd(containerId).exec()
+              .getState().getRunning();
+      log.trace("Container {} is running: {}", containerId, isRunning);
+    }
+    return isRunning;
+  }
+
 }

@@ -71,7 +71,7 @@ public interface VduApi {
         produces = { "application/json" }, 
         consumes = { "application/json" },
         method = RequestMethod.GET)
-    ResponseEntity<VDU> getVduById(@ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id);
+    ResponseEntity<VDU> getVduById(@ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id) throws NotFoundException;
 
 
     @ApiOperation(value = "Updates a VDU.", notes = "Updates an already deployed VDU.", response = VDU.class, tags={ "VDU", })

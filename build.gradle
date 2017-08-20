@@ -52,6 +52,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
     compile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.2'
 
+    //    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.0.3'
+    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '1.6.2'
+
+    compile 'com.google.code.gson:gson:2.8.0'
 
     // https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
     compile group: 'io.springfox', name: 'springfox-swagger2', version: springFoxVersion
@@ -73,6 +77,10 @@ dependencies {
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml
     compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.9.0'
 
+    // https://mvnrepository.com/artifact/org.kamranzafar/jtar
+    compile group: 'org.kamranzafar', name: 'jtar', version: '2.3'
+
+
     // https://mvnrepository.com/artifact/org.mockito/mockito-all
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 
@@ -89,8 +97,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.4.RELEASE'
-
-
 }
 
 bootRepackage {

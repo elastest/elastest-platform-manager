@@ -9,13 +9,6 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 host: 'localhost:8180'
 basePath: /v1
-tags:
-  - name: vdu-api-controller
-    description: the vdu API
-  - name: po-p-api-controller
-    description: the PoP API
-  - name: network-api-controller
-    description: the network API
 paths:
   /tosca:
     post:
@@ -658,6 +651,227 @@ paths:
           description: Forbidden
         '404':
           description: VDU not found
+  '/runtime/{id}/file':
+    get:
+      tags:
+        - Runtime
+      summary: Downloads a file from a VDU.
+      description: Download a file with the given filepath from the given VDU.
+      operationId: downloadFileFromInstance
+      consumes:
+        - application/json
+      produces:
+        - multipart/form-data
+      parameters:
+        - name: id
+          in: path
+          description: ID of VDU
+          required: true
+          type: string
+        - in: body
+          name: fileDownloadBody
+          description: Contains details of the file to be downloaded from the given Instance
+          required: true
+          schema:
+            type: object
+            required:
+              - path
+            example:
+              path: /test
+            properties:
+              path:
+                type: string
+                example: /
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: file
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: VDU/File not found.
+          schema:
+            type: string
+    post:
+      tags:
+        - Runtime
+      summary: Uploads a file to a VDU.
+      description: Uploads a given file to the given filepath to the given VDU.
+      operationId: uploadFileToInstanceByFile
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: id
+          in: path
+          description: ID of VDU
+          required: true
+          type: string
+        - name: remotePath
+          in: formData
+          description: Absolute path where the file should go on the Instance
+          required: true
+          type: string
+        - name: file
+          in: formData
+          description: File which has to be uploaded to the Instance. Either this or the hostPath but not both can be provided.
+          required: true
+          type: file
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: VDU/Path not found.
+          schema:
+            type: string
+  '/runtime/{id}/path':
+    post:
+      tags:
+        - Runtime
+      summary: Uploads a file to a VDU.
+      description: Uploads a given file from the host path to the given file path to the given VDU.
+      operationId: uploadFileToInstanceByPath
+      consumes:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of VDU
+          required: true
+          type: string
+        - in: body
+          name: fileUploadBody
+          description: Contains details of the file with the given path to upload to the Instance
+          required: true
+          schema:
+            type: object
+            required:
+              - remotePath
+              - hostPath
+            example:
+              remotePath: /test
+              hostPath: /test
+            properties:
+              remotePath:
+                type: string
+                example: /
+              hostPath:
+                type: string
+                example: /
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: VDU/Path not found.
+          schema:
+            type: string
+  '/runtime/{id}/action/start':
+    put:
+      tags:
+        - Runtime
+      summary: Starts the given VDU.
+      description: Starts the VDU with the given ID.
+      operationId: startInstance
+      parameters:
+        - name: id
+          in: path
+          description: ID of VDU
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: VDU/File not found.
+          schema:
+            type: string
+  '/runtime/{id}/action/stop':
+    put:
+      tags:
+        - Runtime
+      summary: Stops the given VDU.
+      description: Stops the VDU with the given ID.
+      operationId: stopInstance
+      parameters:
+        - name: id
+          in: path
+          description: ID of VDU
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: VDU/File not found.
+  '/runtime/{id}/action/execute':
+    put:
+      tags:
+        - Runtime
+      summary: Executes given command on the given VDU.
+      description: Executes the given command on the VDU with the given ID.
+      operationId: executeOnInstance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of VDU
+          required: true
+          type: string
+        - in: body
+          name: commandExecutionBody
+          description: Contains command to be executed and a flag if for the completion of the execution should be awaited
+          required: true
+          schema:
+            type: object
+            required:
+              - command
+              - awaitCompletion
+            example:
+              command: ls /
+              awaitCompletion: true
+            properties:
+              command:
+                type: string
+                example: ls /
+              awaitCompletion:
+                type: boolean
+                example: true
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: VDU not found.
 definitions:
   Event:
     type: object
@@ -820,4 +1034,3 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/PoP'
-
