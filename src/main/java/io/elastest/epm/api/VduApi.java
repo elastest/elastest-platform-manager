@@ -48,16 +48,15 @@ public interface VduApi {
     ResponseEntity<VDU> deployVdu(@ApiParam(value = "Defintion of a VDU which defines resources that have to be deployed", required = true) @RequestBody VDU body) throws AllocationException, NotFoundException;
 
 
-    @ApiOperation(value = "Returns all VDUs.", notes = "Returns all VDUs with all its details.", response = VDU.class, tags={ "VDU", })
+    @ApiOperation(value = "Returns all VDUs.", notes = "Returns all VDUs with all its details.", response = VDU.class, responseContainer = "List", tags={ "VDU", })
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successful operation", response = VDU.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = VDU.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = VDU.class),
-        @ApiResponse(code = 404, message = "Not Found", response = VDU.class) })
+            @ApiResponse(code = 200, message = "Successful operation", response = VDU.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = VDU.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = VDU.class),
+            @ApiResponse(code = 404, message = "Not Found", response = VDU.class) })
     @RequestMapping(value = "/vdu",
-        produces = { "application/json" }, 
-        consumes = { "application/json" },
-        method = RequestMethod.GET)
+            produces = { "application/json" },
+            method = RequestMethod.GET)
     ResponseEntity<List<VDU>> getAllVdus();
 
 

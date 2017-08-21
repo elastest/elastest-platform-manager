@@ -62,7 +62,9 @@ paths:
         '200':
           description: Successful operation
           schema:
-            $ref: '#/definitions/ResourceGroup'
+            type: array
+            items:
+              $ref: '#/definitions/ResourceGroup'
         '401':
           description: Unauthorized
         '403':
@@ -214,7 +216,9 @@ paths:
         '200':
           description: Successful operation
           schema:
-            $ref: '#/definitions/Network'
+            type: array
+            items:
+              $ref: '#/definitions/Network'
     post:
       tags:
         - Network
@@ -366,7 +370,9 @@ paths:
         '200':
           description: Successful operation
           schema:
-            $ref: '#/definitions/PoP'
+            type: array
+            items:
+              $ref: '#/definitions/PoP'
         '401':
           description: Unauthorized
         '403':
@@ -514,7 +520,9 @@ paths:
         '200':
           description: Successful operation
           schema:
-            $ref: '#/definitions/VDU'
+            type: array
+            items:
+              $ref: '#/definitions/VDU'
         '401':
           description: Unauthorized
         '403':
@@ -1006,6 +1014,7 @@ definitions:
           - initialized
           - deploying
           - deployed
+          - running
           - undeploying
           - undeployed
           - error

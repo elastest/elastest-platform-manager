@@ -17,16 +17,14 @@ import java.util.List;
 @Api(value = "pop", description = "the pop API")
 public interface PopApi {
 
-    @ApiOperation(value = "Returns all PoPs.", notes = "Returns all PoPs with all its details.", response = PoP.class, tags={ "PoP", })
+    @ApiOperation(value = "Returns all PoPs.", notes = "Returns all PoPs with all its details.", response = PoP.class, responseContainer = "List", tags={ "PoP", })
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successful operation", response = PoP.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = PoP.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = PoP.class),
-        @ApiResponse(code = 404, message = "Not Found", response = PoP.class) })
+            @ApiResponse(code = 200, message = "Successful operation", response = PoP.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = PoP.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = PoP.class) })
     @RequestMapping(value = "/pop",
-        produces = { "application/json" }, 
-        consumes = { "application/json" },
-        method = RequestMethod.GET)
+            produces = { "application/json" },
+            method = RequestMethod.GET)
     ResponseEntity<List<PoP>> getAllPoPs();
 
 

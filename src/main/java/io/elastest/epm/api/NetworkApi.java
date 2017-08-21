@@ -48,16 +48,12 @@ public interface NetworkApi {
     ResponseEntity<String> deleteNetwork(@ApiParam(value = "ID of Network", required = true) @PathVariable("id") String id) throws AdapterException;
 
 
-    @ApiOperation(value = "Returns all existing networks.", notes = "Returns all networks with all details.", response = Network.class, tags={ "Network", })
+    @ApiOperation(value = "Returns all existing networks.", notes = "Returns all networks with all details.", response = Network.class, responseContainer = "List", tags={ "Network", })
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successful operation", response = Network.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = Network.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = Network.class),
-        @ApiResponse(code = 404, message = "Not Found", response = Network.class) })
+            @ApiResponse(code = 200, message = "Successful operation", response = Network.class) })
     @RequestMapping(value = "/network",
-        produces = { "application/json" }, 
-        consumes = { "application/json" },
-        method = RequestMethod.GET)
+            produces = { "application/json" },
+            method = RequestMethod.GET)
     ResponseEntity<List<Network>> getAllNetworks();
 
 

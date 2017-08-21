@@ -50,16 +50,14 @@ public interface ResourceGroupApi {
     ResponseEntity<String> deleteResourceGroup(@ApiParam(value = "ID of ResourceGroup", required = true) @PathVariable("id") String id) throws AdapterException, TerminationException, NotFoundException;
 
 
-    @ApiOperation(value = "Returns all Resource Groups.", notes = "Returns all Resource Groups with all details.", response = ResourceGroup.class, tags={ "ResourceGroup", })
+    @ApiOperation(value = "Returns all Resource Groups.", notes = "Returns all Resource Groups with all details.", response = ResourceGroup.class, responseContainer = "List", tags={ "ResourceGroup", })
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successful operation", response = ResourceGroup.class),
-        @ApiResponse(code = 401, message = "Unauthorized", response = ResourceGroup.class),
-        @ApiResponse(code = 403, message = "Forbidden", response = ResourceGroup.class),
-        @ApiResponse(code = 404, message = "Not Found", response = ResourceGroup.class) })
+            @ApiResponse(code = 200, message = "Successful operation", response = ResourceGroup.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ResourceGroup.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ResourceGroup.class) })
     @RequestMapping(value = "/resourceGroup",
-        produces = { "application/json" }, 
-        consumes = { "application/json" },
-        method = RequestMethod.GET)
+            produces = { "application/json" },
+            method = RequestMethod.GET)
     ResponseEntity<List<ResourceGroup>> getAllResourceGroups();
 
 
