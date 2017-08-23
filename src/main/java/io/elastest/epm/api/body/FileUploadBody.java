@@ -2,16 +2,15 @@ package io.elastest.epm.api.body;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
-
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
 
-/**
- * FileUploadBody
- */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-08-18T18:59:43.258+02:00")
-
-public class FileUploadBody   {
+/** FileUploadBody */
+@javax.annotation.Generated(
+  value = "io.swagger.codegen.languages.SpringCodegen",
+  date = "2017-08-18T18:59:43.258+02:00"
+)
+public class FileUploadBody {
   @JsonProperty("remotePath")
   private String remotePath = null;
 
@@ -23,10 +22,11 @@ public class FileUploadBody   {
     return this;
   }
 
-   /**
+  /**
    * Get remotePath
+   *
    * @return remotePath
-  **/
+   */
   @ApiModelProperty(example = "/", required = true, value = "")
   @NotNull
   public String getRemotePath() {
@@ -42,10 +42,11 @@ public class FileUploadBody   {
     return this;
   }
 
-   /**
+  /**
    * Get hostPath
+   *
    * @return hostPath
-  **/
+   */
   @ApiModelProperty(example = "/", required = true, value = "")
   @NotNull
   public String getHostPath() {
@@ -56,7 +57,6 @@ public class FileUploadBody   {
     this.hostPath = hostPath;
   }
 
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -66,8 +66,8 @@ public class FileUploadBody   {
       return false;
     }
     FileUploadBody fileUploadBody = (FileUploadBody) o;
-    return Objects.equals(this.remotePath, fileUploadBody.remotePath) &&
-        Objects.equals(this.hostPath, fileUploadBody.hostPath);
+    return Objects.equals(this.remotePath, fileUploadBody.remotePath)
+        && Objects.equals(this.hostPath, fileUploadBody.hostPath);
   }
 
   @Override
@@ -87,8 +87,7 @@ public class FileUploadBody   {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces (except the first line).
    */
   private String toIndentedString(Object o) {
     if (o == null) {
@@ -97,4 +96,3 @@ public class FileUploadBody   {
     return o.toString().replace("\n", "\n    ");
   }
 }
-

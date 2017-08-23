@@ -2,16 +2,15 @@ package io.elastest.epm.api.body;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
-
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
 
-/**
- * CommandExecutionBody
- */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-08-18T18:59:43.258+02:00")
-
-public class CommandExecutionBody   {
+/** CommandExecutionBody */
+@javax.annotation.Generated(
+  value = "io.swagger.codegen.languages.SpringCodegen",
+  date = "2017-08-18T18:59:43.258+02:00"
+)
+public class CommandExecutionBody {
   @JsonProperty("command")
   private String command = null;
 
@@ -23,10 +22,11 @@ public class CommandExecutionBody   {
     return this;
   }
 
-   /**
+  /**
    * Get command
+   *
    * @return command
-  **/
+   */
   @ApiModelProperty(example = "ls /", required = true, value = "")
   @NotNull
   public String getCommand() {
@@ -42,10 +42,11 @@ public class CommandExecutionBody   {
     return this;
   }
 
-   /**
+  /**
    * Get awaitCompletion
+   *
    * @return awaitCompletion
-  **/
+   */
   @ApiModelProperty(example = "true", required = true, value = "")
   @NotNull
   public Boolean getAwaitCompletion() {
@@ -56,7 +57,6 @@ public class CommandExecutionBody   {
     this.awaitCompletion = awaitCompletion;
   }
 
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -66,8 +66,8 @@ public class CommandExecutionBody   {
       return false;
     }
     CommandExecutionBody commandExecutionBody = (CommandExecutionBody) o;
-    return Objects.equals(this.command, commandExecutionBody.command) &&
-        Objects.equals(this.awaitCompletion, commandExecutionBody.awaitCompletion);
+    return Objects.equals(this.command, commandExecutionBody.command)
+        && Objects.equals(this.awaitCompletion, commandExecutionBody.awaitCompletion);
   }
 
   @Override
@@ -87,8 +87,7 @@ public class CommandExecutionBody   {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces (except the first line).
    */
   private String toIndentedString(Object o) {
     if (o == null) {
@@ -97,4 +96,3 @@ public class CommandExecutionBody   {
     return o.toString().replace("\n", "\n    ");
   }
 }
-

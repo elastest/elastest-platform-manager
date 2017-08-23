@@ -29,7 +29,6 @@ public class ResourceGroup {
   private String id = null;
 
   @JsonProperty("name")
-  @Column(unique = true)
   private String name = null;
 
   @JsonProperty("vdus")

@@ -25,24 +25,28 @@ import io.elastest.epm.pop.model.common.Filter;
 import io.elastest.epm.pop.model.common.OperationalState;
 import io.elastest.epm.pop.model.compute.VirtualCompute;
 import io.elastest.epm.pop.model.network.*;
-
+import io.elastest.epm.properties.DockerProperties;
 import java.io.*;
 import java.util.*;
 import java.util.function.Predicate;
-
 import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class DockerAdapter
     implements VirtualisedComputeResourcesManagmentInterface,
-        VirtualisedNetworkResourceManagementInterface, RuntimeManagmentInterface {
+        VirtualisedNetworkResourceManagementInterface,
+        RuntimeManagmentInterface {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
+
+  @Autowired private DockerProperties dockerProperties;
 
   private DockerClient getDockerClient(PoP poP) throws AdapterException {
     log.debug("Preparing docker client for: " + poP);
@@ -67,7 +71,8 @@ public class DockerAdapter
       pullImage(poP, imageId);
     }
     LogConfig logConfig = getLogConfig(containerName, allocateComputeRequest.getMetaData());
-    List<String> environmentVariables = getEnvironmentVariables(allocateComputeRequest.getMetaData());
+    List<String> environmentVariables =
+        getEnvironmentVariables(allocateComputeRequest.getMetaData());
     CreateContainerResponse createdContainer = null;
     try {
       log.debug("Creating Container...");
@@ -77,7 +82,8 @@ public class DockerAdapter
               .withName(containerName)
               .withLogConfig(logConfig)
               .withEnv(environmentVariables)
-              .withNetworkDisabled(true)
+              .withNetworkMode(
+                  getMetadataValueOfKey(allocateComputeRequest.getMetaData(), "NETWORK", "bridge"))
               .exec();
       log.debug("Created Container: " + createdContainer);
       log.debug("Starting Container: " + createdContainer.getId());
@@ -112,17 +118,47 @@ public class DockerAdapter
   private LogConfig getLogConfig(String containerName, List<KeyValuePair> metadata) {
     log.info("Creating Log config for " + containerName + ": " + metadata);
     LogConfig logConfig = new LogConfig();
-    logConfig.setType(
-        LogConfig.LoggingType.valueOf(
-            getMetadataValueOfKey(metadata, "LOGSTASH_LOGGING_TYPE", "SYSLOG")));
-    HashMap logConfigMap = new HashMap();
-    logConfigMap.put(
-        "syslog-address",
-        getMetadataValueOfKey(metadata, "LOGSTASH_ADDRESS", "tcp://localhost:5000"));
-        logConfigMap.put("tag", containerName);
-        logConfig.setConfig(logConfigMap);
-    log.info("Created Log config for " + containerName + ": " + logConfig);
+    if (ifMetadataExists("LOGSTASH_ADDRESS", metadata)) {
+      logConfig.setType(
+          LogConfig.LoggingType.valueOf(
+              getMetadataValueOfKey(metadata, "LOGSTASH_LOGGING_TYPE", "SYSLOG")));
+      HashMap logConfigMap = new HashMap();
+      logConfigMap.put(
+          "syslog-address",
+          getMetadataValueOfKey(metadata, "LOGSTASH_ADDRESS", "tcp://localhost:5000"));
+      logConfigMap.put("tag", containerName);
+      logConfig.setConfig(logConfigMap);
+      log.info("Created Log config for " + containerName + ": " + logConfig);
+    } else if (dockerProperties.getLogStash().isEnabled()) {
+      logConfig.setType(
+          LogConfig.LoggingType.valueOf(
+              getMetadataValueOfKey(metadata, "LOGSTASH_LOGGING_TYPE", "SYSLOG")));
+      HashMap logConfigMap = new HashMap();
+      logConfigMap.put("syslog-address", dockerProperties.getLogStash().getAddress());
+      logConfigMap.put("tag", containerName);
+      logConfig.setConfig(logConfigMap);
+      log.info("Created Log config for " + containerName + ": " + logConfig);
+    } else {
+      log.debug("LogStash is neither enabled by default nor enabled via the VDU definition...");
+    }
     return logConfig;
+  }
+
+  private boolean ifMetadataExists(String key, List<KeyValuePair> metadata) {
+    String value = null;
+    if (metadata != null)
+      for (KeyValuePair keyValuePair : metadata) {
+        if (keyValuePair.getKey().equals(key)) {
+          value = keyValuePair.getValue();
+          break;
+        }
+      }
+    if (value == null) {
+      log.debug("Metadata value for key \"" + key + "\" not found.");
+      return false;
+    } else {
+      return true;
+    }
   }
 
   private boolean imageExists(PoP poP, String vcImageId) throws AdapterException {
@@ -193,9 +229,18 @@ public class DockerAdapter
         updateComputeRequest.getNetworkInterfaceNew();
 
     for (VirtualNetworkInterfaceData virtualNetworkInterfaceData : networkInterfacesNew) {
-      String networkId = virtualNetworkInterfaceData.getNetworkId();
-      dockerClient.connectToNetworkCmd().withContainerId(computeId).withNetworkId(networkId).exec();
-      //dockerClient.connectToNetworkCmd().withContainerId(computeId).withNetworkId(networkId);
+      try {
+        String networkId = virtualNetworkInterfaceData.getNetworkId();
+        dockerClient
+            .connectToNetworkCmd()
+            .withContainerId(computeId)
+            .withNetworkId(networkId)
+            .exec();
+        //      dockerClient.connectToNetworkCmd().withContainerId(computeId).withNetworkId(networkId);
+      } catch (Exception e) {
+        log.error(e.getMessage());
+        throw new AdapterException(e.getMessage());
+      }
     }
 
     QueryComputeRequest queryComputeRequest = new QueryComputeRequest();
@@ -439,7 +484,8 @@ public class DockerAdapter
   }
 
   @Override
-  public InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop) throws AdapterException {
+  public InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop)
+      throws AdapterException {
     DockerClient dockerClient = getDockerClient(pop);
     InputStream inputStream = null;
     if (existsContainer(vdu.getComputeId(), pop)) {
@@ -455,30 +501,41 @@ public class DockerAdapter
   }
 
   @Override
-  public String executeOnInstance(VDU vdu, String command, boolean awaitCompletion, PoP pop) throws AdapterException {
+  public String executeOnInstance(VDU vdu, String command, boolean awaitCompletion, PoP pop)
+      throws AdapterException {
     DockerClient dockerClient = getDockerClient(pop);
     String output = null;
-    log.trace("Executing command {} in container {} (await completion {})",
-            command, vdu.getName(), awaitCompletion);
+    log.trace(
+        "Executing command {} in container {} (await completion {})",
+        command,
+        vdu.getName(),
+        awaitCompletion);
     if (existsContainer(vdu.getComputeId(), pop)) {
-      ExecCreateCmdResponse exec = dockerClient.execCreateCmd(vdu.getComputeId()).withCmd(command)
-              .withTty(false).withAttachStdin(true).withAttachStdout(true)
-              .withAttachStderr(true).exec();
+      ExecCreateCmdResponse exec =
+          dockerClient
+              .execCreateCmd(vdu.getComputeId())
+              .withCmd(command.split(" "))
+              .withTty(false)
+              .withAttachStdin(true)
+              .withAttachStdout(true)
+              .withAttachStderr(true)
+              .exec();
 
       log.trace("Command executed. Exec id: {}", exec.getId());
       OutputStream outputStream = new ByteArrayOutputStream();
       try {
-        ExecStartResultCallback startResultCallback = dockerClient
-                .execStartCmd(exec.getId()).withDetach(false)
-                .withTty(true).exec(new ExecStartResultCallback(
-                        outputStream, System.err));
+        ExecStartResultCallback startResultCallback =
+            dockerClient
+                .execStartCmd(exec.getId())
+                .withDetach(false)
+                .withTty(true)
+                .exec(new ExecStartResultCallback(outputStream, System.err));
         if (awaitCompletion) {
           startResultCallback.awaitCompletion();
         }
         output = outputStream.toString();
       } catch (InterruptedException e) {
-        log.warn("Exception executing command {} on container {}",
-                command, vdu.getName(), e);
+        log.warn("Exception executing command {} on container {}", command, vdu.getName(), e);
       } finally {
         log.trace("Callback terminated. Result: {}", output);
       }
@@ -509,48 +566,70 @@ public class DockerAdapter
   }
 
   @Override
-  public void uploadFileToInstance(VDU vdu, String remotePath, String hostPath, PoP pop) throws AdapterException, IOException {
+  public void uploadFileToInstance(VDU vdu, String remotePath, String hostPath, PoP pop)
+      throws AdapterException, IOException {
     DockerClient dockerClient = getDockerClient(pop);
     if (existsContainer(vdu.getComputeId(), pop)) {
-        log.trace("Copying {} to container {}", remotePath, vdu.getName());
-        dockerClient.copyArchiveToContainerCmd(vdu.getComputeId()).withRemotePath(remotePath).withHostResource(hostPath).exec();
+      log.trace("Copying {} to container {}", remotePath, vdu.getName());
+      dockerClient
+          .copyArchiveToContainerCmd(vdu.getComputeId())
+          .withRemotePath(remotePath)
+          .withHostResource(hostPath)
+          .exec();
     }
   }
 
   @Override
-  public void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop) throws AdapterException, IOException {
+  public void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop)
+      throws AdapterException, IOException {
     DockerClient dockerClient = getDockerClient(pop);
     if (existsContainer(vdu.getComputeId(), pop)) {
       if (file != null) {
         log.debug("Copying {} to container {}", file.getOriginalFilename(), vdu.getName());
         InputStream is = file.getInputStream();
-        if (!file.getName().endsWith(".tar")) {
-          File convFile = new File(file.getOriginalFilename());
-          file.transferTo(convFile);
-          convFile = compressFileToTar(convFile);
-          is = new FileInputStream(convFile);
+        if (!file.getOriginalFilename().endsWith(".tar")) {
+          File convFile = convert(file);
+//          file.transferTo(convFile);
+          File tarFile = compressFileToTar(convFile);
+          is = new FileInputStream(tarFile);
         }
-        dockerClient.copyArchiveToContainerCmd(vdu.getComputeId()).withRemotePath(remotePath).withTarInputStream(is).exec();
+        dockerClient
+            .copyArchiveToContainerCmd(vdu.getComputeId())
+            .withRemotePath(remotePath)
+            .withTarInputStream(is)
+            .exec();
+        is.close();
+        log.debug("Copied {} to container {}", file.getOriginalFilename(), vdu.getName());
       }
     }
   }
 
+  public File convert(MultipartFile file) throws IOException {
+    File convFile = new File(file.getOriginalFilename());
+    convFile.createNewFile();
+    FileOutputStream fos = new FileOutputStream(convFile);
+    fos.write(file.getBytes());
+    fos.close();
+    return convFile;
+  }
+
   private File compressFileToTar(File file) throws IOException {
     File temp = File.createTempFile("archive", ".tar");
+    temp.deleteOnExit();
     FileOutputStream fileOutputStream = new FileOutputStream(temp);
-    TarOutputStream out = new TarOutputStream( new BufferedOutputStream(fileOutputStream));
+    TarOutputStream out = new TarOutputStream(new BufferedOutputStream(fileOutputStream));
 
     // Files to tar
-    File[] filesToTar=new File[1];
-    filesToTar[0]= file;
+    File[] filesToTar = new File[1];
+    filesToTar[0] = file;
 
-    for(File f:filesToTar){
+    for (File f : filesToTar) {
       out.putNextEntry(new TarEntry(f, f.getName()));
-      BufferedInputStream origin = new BufferedInputStream(new FileInputStream( f ));
+      BufferedInputStream origin = new BufferedInputStream(new FileInputStream(f));
 
       int count;
       byte data[] = new byte[2048];
-      while((count = origin.read(data)) != -1) {
+      while ((count = origin.read(data)) != -1) {
         out.write(data, 0, count);
       }
 
@@ -580,11 +659,9 @@ public class DockerAdapter
     DockerClient dockerClient = getDockerClient(pop);
     boolean isRunning = false;
     if (existsContainer(containerId, pop)) {
-      isRunning = dockerClient.inspectContainerCmd(containerId).exec()
-              .getState().getRunning();
+      isRunning = dockerClient.inspectContainerCmd(containerId).exec().getState().getRunning();
       log.trace("Container {} is running: {}", containerId, isRunning);
     }
     return isRunning;
   }
-
 }

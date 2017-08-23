@@ -2,15 +2,14 @@ package io.elastest.epm.api.body;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
-
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
+import javax.validation.constraints.NotNull;
 
-/**
- * FileDownloadBody
- */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2017-08-18T19:49:50.894+02:00")
-
+/** FileDownloadBody */
+@javax.annotation.Generated(
+  value = "io.swagger.codegen.languages.SpringCodegen",
+  date = "2017-08-18T19:49:50.894+02:00"
+)
 public class FileDownloadBody {
   @JsonProperty("path")
   private String path = null;
@@ -20,10 +19,11 @@ public class FileDownloadBody {
     return this;
   }
 
-   /**
+  /**
    * Get path
+   *
    * @return path
-  **/
+   */
   @ApiModelProperty(example = "/", required = true, value = "")
   @NotNull
   public String getPath() {
@@ -33,7 +33,6 @@ public class FileDownloadBody {
   public void setPath(String path) {
     this.path = path;
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -63,8 +62,7 @@ public class FileDownloadBody {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces (except the first line).
    */
   private String toIndentedString(Object o) {
     if (o == null) {
@@ -73,4 +71,3 @@ public class FileDownloadBody {
     return o.toString().replace("\n", "\n    ");
   }
 }
-

@@ -42,22 +42,25 @@ public class NetworkManagement {
                 + network.getName()
                 + " exists already managed by PoP "
                 + network.getPoPName());
-//        throw new BadRequestException(
-//            "Network "
-//                + network.getName()
-//                + " exists already managed by PoP "
-//                + network.getPoPName());
-        return networkToCheck;
+                throw new BadRequestException(
+                    "Network "
+                        + network.getName()
+                        + " exists already managed by PoP "
+                        + network.getPoPName());
+//        return networkToCheck;
       }
     }
+
     PoP poP = poPRepository.findOneByName(network.getPoPName());
     if (poP == null) {
       log.error("Not found PoP " + network.getPoPName());
       throw new NotFoundException("Not found PoP " + network.getPoPName());
     }
+
     AllocateNetworkRequest allocateNetworkRequest = new AllocateNetworkRequest();
     allocateNetworkRequest.setNetworkResourceType(NetworkResourceType.NETWORK);
     allocateNetworkRequest.setNetworkResourceName(network.getName());
+//    allocateNetworkRequest.setNetworkResourceName(network.getName() + "-" + (int) (Math.random() * 1000000));
     VirtualNetworkData virtualNetworkData = new VirtualNetworkData();
     List<KeyValuePair> metadataNetwork = new ArrayList<>();
     //        metadata.add(new KeyValuePair("DOCKER_NETWORK_DRIVER", "bridge"));

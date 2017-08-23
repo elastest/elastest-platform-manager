@@ -895,7 +895,7 @@ definitions:
         example: 1234-abcd
       timestamp:
         type: string
-        format: date-time
+        format: string
     description: An event contains certain life cycle information of the VDU at a specific time.
   KeyValuePair:
     type: object

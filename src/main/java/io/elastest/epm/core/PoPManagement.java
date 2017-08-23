@@ -12,11 +12,13 @@ import io.elastest.epm.pop.messages.network.QueryNetworkResponse;
 import io.elastest.epm.pop.model.common.Filter;
 import io.elastest.epm.pop.model.network.NetworkSubnet;
 import io.elastest.epm.pop.model.network.VirtualNetwork;
+import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +35,38 @@ public class PoPManagement {
 
   @Autowired private VirtualisedNetworkResourceManagementInterface adapter;
 
+  @Autowired private DockerProperties dockerProperties;
+
+  @PostConstruct
+  private void init() {
+    if (dockerProperties.getRegistration().isAuto()) {
+      PoP pop = new PoP();
+      pop.setName(dockerProperties.getRegistration().getName());
+      pop.setInterfaceEndpoint(dockerProperties.getRegistration().getAddress());
+      KeyValuePair keyValuePair = new KeyValuePair();
+      keyValuePair.setKey("type");
+      keyValuePair.setValue("docker");
+      List<KeyValuePair> keyValuePairs = new ArrayList<>();
+      keyValuePairs.add(keyValuePair);
+      pop.setInterfaceInfo(keyValuePairs);
+      try {
+        this.registerPoP(pop);
+      } catch (Exception e) {
+        log.error(
+            "Unable to register default Docker environment automatically -> " + e.getMessage());
+      }
+    }
+  }
+
   public PoP registerPoP(PoP poP) throws AdapterException {
     log.info("Registering new PoP: " + poP);
-    networkRepository.save(retrieveNetworksFromPoP(poP));
+    PoP existingPoP = poPRepository.findOneByName(poP.getName());
+    if (existingPoP != null) {
+      log.warn("PoP is already registered -> " + existingPoP);
+      poP = existingPoP;
+      return poP;
+    }
+    //    networkRepository.save(retrieveNetworksFromPoP(poP));
     poPRepository.save(poP);
     log.info("Registered PoP: " + poP);
     return poP;

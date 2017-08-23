@@ -1,35 +1,26 @@
 package io.elastest.epm.core;
 
-import com.google.common.collect.Lists;
 import io.elastest.epm.exception.BadRequestException;
 import io.elastest.epm.exception.NotFoundException;
-import io.elastest.epm.model.KeyValuePair;
-import io.elastest.epm.model.Network;
+import io.elastest.epm.model.Event;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.VDU;
-import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
-import io.elastest.epm.pop.messages.network.AllocateNetworkRequest;
-import io.elastest.epm.pop.messages.network.AllocateNetworkResponse;
-import io.elastest.epm.pop.messages.network.TerminateNetworkRequest;
-import io.elastest.epm.pop.model.network.NetworkResourceType;
-import io.elastest.epm.pop.model.network.NetworkSubnet;
-import io.elastest.epm.pop.model.network.NetworkSubnetData;
-import io.elastest.epm.pop.model.network.VirtualNetworkData;
-import io.elastest.epm.repository.NetworkRepository;
-import io.elastest.epm.repository.PoPRepository;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.util.Date;
+
+import javafx.animation.Animation;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class RuntimeManagement {
@@ -42,55 +33,80 @@ public class RuntimeManagement {
 
   @Autowired private PoPManagement poPManagement;
 
-  public InputStream downloadFileFromInstance(String vduId, String filepath) throws AdapterException, NotFoundException {
+  public InputStream downloadFileFromInstance(String vduId, String filepath)
+      throws AdapterException, NotFoundException {
     log.info("Downloading File from VDU: " + vduId + " -> " + filepath);
     VDU vdu = vduManagement.getVduById(vduId);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
-    return adapter.downloadFileFromInstance(vdu, filepath, pop);
+    vdu.getEvents().add(createEvent("Downloading file: " + filepath));
+    InputStream inputStream = adapter.downloadFileFromInstance(vdu, filepath, pop);
+    vdu.getEvents().add(createEvent("Downloaded file: " + filepath));
+    return inputStream;
   }
 
-  public String executeOnInstance(String vduId, String command, boolean awaitCompletion) throws AdapterException, NotFoundException {
+  public String executeOnInstance(String vduId, String command, boolean awaitCompletion)
+      throws AdapterException, NotFoundException {
     log.info("Executing command on VDU: " + vduId + " -> " + command);
     VDU vdu = vduManagement.getVduById(vduId);
+    vdu.getEvents().add(createEvent("Executing command: " + command));
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     String output = adapter.executeOnInstance(vdu, command, awaitCompletion, pop);
+    vdu.getEvents().add(createEvent("Executed command: " + command));
     log.debug("Output: " + output);
     return output;
   }
-
 
   public void startInstance(String vduId) throws AdapterException, NotFoundException {
     log.info("Starting VDU: " + vduId);
     VDU vdu = vduManagement.getVduById(vduId);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
+    vdu.getEvents().add(createEvent("Starting"));
     adapter.startInstance(vdu, pop);
+    vdu.setStatus(VDU.StatusEnum.RUNNING);
+    vdu.getEvents().add(createEvent("Started"));
   }
 
   public void stopInstance(String vduId) throws AdapterException, NotFoundException {
     log.info("Stopping VDU: " + vduId);
     VDU vdu = vduManagement.getVduById(vduId);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
+    vdu.getEvents().add(createEvent("Stopping"));
     adapter.stopInstance(vdu, pop);
+    vdu.setStatus(VDU.StatusEnum.DEPLOYED);
+    vdu.getEvents().add(createEvent("Stopped"));
   }
 
-  public void uploadFileToInstanceByFile(String vduId, String remotePath, MultipartFile file) throws AdapterException, IOException, NotFoundException, BadRequestException {
+  public void uploadFileToInstanceByFile(String vduId, String remotePath, MultipartFile file)
+      throws AdapterException, IOException, NotFoundException, BadRequestException {
     log.info("Uploading file to VDU: " + vduId + " -> " + remotePath);
     VDU vdu = vduManagement.getVduById(vduId);
+    vdu.getEvents().add(createEvent("Uploading file " + file.getOriginalFilename() + " to " + remotePath));
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     if (file == null) {
       throw new BadRequestException("File to upload must be provided.");
     }
     adapter.uploadFileToInstance(vdu, remotePath, file, pop);
+    vdu.getEvents().add(createEvent("Uploaded file " + file.getOriginalFilename() + " to " + remotePath));
   }
 
-  public void uploadFileToInstanceByPath(String vduId, String remotePath, String hostPath) throws AdapterException, IOException, NotFoundException, BadRequestException {
+  public void uploadFileToInstanceByPath(String vduId, String remotePath, String hostPath)
+      throws AdapterException, IOException, NotFoundException, BadRequestException {
     log.info("Uploading file to VDU: " + vduId + " -> " + remotePath);
     VDU vdu = vduManagement.getVduById(vduId);
+    vdu.getEvents().add(createEvent("Uploading file from " + hostPath + " to " + remotePath));
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     if (hostPath == null) {
       throw new BadRequestException("hostPath must be provided.");
     }
     adapter.uploadFileToInstance(vdu, remotePath, hostPath, pop);
+    vdu.getEvents().add(createEvent("Uploaded file from " + hostPath + " to " + remotePath));
+  }
+
+  private Event createEvent(String desc) {
+    Event event = new Event();
+    event.description(desc);
+    event.setTimestamp(Long.toString(System.currentTimeMillis()));
+    return event;
   }
 
 }

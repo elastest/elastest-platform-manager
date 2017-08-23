@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.joda.time.DateTime;
+
 import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -25,7 +28,7 @@ public class Event {
   private String id = null;
 
   @JsonProperty("timestamp")
-  private OffsetDateTime timestamp = null;
+  private String timestamp = null;
 
   @JsonProperty("description")
   private String description = null;
@@ -54,7 +57,7 @@ public class Event {
     this.id = id;
   }
 
-  public Event timestamp(OffsetDateTime timestamp) {
+  public Event timestamp(String timestamp) {
     this.timestamp = timestamp;
     return this;
   }
@@ -66,11 +69,11 @@ public class Event {
    */
   @ApiModelProperty(required = true, value = "")
   @NotNull
-  public OffsetDateTime getTimestamp() {
+  public String getTimestamp() {
     return timestamp;
   }
 
-  public void setTimestamp(OffsetDateTime timestamp) {
+  public void setTimestamp(String timestamp) {
     this.timestamp = timestamp;
   }
 

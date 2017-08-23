@@ -57,6 +57,8 @@ public class VDU {
 
     DEPLOYED("deployed"),
 
+    RUNNING("running"),
+
     UNDEPLOYING("undeploying"),
 
     UNDEPLOYED("undeployed"),

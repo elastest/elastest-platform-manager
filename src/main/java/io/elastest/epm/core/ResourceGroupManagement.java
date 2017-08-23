@@ -31,23 +31,25 @@ public class ResourceGroupManagement {
   public ResourceGroup deployResourceGroup(ResourceGroup resourceGroup)
       throws AdapterException, BadRequestException, NotFoundException, AllocationException {
     log.info("Deploying Resource Group: " + resourceGroup);
+    int groupId = (int) (Math.random() * 1000000);
     try {
       for (PoP pop : resourceGroup.getPops()) {
-        // pop.setName(resourceGroup.getName() + "_" + pop.getName());
+        pop.setName(resourceGroup.getName() + "_" + pop.getName() + "_" + groupId);
         poPManagement.registerPoP(pop);
       }
       for (Network net : resourceGroup.getNetworks()) {
-        // net.setName(resourceGroup.getName() + "_" + net.getName());
-        // net.setPoPName(resourceGroup.getName() + "_" + net.getPoPName());
+        net.setName(resourceGroup.getName() + "_" + net.getName() + "_" + groupId);
+        net.setPoPName(resourceGroup.getName() + "_" + net.getPoPName() + "_" + groupId);
         networkManagement.createNetwork(net);
       }
       for (VDU vdu : resourceGroup.getVdus()) {
-        // vdu.setName(resourceGroup.getName() + "_" + vdu.getName());
-        // vdu.setNetName(resourceGroup.getName() + "_" + vdu.getNetName());
-        // vdu.setPoPName(resourceGroup.getName() + "_" + vdu.getPoPName());
+        vdu.setName(resourceGroup.getName() + "_" + vdu.getName() + "_" + groupId);
+        vdu.setNetName(resourceGroup.getName() + "_" + vdu.getNetName() + "_" + groupId);
+        vdu.setPoPName(resourceGroup.getName() + "_" + vdu.getPoPName() + "_" + groupId);
         vduManagement.deployVdu(vdu);
       }
     } catch (Exception exc) {
+      log.error(exc.getMessage(), exc);
       log.error("Rollback allocation of resource group...");
       for (VDU vdu : resourceGroup.getVdus()) {
         if (vdu.getId() != null) {
@@ -79,14 +81,14 @@ public class ResourceGroupManagement {
       throws AdapterException, NotFoundException, TerminationException {
     log.info("Terminating Resource Group: " + resourceGroupId);
     ResourceGroup resourceGroup = resourceGroupRepository.findOne(resourceGroupId);
-    for (PoP pop : resourceGroup.getPops()) {
-      poPManagement.unregisterPoP(pop.getId());
+    for (VDU vdu : resourceGroup.getVdus()) {
+      vduManagement.terminateVdu(vdu.getId());
     }
     for (Network net : resourceGroup.getNetworks()) {
       networkManagement.deleteNetwork(net.getId());
     }
-    for (VDU vdu : resourceGroup.getVdus()) {
-      vduManagement.terminateVdu(vdu.getId());
+    for (PoP pop : resourceGroup.getPops()) {
+      poPManagement.unregisterPoP(pop.getId());
     }
     resourceGroupRepository.delete(resourceGroup.getId());
     log.info("Terminated Resource Group: " + "_" + resourceGroupId);

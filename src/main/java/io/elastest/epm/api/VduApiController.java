@@ -7,6 +7,7 @@ import io.elastest.epm.exception.TerminationException;
 import io.elastest.epm.model.VDU;
 import io.swagger.annotations.ApiParam;
 import java.util.List;
+import java.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,8 @@ public class VduApiController implements VduApi {
   }
 
   public ResponseEntity<VDU> getVduById(
-      @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id) throws NotFoundException {
+      @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id)
+      throws NotFoundException {
     VDU vdu = vduManagement.getVduById(id);
     return new ResponseEntity<VDU>(HttpStatus.OK);
   }
