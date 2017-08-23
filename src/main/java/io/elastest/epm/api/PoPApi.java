@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
   date = "2017-08-16T18:36:12.064+02:00"
 )
 @Api(value = "pop", description = "the pop API")
-public interface PopApi {
+public interface PoPApi {
 
   @ApiOperation(
     value = "Returns all PoPs.",

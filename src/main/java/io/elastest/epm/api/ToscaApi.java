@@ -36,7 +36,7 @@ public interface ToscaApi {
   @RequestMapping(
     value = "/tosca",
     produces = {"application/json"},
-    consumes = {"application/json"},
+    consumes = {"text/yaml"},
     method = RequestMethod.POST
   )
   ResponseEntity<ResourceGroup> deployToscaTemplate(

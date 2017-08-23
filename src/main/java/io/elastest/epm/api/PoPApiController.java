@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
   date = "2017-06-12T17:49:47.810+02:00"
 )
 @Controller
-public class PoPApiController implements PopApi {
+public class PoPApiController implements PoPApi {
 
   @Autowired private PoPManagement popManagement;
 

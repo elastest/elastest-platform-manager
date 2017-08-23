@@ -26,7 +26,7 @@ public class ParserTest {
   @Ignore
   public void testServiceTemplate() throws IOException {
     String text =
-        Files.toString(new File("src/main/resources/service_template.yaml"), Charsets.UTF_8);
+        Files.toString(new File("descriptors/tosca/service_template.yaml"), Charsets.UTF_8);
     ServiceTemplate serviceTemplate = ToscaParser.parseServiceTemplate(text);
     System.out.print(serviceTemplate.toString());
   }
@@ -36,10 +36,10 @@ public class ParserTest {
   public void testNodeVerification() throws Exception {
 
     String text =
-        Files.toString(new File("src/main/resources/service_template.yaml"), Charsets.UTF_8);
+        Files.toString(new File("descriptors/tosca/service_template.yaml"), Charsets.UTF_8);
 
     ServiceTemplate serviceTemplate = ToscaParser.parseServiceTemplate(text);
-    Map<String, NodeTypeTemplate> map = ToscaParser.loadNodeTypes("src/main/resources/types.yaml");
+    Map<String, NodeTypeTemplate> map = ToscaParser.loadNodeTypes("descriptors/tosca/types.yaml");
 
     ToscaParser.verifyNodes(serviceTemplate, map);
   }
@@ -47,7 +47,7 @@ public class ParserTest {
   @Test
   public void testReadingTemplate() throws Exception {
 
-    //String text = Files.toString(new File("src/main/resources/service_template.yaml"), Charsets.UTF_8);
+    //String text = Files.toString(new File("descriptors/tosca/service_template.yaml"), Charsets.UTF_8);
 
     //List<Object> models = ToscaParser.templateToModel(text);
 
