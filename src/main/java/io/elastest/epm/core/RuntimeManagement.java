@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.util.Date;
 
+import io.elastest.epm.repository.VduRepository;
 import javafx.animation.Animation;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -31,6 +32,8 @@ public class RuntimeManagement {
 
   @Autowired private VduManagement vduManagement;
 
+  @Autowired private VduRepository vduRepository;
+
   @Autowired private PoPManagement poPManagement;
 
   public InputStream downloadFileFromInstance(String vduId, String filepath)
@@ -39,8 +42,10 @@ public class RuntimeManagement {
     VDU vdu = vduManagement.getVduById(vduId);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     vdu.getEvents().add(createEvent("Downloading file: " + filepath));
+    vdu = vduRepository.save(vdu);
     InputStream inputStream = adapter.downloadFileFromInstance(vdu, filepath, pop);
     vdu.getEvents().add(createEvent("Downloaded file: " + filepath));
+    vduRepository.save(vdu);
     return inputStream;
   }
 
@@ -49,10 +54,12 @@ public class RuntimeManagement {
     log.info("Executing command on VDU: " + vduId + " -> " + command);
     VDU vdu = vduManagement.getVduById(vduId);
     vdu.getEvents().add(createEvent("Executing command: " + command));
+    vdu = vduRepository.save(vdu);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     String output = adapter.executeOnInstance(vdu, command, awaitCompletion, pop);
     vdu.getEvents().add(createEvent("Executed command: " + command));
     log.debug("Output: " + output);
+    vduRepository.save(vdu);
     return output;
   }
 
@@ -61,9 +68,11 @@ public class RuntimeManagement {
     VDU vdu = vduManagement.getVduById(vduId);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     vdu.getEvents().add(createEvent("Starting"));
+    vdu = vduRepository.save(vdu);
     adapter.startInstance(vdu, pop);
     vdu.setStatus(VDU.StatusEnum.RUNNING);
     vdu.getEvents().add(createEvent("Started"));
+    vduRepository.save(vdu);
   }
 
   public void stopInstance(String vduId) throws AdapterException, NotFoundException {
@@ -71,9 +80,11 @@ public class RuntimeManagement {
     VDU vdu = vduManagement.getVduById(vduId);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     vdu.getEvents().add(createEvent("Stopping"));
+    vdu = vduRepository.save(vdu);
     adapter.stopInstance(vdu, pop);
     vdu.setStatus(VDU.StatusEnum.DEPLOYED);
     vdu.getEvents().add(createEvent("Stopped"));
+    vduRepository.save(vdu);
   }
 
   public void uploadFileToInstanceByFile(String vduId, String remotePath, MultipartFile file)
@@ -81,12 +92,14 @@ public class RuntimeManagement {
     log.info("Uploading file to VDU: " + vduId + " -> " + remotePath);
     VDU vdu = vduManagement.getVduById(vduId);
     vdu.getEvents().add(createEvent("Uploading file " + file.getOriginalFilename() + " to " + remotePath));
+    vdu = vduRepository.save(vdu);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     if (file == null) {
       throw new BadRequestException("File to upload must be provided.");
     }
     adapter.uploadFileToInstance(vdu, remotePath, file, pop);
     vdu.getEvents().add(createEvent("Uploaded file " + file.getOriginalFilename() + " to " + remotePath));
+    vduRepository.save(vdu);
   }
 
   public void uploadFileToInstanceByPath(String vduId, String remotePath, String hostPath)
@@ -94,12 +107,14 @@ public class RuntimeManagement {
     log.info("Uploading file to VDU: " + vduId + " -> " + remotePath);
     VDU vdu = vduManagement.getVduById(vduId);
     vdu.getEvents().add(createEvent("Uploading file from " + hostPath + " to " + remotePath));
+    vdu = vduRepository.save(vdu);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     if (hostPath == null) {
       throw new BadRequestException("hostPath must be provided.");
     }
     adapter.uploadFileToInstance(vdu, remotePath, hostPath, pop);
     vdu.getEvents().add(createEvent("Uploaded file from " + hostPath + " to " + remotePath));
+    vduRepository.save(vdu);
   }
 
   private Event createEvent(String desc) {

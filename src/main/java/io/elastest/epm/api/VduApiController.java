@@ -52,7 +52,7 @@ public class VduApiController implements VduApi {
       @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id)
       throws NotFoundException {
     VDU vdu = vduManagement.getVduById(id);
-    return new ResponseEntity<VDU>(HttpStatus.OK);
+    return new ResponseEntity<VDU>(vdu, HttpStatus.OK);
   }
 
   public ResponseEntity<VDU> updateVdu(

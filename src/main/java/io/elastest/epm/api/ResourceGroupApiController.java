@@ -61,7 +61,7 @@ public class ResourceGroupApiController implements ResourceGroupApi {
       @ApiParam(value = "ID of ResourceGroup", required = true) @PathVariable("id") String id,
       @ApiParam(value = "ResourceGroup that needs to be updated.", required = true) @RequestBody
           ResourceGroup body) {
-    resourceGroupManagement.updateResourceGroup(id, body);
-    return new ResponseEntity<ResourceGroup>(HttpStatus.OK);
+    ResourceGroup resourceGroup = resourceGroupManagement.updateResourceGroup(id, body);
+    return new ResponseEntity<ResourceGroup>(resourceGroup, HttpStatus.OK);
   }
 }

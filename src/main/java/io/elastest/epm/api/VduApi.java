@@ -39,8 +39,6 @@ public interface VduApi {
   )
   @RequestMapping(
     value = "/vdu/{id}",
-    produces = {"*/*"},
-    consumes = {"application/json"},
     method = RequestMethod.DELETE
   )
   ResponseEntity<String> deleteVdu(
@@ -124,7 +122,6 @@ public interface VduApi {
   @RequestMapping(
     value = "/vdu/{id}",
     produces = {"application/json"},
-    consumes = {"application/json"},
     method = RequestMethod.GET
   )
   ResponseEntity<VDU> getVduById(

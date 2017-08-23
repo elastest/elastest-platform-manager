@@ -23,9 +23,9 @@ paths:
           description: TOSCA formatted template
           required: true
           schema:
-            $ref: '#/definitions/ResourceGroup'
+            type: string
       consumes:
-        - multipart/form-data
+        - text/yaml
       produces:
         - application/json
       responses:

@@ -646,10 +646,10 @@ public class DockerAdapter
     boolean exists = true;
     try {
       dockerClient.inspectContainerCmd(containerId).exec();
-      log.trace("Container {} already exist", containerId);
+      log.debug("Container {} already exist", containerId);
 
     } catch (NotFoundException e) {
-      log.trace("Container {} does not exist", containerId);
+      log.debug("Container {} does not exist", containerId);
       exists = false;
     }
     return exists;
@@ -660,7 +660,7 @@ public class DockerAdapter
     boolean isRunning = false;
     if (existsContainer(containerId, pop)) {
       isRunning = dockerClient.inspectContainerCmd(containerId).exec().getState().getRunning();
-      log.trace("Container {} is running: {}", containerId, isRunning);
+      log.debug("Container {} is running: {}", containerId, isRunning);
     }
     return isRunning;
   }
