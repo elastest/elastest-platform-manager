@@ -83,14 +83,14 @@ public class RuntimeManagement {
   public void uploadFileToInstanceByFile(String vduId, String remotePath, MultipartFile file)
       throws AdapterException, IOException, NotFoundException, BadRequestException {
     log.info("Uploading file to VDU: " + vduId + " -> " + remotePath);
+    if (file == null) {
+      throw new BadRequestException("File to upload must be provided.");
+    }
     VDU vdu = vduManagement.getVduById(vduId);
     vdu.getEvents()
         .add(createEvent("Uploading file " + file.getOriginalFilename() + " to " + remotePath));
     vdu = vduRepository.save(vdu);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
-    if (file == null) {
-      throw new BadRequestException("File to upload must be provided.");
-    }
     adapter.uploadFileToInstance(vdu, remotePath, file, pop);
     vdu.getEvents()
         .add(createEvent("Uploaded file " + file.getOriginalFilename() + " to " + remotePath));

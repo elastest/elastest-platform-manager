@@ -1,8 +1,10 @@
 package io.elastest.unit.core;
 
 import io.elastest.epm.core.PoPManagement;
+import io.elastest.epm.model.Network;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
+import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
 import io.elastest.unit.MockedConfig;
@@ -86,5 +88,22 @@ public class PoPManagementTest {
     Assert.assertEquals(pop.getId(), expectedPoP.getId());
     Assert.assertEquals(pop.getName(), expectedPoP.getName());
     Assert.assertEquals(pop.getInterfaceEndpoint(), expectedPoP.getInterfaceEndpoint());
+  }
+
+  @Test
+  public void testRetrieveNetworksFromPoP() throws AdapterException {
+    List<Network> networks = poPManagement.retrieveNetworksFromPoP(pop);
+    for (Network network : networks) {
+      Assert.assertEquals("mocked_net_id", network.getNetworkId());
+      Assert.assertEquals("mocked_network_name", network.getName());
+      Assert.assertEquals("mocked_pop_name", network.getPoPName());
+      Assert.assertEquals("mocked_cidr", network.getCidr());
+    }
+  }
+
+  @Test
+  public void testGetPoPByName() {
+    PoP actualPoP = poPManagement.getPoPByName("mocked_pop_name");
+    Assert.assertEquals(pop, actualPoP);
   }
 }

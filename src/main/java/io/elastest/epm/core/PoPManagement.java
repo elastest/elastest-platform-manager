@@ -109,7 +109,7 @@ public class PoPManagement {
     return poP;
   }
 
-  private List<Network> retrieveNetworksFromPoP(PoP poP) throws AdapterException {
+  public List<Network> retrieveNetworksFromPoP(PoP poP) throws AdapterException {
     log.info("Retrieving networks from PoP " + poP);
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(

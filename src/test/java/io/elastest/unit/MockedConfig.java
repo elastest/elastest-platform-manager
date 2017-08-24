@@ -1,9 +1,8 @@
 package io.elastest.unit;
 
-import io.elastest.epm.model.Network;
-import io.elastest.epm.model.PoP;
-import io.elastest.epm.model.VDU;
+import io.elastest.epm.model.*;
 import io.elastest.unit.core.CoreTest;
+import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +24,9 @@ public class MockedConfig {
     vdu.setNetName("mocked_network_name");
     vdu.setImageName("mocked_image_name");
     vdu.setPoPName("mocked_pop_name");
+    vdu.setEvents(new ArrayList<>());
+    KeyValuePair keyValuePair = new KeyValuePair("mocked_key", "mocked_value");
+    vdu.addMetadataItem(keyValuePair);
     return vdu;
   }
 
@@ -46,5 +48,18 @@ public class MockedConfig {
     network.setNetworkId("mocked_net_id");
     network.setPoPName("mocked_pop_name");
     return network;
+  }
+
+  @Bean
+  ResourceGroup resourceGroup() {
+    ResourceGroup resourceGroup = new ResourceGroup();
+    resourceGroup.setName("mocked_resource_group_name");
+    resourceGroup.setVdus(new ArrayList<>());
+    resourceGroup.setPops(new ArrayList<>());
+    resourceGroup.setNetworks(new ArrayList<>());
+    resourceGroup.getPops().add(pop());
+    resourceGroup.getNetworks().add(network());
+    resourceGroup.getVdus().add(vdu());
+    return resourceGroup;
   }
 }

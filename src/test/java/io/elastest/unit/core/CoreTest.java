@@ -6,10 +6,7 @@ import static org.mockito.Mockito.*;
 import io.elastest.epm.core.NetworkManagement;
 import io.elastest.epm.core.PoPManagement;
 import io.elastest.epm.core.VduManagement;
-import io.elastest.epm.model.KeyValuePair;
-import io.elastest.epm.model.Network;
-import io.elastest.epm.model.PoP;
-import io.elastest.epm.model.VDU;
+import io.elastest.epm.model.*;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.messages.compute.AllocateComputeRequest;
@@ -29,6 +26,7 @@ import io.elastest.epm.pop.model.network.VirtualNetworkInterface;
 import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
+import io.elastest.epm.repository.ResourceGroupRepository;
 import io.elastest.epm.repository.VduRepository;
 import io.elastest.unit.MockedConfig;
 import java.util.ArrayList;
@@ -62,6 +60,7 @@ public class CoreTest {
   @Autowired Network network;
   @Autowired PoP pop;
   @Autowired VDU vdu;
+  @Autowired ResourceGroup resourceGroup;
 
   @Before
   public void init() {
@@ -97,6 +96,13 @@ public class CoreTest {
   }
 
   @Bean
+  List<ResourceGroup> resourceGroups() {
+    List<ResourceGroup> resourceGroups = new ArrayList<>();
+    resourceGroups.add(resourceGroup);
+    return resourceGroups;
+  }
+
+  @Bean
   NetworkRepository networkRepository() {
     NetworkRepository networkRepository = mock(NetworkRepository.class);
 
@@ -104,12 +110,29 @@ public class CoreTest {
     //    networks.add(network);
 
     when(networkRepository.findOneByName(network.getName())).thenReturn(network);
+    when(networkRepository.findOneByName(any())).thenReturn(network);
     when(networkRepository.save(network)).thenReturn(network);
     when(networkRepository.findByName(network.getName())).thenReturn(networks());
     when(networkRepository.findAll()).thenReturn(networks());
     when(networkRepository.findOne(network.getId())).thenReturn(network);
     doNothing().when(networkRepository).delete(network.getId());
     return networkRepository;
+  }
+
+  @Bean
+  ResourceGroupRepository resourceGroupRepository() {
+    ResourceGroupRepository resourceGroupRepository = mock(ResourceGroupRepository.class);
+
+    //    List<Network> networks = new ArrayList<>();
+    //    networks.add(network);
+
+    when(resourceGroupRepository.findOneByName(resourceGroup.getName())).thenReturn(resourceGroup);
+    when(resourceGroupRepository.save(resourceGroup)).thenReturn(resourceGroup);
+    when(resourceGroupRepository.findByName(resourceGroup.getName())).thenReturn(resourceGroups());
+    when(resourceGroupRepository.findAll()).thenReturn(resourceGroups());
+    when(resourceGroupRepository.findOne(resourceGroup.getId())).thenReturn(resourceGroup);
+    doNothing().when(resourceGroupRepository).delete(resourceGroup.getId());
+    return resourceGroupRepository;
   }
 
   @Bean
@@ -120,6 +143,7 @@ public class CoreTest {
     pops.add(pop);
 
     when(poPRepository.findOneByName(pop.getName())).thenReturn(pop);
+    when(poPRepository.findOneByName("not_existing_pop")).thenReturn(null);
     when(poPRepository.save(pop)).thenReturn(pop);
     when(poPRepository.findAll()).thenReturn(pops);
     when(poPRepository.findOne(pop.getId())).thenReturn(pop);
@@ -137,7 +161,7 @@ public class CoreTest {
 
     when(vduRepository.save(vdu)).thenReturn(vdu);
     when(vduRepository.findAll()).thenReturn(vdus);
-    when(vduRepository.findOne(any())).thenReturn(vdu);
+    when(vduRepository.findOne(vdu.getId())).thenReturn(vdu);
     doNothing().when(vduRepository).delete(vdu.getId());
     return vduRepository;
   }

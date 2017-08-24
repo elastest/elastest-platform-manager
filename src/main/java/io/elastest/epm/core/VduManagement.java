@@ -34,7 +34,7 @@ public class VduManagement {
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
   public VDU deployVdu(VDU vdu) throws AllocationException, NotFoundException {
-    vdu.setId(null);
+    //    vdu.setId(null);
     log.info("Deploying VDU: " + vdu);
     log.debug("Check if PoP exists...");
     PoP poP = poPRepository.findOneByName(vdu.getPoPName());
@@ -143,8 +143,8 @@ public class VduManagement {
     VDU vdu = vduRepository.findOne(id);
     log.debug("Check if VDU exists...");
     if (vdu == null) {
-      log.error("Not found VDU " + vdu.getName());
-      throw new NotFoundException("Not found VDU " + vdu.getName());
+      log.error("Not found VDU " + id);
+      throw new NotFoundException("Not found VDU " + id);
     }
     vdu.setStatus(VDU.StatusEnum.UNDEPLOYING);
     vdu.getEvents().add(createEvent("UNDEPLOYING"));
