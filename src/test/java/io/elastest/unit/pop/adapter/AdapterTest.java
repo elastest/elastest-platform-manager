@@ -8,6 +8,7 @@ import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
+import io.elastest.epm.properties.DockerProperties;
 import io.elastest.unit.core.CoreTest;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,5 +91,20 @@ public class AdapterTest {
   ListImagesCmd listImagesCmd() {
     ListImagesCmd listImagesCmd = mock(ListImagesCmd.class);
     return listImagesCmd;
+  }
+
+  @Bean
+  DockerProperties dockerProperties() {
+    DockerProperties dockerProperties = new DockerProperties();
+    DockerProperties.LogStash logStash = new DockerProperties.LogStash();
+    logStash.setAddress("mocked_address");
+    logStash.setEnabled(false);
+    dockerProperties.setLogStash(logStash);
+    DockerProperties.Registration registration = new DockerProperties.Registration();
+    registration.setName("mocked_docker");
+    registration.setAuto(true);
+    registration.setAddress("mocked_docekr_address");
+    dockerProperties.setRegistration(registration);
+    return dockerProperties;
   }
 }

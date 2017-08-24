@@ -7,16 +7,9 @@ import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.VDU;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
+import io.elastest.epm.repository.VduRepository;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
-import java.util.Date;
-
-import io.elastest.epm.repository.VduRepository;
-import javafx.animation.Animation;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,14 +84,16 @@ public class RuntimeManagement {
       throws AdapterException, IOException, NotFoundException, BadRequestException {
     log.info("Uploading file to VDU: " + vduId + " -> " + remotePath);
     VDU vdu = vduManagement.getVduById(vduId);
-    vdu.getEvents().add(createEvent("Uploading file " + file.getOriginalFilename() + " to " + remotePath));
+    vdu.getEvents()
+        .add(createEvent("Uploading file " + file.getOriginalFilename() + " to " + remotePath));
     vdu = vduRepository.save(vdu);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     if (file == null) {
       throw new BadRequestException("File to upload must be provided.");
     }
     adapter.uploadFileToInstance(vdu, remotePath, file, pop);
-    vdu.getEvents().add(createEvent("Uploaded file " + file.getOriginalFilename() + " to " + remotePath));
+    vdu.getEvents()
+        .add(createEvent("Uploaded file " + file.getOriginalFilename() + " to " + remotePath));
     vduRepository.save(vdu);
   }
 
@@ -123,5 +118,4 @@ public class RuntimeManagement {
     event.setTimestamp(Long.toString(System.currentTimeMillis()));
     return event;
   }
-
 }

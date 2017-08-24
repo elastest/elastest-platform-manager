@@ -30,7 +30,6 @@ import java.io.*;
 import java.util.*;
 import java.util.function.Predicate;
 import org.kamranzafar.jtar.TarEntry;
-import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -589,7 +588,7 @@ public class DockerAdapter
         InputStream is = file.getInputStream();
         if (!file.getOriginalFilename().endsWith(".tar")) {
           File convFile = convert(file);
-//          file.transferTo(convFile);
+          //          file.transferTo(convFile);
           File tarFile = compressFileToTar(convFile);
           is = new FileInputStream(tarFile);
         }

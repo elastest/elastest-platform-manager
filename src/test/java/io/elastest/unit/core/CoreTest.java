@@ -26,6 +26,7 @@ import io.elastest.epm.pop.model.network.IpAddress;
 import io.elastest.epm.pop.model.network.NetworkSubnet;
 import io.elastest.epm.pop.model.network.VirtualNetwork;
 import io.elastest.epm.pop.model.network.VirtualNetworkInterface;
+import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.VduRepository;
@@ -136,7 +137,7 @@ public class CoreTest {
 
     when(vduRepository.save(vdu)).thenReturn(vdu);
     when(vduRepository.findAll()).thenReturn(vdus);
-    when(vduRepository.findOne(vdu.getId())).thenReturn(vdu);
+    when(vduRepository.findOne(any())).thenReturn(vdu);
     doNothing().when(vduRepository).delete(vdu.getId());
     return vduRepository;
   }
@@ -217,5 +218,20 @@ public class CoreTest {
         .thenReturn(updateComputeResponse);
 
     return dockerAdapter;
+  }
+
+  @Bean
+  DockerProperties dockerProperties() {
+    DockerProperties dockerProperties = new DockerProperties();
+    DockerProperties.LogStash logStash = new DockerProperties.LogStash();
+    logStash.setAddress("mocked_address");
+    logStash.setEnabled(false);
+    dockerProperties.setLogStash(logStash);
+    DockerProperties.Registration registration = new DockerProperties.Registration();
+    registration.setName("mocked_docker");
+    registration.setAuto(true);
+    registration.setAddress("mocked_docekr_address");
+    dockerProperties.setRegistration(registration);
+    return dockerProperties;
   }
 }

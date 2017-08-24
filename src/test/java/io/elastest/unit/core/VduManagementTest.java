@@ -40,6 +40,7 @@ public class VduManagementTest {
   DockerAdapter dockerAdapter;
 
   @InjectMocks private VduManagement vduManagement;
+
   @Autowired private VDU vdu;
 
   @Autowired PoPRepository poPRepository;

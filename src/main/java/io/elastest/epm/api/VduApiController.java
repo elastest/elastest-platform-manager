@@ -7,7 +7,6 @@ import io.elastest.epm.exception.TerminationException;
 import io.elastest.epm.model.VDU;
 import io.swagger.annotations.ApiParam;
 import java.util.List;
-import java.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -37,10 +37,7 @@ public interface VduApi {
       @ApiResponse(code = 404, message = "VDU not found", response = String.class)
     }
   )
-  @RequestMapping(
-    value = "/vdu/{id}",
-    method = RequestMethod.DELETE
-  )
+  @RequestMapping(value = "/vdu/{id}", method = RequestMethod.DELETE)
   ResponseEntity<String> deleteVdu(
       @ApiParam(value = "ID of VDU", required = true) @PathVariable("id") String id)
       throws TerminationException, NotFoundException;

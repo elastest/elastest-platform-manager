@@ -13,20 +13,11 @@ import io.elastest.epm.pop.model.network.VirtualNetworkInterface;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.VduRepository;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Future;
-
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -99,15 +90,16 @@ public class VduManagement {
     //    vdu.setName(allocateComputeResponse.getComputeData().getComputeName());
     vdu.setImageName(allocateComputeResponse.getComputeData().getVcImageId());
     vdu.setComputeId(allocateComputeResponse.getComputeData().getComputeId());
-    for (VirtualNetworkInterface virtualNetworkInterface : allocateComputeResponse.getComputeData().getVirtualNetworkInterface()) {
+    for (VirtualNetworkInterface virtualNetworkInterface :
+        allocateComputeResponse.getComputeData().getVirtualNetworkInterface()) {
       for (IpAddress ipAddress : virtualNetworkInterface.getIpAddress()) {
-        if (ipAddress.getAddress()!=null) {
+        if (ipAddress.getAddress() != null) {
           vdu.setIp(ipAddress.getAddress());
           break;
         }
       }
     }
-//    vdu.getMetadata().addAll(allocateComputeResponse.getComputeData().getMetadata() != null ? allocateComputeResponse.getComputeData().getMetadata() : new ArrayList<KeyValuePair>());
+    //    vdu.getMetadata().addAll(allocateComputeResponse.getComputeData().getMetadata() != null ? allocateComputeResponse.getComputeData().getMetadata() : new ArrayList<KeyValuePair>());
 
     //Attaching computing resource to network resource
     //    UpdateComputeRequest updateComputeRequest = new UpdateComputeRequest();
