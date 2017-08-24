@@ -75,7 +75,7 @@ services:
             - elasticsearch
     elastest-platform-manager:
         container_name: elastest-epm
-        image: elastest/elastest-platform-manager
+        image: elastest/epm
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
         expose:
