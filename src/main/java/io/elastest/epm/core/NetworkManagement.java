@@ -37,11 +37,11 @@ public class NetworkManagement {
     log.info("Creating new Network: " + network);
     for (Network networkToCheck : networkRepository.findByName(network.getName())) {
       if (networkToCheck.getPoPName().equals(network.getPoPName())) {
-        log.warn(
-            "Network "
-                + network.getName()
-                + " exists already managed by PoP "
-                + network.getPoPName());
+        //        log.warn(
+        //            "Network "
+        //                + network.getName()
+        //                + " exists already managed by PoP "
+        //                + network.getPoPName());
         throw new BadRequestException(
             "Network "
                 + network.getName()
@@ -53,7 +53,7 @@ public class NetworkManagement {
 
     PoP poP = poPRepository.findOneByName(network.getPoPName());
     if (poP == null) {
-      log.error("Not found PoP " + network.getPoPName());
+      //      log.error("Not found PoP " + network.getPoPName());
       throw new NotFoundException("Not found PoP " + network.getPoPName());
     }
 

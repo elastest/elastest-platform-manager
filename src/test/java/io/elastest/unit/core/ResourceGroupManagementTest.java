@@ -89,7 +89,7 @@ public class ResourceGroupManagementTest {
   public void testDeployResourceGroup()
       throws AdapterException, BadRequestException, AllocationException, NotFoundException {
     log.info("Test: deployResourceGroup");
-    when(vduRepository.findOne(vdu.getId())).thenReturn(vdu);
+    when(vduRepository.findOne(any())).thenReturn(vdu);
     resourceGroupManagement.deployResourceGroup(resourceGroup);
   }
 
