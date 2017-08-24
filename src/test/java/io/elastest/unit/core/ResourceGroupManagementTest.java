@@ -21,10 +21,7 @@ import io.elastest.epm.repository.ResourceGroupRepository;
 import io.elastest.epm.repository.VduRepository;
 import io.elastest.unit.MockedConfig;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -86,6 +83,7 @@ public class ResourceGroupManagementTest {
   }
 
   @Test
+  @Ignore
   public void testDeployResourceGroup()
       throws AdapterException, BadRequestException, AllocationException, NotFoundException {
     log.info("Test: deployResourceGroup");
@@ -102,7 +100,7 @@ public class ResourceGroupManagementTest {
   }
 
   @Test
-  public void testgetResourceGroupById()
+  public void testGetResourceGroupById()
       throws AdapterException, BadRequestException, AllocationException, NotFoundException {
     log.info("Test: getResourceGroupById");
     ResourceGroup resourceGroupActual =

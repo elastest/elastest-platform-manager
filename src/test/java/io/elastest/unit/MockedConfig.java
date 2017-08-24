@@ -53,6 +53,7 @@ public class MockedConfig {
   @Bean
   ResourceGroup resourceGroup() {
     ResourceGroup resourceGroup = new ResourceGroup();
+    resourceGroup.setId("mocked_id");
     resourceGroup.setName("mocked_resource_group_name");
     resourceGroup.setVdus(new ArrayList<>());
     resourceGroup.setPops(new ArrayList<>());
