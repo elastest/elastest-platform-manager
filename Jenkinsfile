@@ -20,7 +20,7 @@ node('docker'){
         stage "Build image - Package"
             echo ("Building docker image...")
             sh 'cp build/libs/elastest-platform-manager-*.jar docker/elastest-platform-manager/epm.jar'
-            def myimage = docker.build("elastest/elastest-platform-manager","./docker/elastest-platform-manager")
+            def myimage = docker.build("elastest/epm","./docker/elastest-platform-manager")
 
         stage "Run image"
             echo "Run the image..."
