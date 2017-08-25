@@ -1,4 +1,4 @@
-#Usage
+# Usage
 
 The following section give a brief overview of basic operation which can be executed via the ReSTful API. 
 
@@ -45,6 +45,7 @@ curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json
 In this example it will be created a docker container with name 'testContainer' with image 'elastest/epm' connected to the previously created network 'testNetwork123'.
 
 **Note**: The image with the name 'elastest/epm' (ID can be used as well) will pulled on demand if it does not available yet. This requires some additional time when launching it the first time.
+
 **Note**: Forwarding of logs is possible only if logstash is reachable/available. If it is not available, the instance cannot be launched since it fails while connecting. In this case the metadata value for 'LOGSTASH_ADDRESS' must not be passed. 
 
 ## Listing resources

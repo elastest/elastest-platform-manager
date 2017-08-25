@@ -32,6 +32,7 @@ In order to run the EPM the following requirements must be fullfilled:
     ```
 
 **Note** port '8180' must be forwarded to the host machine in order be reach the API
+
 **Note** '/var/run/docker.sock' must be shared in order to allow the EPM to use the local docker environment
 
 ## Running Full Stack
@@ -65,6 +66,7 @@ In order to run the EPM the following requirements must be cosidered:
     ```
 
 **Note**: Port forwarding and sharing of volumes is already done within the docker-compose file.
+
 **Note**: Kibana is reachable at localhost:5601
 
 
