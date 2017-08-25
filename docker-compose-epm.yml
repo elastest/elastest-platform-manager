@@ -5,6 +5,8 @@ services:
         build: ./docker/elastest-platform-manager
         image: elastest/epm
         entrypoint: java -jar elastest-platform-manager-0.0.1-SNAPSHOT.jar
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
         expose:
             - 8180
         ports:

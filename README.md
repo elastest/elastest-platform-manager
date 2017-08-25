@@ -24,47 +24,8 @@ testers with friendly interactive facilities for decision taking.
 The [ElasTest] project provides detailed documentation including tutorials,
 installation and development guide.
 
-## How to use it
-This section gives a short overview how to use the ElasTest Platform Manager and issue requests over the ReSTful API in order to:
-* register a new PoP (Point-of-Presence) to be used to allocate virtual resources
-* create networks where the virtual compute resources will be connected to
-* allocate compute resources
-
-The API expects json files to be passed. The json files used in the following examples are located the folder 'json' of this project.
-
-### Register a new PoP
-
-In the following example it is assumed that Docker runs locally on the machine where the ElasTest Platform Manager is running. To register this PoP you can use the following command:
-
-```
-curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "docker-local", "interfaceEndpoint": "unix:///var/run/docker.sock"}' localhost:8180/v1/pop
-```
-
-This command will create a new PoP with name 'docker-local' which is used afterwards for allocating virtual resources.
-
-### Create a new network
- 
-Once the PoP is registered, you can execute the following command in order to create a new network with the defined name and CIDR.
-
-```
-curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name":"testNetwork123", "cidr": "192.168.4.1/24", "poPName":"docker-local"}' localhost:8180/v1/network
-``` 
-
-### Create a virtual compute instance
-
-After registering a PoP and creating a network, you can allocate virtual compute resource with the following command:
-
-```
-curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "testContainer", "imageName": "elastest/elastest-platform-manager:latest", "netName": "testNetwork123", "poPName": "docker-local", "metadata": [{"key": "LOGSTASH_ADDRESS","value": "tcp://localhost:5000"}]}' localhost:8180/v1/vdu
-```
-
-In this example it will be created a docker container with name 'testContainer' with image 'ubuntu' connected to the previously created network 'testNetwork123'. 
-
-Note: The image with the name 'ubuntu' (ID can be used as well) must already exist.
-
 # Source
-Source code for other ElasTest projects can be found in the [GitHub ElasTest
-Group].
+Source code for other ElasTest projects can be found in the [GitHub ElasTest Group].
 
 # News
 Follow us on Twitter @[ElasTest Twitter].
