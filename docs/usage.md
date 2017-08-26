@@ -39,10 +39,32 @@ curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json
 After registering a PoP and creating a network, you can allocate virtual compute resource with the following command:
 
 ```
-curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "testContainer", "imageName": "elastest/epm:latest", "netName": "testNetwork123", "poPName": "docker-local", "metadata": [{"key": "LOGSTASH_ADDRESS","value": "tcp://localhost:5000"}]}' localhost:8180/v1/vdu
+curl -i -X POST localhost:8180/v1/vdu -H "Content-Type: application/json" -H "Accept: application/json" -d \
+    '{
+        "name": "testContainer", "imageName": "elastest/epm:latest", 
+        "netName": "testNetwork123", 
+        "poPName": "docker-local", 
+        "metadata": [
+            {
+                "key": "LOGSTASH_ADDRESS",
+                "value": "tcp://localhost:5000"
+            }, 
+            {
+                "key": "VOLUME",
+                "value": "/var/run/docker.sock:/var/run/docker.sock"
+            }, 
+            {
+                "key": "PORT_BINDING",
+                "value": "8181:8180/tcp"
+            },
+            {
+                "key": "ENVIRONMENT_VARIABLE",
+                "value": "TEST=test"} 
+        ]
+    }'
 ```
 
-In this example it will be created a docker container with name 'testContainer' with image 'elastest/epm' connected to the previously created network 'testNetwork123'.
+In this example it will be created a docker container with name 'testContainer' with image 'elastest/epm' connected to the previously created network 'testNetwork123'. In addition, in the metadata you can find the configuration for environment variables, logstash, volumes and ports.
 
 **Note**: The image with the name 'elastest/epm' (ID can be used as well) will pulled on demand if it does not available yet. This requires some additional time when launching it the first time.
 

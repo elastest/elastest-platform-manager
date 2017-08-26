@@ -1,12 +1,20 @@
 {
   "name": "testContainer",
-  "imageName": "ubuntu",
+  "imageName": "elastest/epm",
   "netName": "testNetwork123",
   "poPName": "docker-local",
   "metadata": [
     {
       "key": "LOGSTASH_ADDRESS",
       "value": "tcp://localhost:5000"
+    },
+    {
+      "key": "VOLUME",
+      "value": "/var/run/docker.sock:/var/run/docker.sock"
+    },
+    {
+      "key": "PORT_BINDING",
+      "value": "8181:8180/tcp"
     },
     {
       "key": "ENVIRONMENT_VARIABLE",

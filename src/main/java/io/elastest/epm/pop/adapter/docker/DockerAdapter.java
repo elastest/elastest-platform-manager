@@ -5,6 +5,7 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.CreateNetworkResponse;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.command.PullImageCmd;
+import com.github.dockerjava.api.exception.BadRequestException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -29,6 +30,7 @@ import io.elastest.epm.properties.DockerProperties;
 import java.io.*;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarOutputStream;
 import org.slf4j.Logger;
@@ -71,7 +73,10 @@ public class DockerAdapter
     }
     LogConfig logConfig = getLogConfig(containerName, allocateComputeRequest.getMetaData());
     List<String> environmentVariables =
-        getEnvironmentVariables(allocateComputeRequest.getMetaData());
+        getMetaDataValuesOfKey("ENVIRONMENT_VARIABLE", allocateComputeRequest.getMetaData());
+    List<PortBinding> portBindings =
+        getPortBindingsFromMetadata(allocateComputeRequest.getMetaData());
+    List<Volume> volumes = getVolumesFromMetaData(allocateComputeRequest.getMetaData());
     CreateContainerResponse createdContainer = null;
     try {
       log.debug("Creating Container...");
@@ -81,6 +86,8 @@ public class DockerAdapter
               .withName(containerName)
               .withLogConfig(logConfig)
               .withEnv(environmentVariables)
+              .withVolumes(volumes)
+              .withPortBindings(portBindings)
               .withNetworkMode(
                   getMetadataValueOfKey(allocateComputeRequest.getMetaData(), "NETWORK", "bridge"))
               .exec();
@@ -104,14 +111,60 @@ public class DockerAdapter
     return allocateComputeResponse;
   }
 
-  private List<String> getEnvironmentVariables(List<KeyValuePair> metaData) {
-    List<String> environmentVariables = new ArrayList<>();
+  private List<String> getMetaDataValuesOfKey(String key, List<KeyValuePair> metaData) {
+    log.debug("Find values in metadata for key: " + key + " -> " + metaData);
+    List<String> values = new ArrayList<>();
     for (KeyValuePair keyValuePair : metaData) {
-      if (keyValuePair.getKey().equals("ENVIRONMENT_VARIABLE")) {
-        environmentVariables.add(keyValuePair.getValue());
+      if (keyValuePair.getKey().equals(key)) {
+        values.add(keyValuePair.getValue());
       }
     }
-    return environmentVariables;
+    log.debug("Found values in metadata for key: " + key + " -> " + values);
+    return values;
+  }
+
+  private List<PortBinding> getPortBindingsFromMetadata(List<KeyValuePair> metaData) {
+    log.debug("Find port bindings in metadata -> " + metaData);
+    List<PortBinding> portBindings = new ArrayList<>();
+    for (KeyValuePair keyValuePair : metaData) {
+      if (keyValuePair.getKey().equals("PORT_BINDING")) {
+        String[] portSplit = keyValuePair.getValue().split(Pattern.quote(":"));
+        if (portSplit.length == 2) {
+          String hostPort = portSplit[0];
+          String exposedPortString = portSplit[1];
+          String[] exposedPortSplit = exposedPortString.split(Pattern.quote("/"));
+          if (exposedPortSplit.length == 2) {
+            Ports.Binding binding = new Ports.Binding("0.0.0.0", hostPort);
+            int remotePort = Integer.parseInt(exposedPortSplit[0]);
+            String protocol = exposedPortSplit[1].toUpperCase();
+            InternetProtocol internetProtocol = InternetProtocol.valueOf(protocol);
+            ExposedPort exposedPort = new ExposedPort(remotePort, internetProtocol);
+            PortBinding portBinding = new PortBinding(binding, exposedPort);
+            portBindings.add(portBinding);
+          } else {
+            throw new BadRequestException("PORT_BINDING has wrong format -> \"8080:8080/tcp\"");
+          }
+        } else {
+          throw new BadRequestException("PORT_BINDING has wrong format -> \"8080:8080/tcp\"");
+        }
+      }
+    }
+
+    log.debug("Found port bindings in metadata -> " + portBindings);
+    return portBindings;
+  }
+
+  private List<Volume> getVolumesFromMetaData(List<KeyValuePair> metaData) {
+    log.debug("Find volumes in metadata -> " + metaData);
+    List<Volume> volumes = new ArrayList<>();
+    for (KeyValuePair keyValuePair : metaData) {
+      if (keyValuePair.getKey().equals("VOLUME")) {
+        Volume volume = new Volume(keyValuePair.getValue());
+        volumes.add(volume);
+      }
+    }
+    log.debug("Found volumes in metadata -> " + volumes);
+    return volumes;
   }
 
   private LogConfig getLogConfig(String containerName, List<KeyValuePair> metadata) {
