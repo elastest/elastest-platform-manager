@@ -68,7 +68,15 @@ In this example it will be created a docker container with name 'testContainer' 
 
 **Note**: The image with the name 'elastest/epm' (ID can be used as well) will pulled on demand if it does not available yet. This requires some additional time when launching it the first time.
 
-**Note**: Forwarding of logs is possible only if logstash is reachable/available. If it is not available, the instance cannot be launched since it fails while connecting. In this case the metadata value for 'LOGSTASH_ADDRESS' must not be passed. 
+**Note**: Forwarding of logs is possible only if logstash is reachable/available. If it is not available, the instance cannot be launched since it fails while connecting. In this case the metadata value for 'LOGSTASH_ADDRESS' must not be passed.
+
+**Note**: Additional configurations can be passed via the metadata. In the example you can find the docker-specific configuration for:
+
+* volumes: 'VOLUME' can be used in order to attach volumes to the container. The value follows the same definition as done in docker: "<HOST_PATH>:<CONTAINER_PATH>"
+* ports: 'PORT_BINDING' can be used in order to forward traffic from the host machine to the container. The value follows the same definition as done in docker: "<HOST_PORT>:<CONTAINER_PORT>/<PROTOCOL>"
+* environment variables: 'ENVIRONMENT_VARIABLE' can be used in order to set and use environment variables inside container. The value follows this definition: "<ENVIRONMENT_VARIABLE_NAME>=<ENVIRONMENT_VARIABLE_VALUE>" 
+
+Each of those parameters can be defined several times in order to allow several volumes attached, port bindings configured and environment variables passed.
 
 ## Listing resources
 
