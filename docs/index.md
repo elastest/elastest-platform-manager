@@ -46,7 +46,7 @@ The following links gives you an overview and descriptions of the API exposed by
 
 * [Full API descriptions][api_online]
 * [API Overview][api_overview]
-* [API Defintions][api_definitions]
+* [API Definitions][api_definitions]
 * [API paths][api_paths]
 
 ### Usage
@@ -62,5 +62,5 @@ The EPM offers SDKs for developers in order to integrate with other components. 
 [sdk_guide]: sdks.md
 [api_online]: http://elastest.io/docs/api/epm/
 [api_overview]: api/overview.md
-[api_definitions]: api/defintions.md
+[api_definitions]: api/definitions.md
 [api_paths]: api/paths.md
