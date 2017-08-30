@@ -5,6 +5,8 @@ import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.VDU;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.messages.compute.AllocateComputeRequest;
+import io.elastest.epm.pop.messages.compute.QueryComputeRequest;
+import io.elastest.epm.pop.model.common.Filter;
 import io.elastest.unit.MockedConfig;
 import io.elastest.unit.core.PoPManagementTest;
 import org.junit.Before;
@@ -21,6 +23,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -64,7 +70,22 @@ public class DockerAdapterTest {
   }
 
   @Test
-  public void queryVirtualisedComputeResource() throws Exception {}
+  @Ignore
+  public void queryVirtualisedComputeResource() throws Exception {
+    QueryComputeRequest queryComputeRequest = new QueryComputeRequest();
+    Filter filter = new Filter();
+    Predicate predicate = new Predicate() {
+      @Override
+      public boolean test(Object o) {
+        return false;
+      }
+    };
+    List<Predicate> predicateList = new ArrayList<>();
+    predicateList.add(predicate);
+    filter.setPredicates(predicateList);
+    queryComputeRequest.setQueryComputeFilter(filter);
+    dockerAdapter.queryVirtualisedComputeResource(queryComputeRequest, pop);
+  }
 
   @Test
   public void updateVirtualisedComputeResource() throws Exception {}

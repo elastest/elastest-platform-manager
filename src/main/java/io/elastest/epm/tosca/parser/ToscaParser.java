@@ -241,24 +241,6 @@ public class ToscaParser {
       }
     }
 
-    //    List<PoP> updatePoPList = new ArrayList<>();
-    //    List<Network> updateNetworkList = new ArrayList<>();
-    //    List<VDU> updateVDUList = new ArrayList<>();
-
-    //    if (poPManagement == null) throw new NotFoundException("Pop management is null");
-    //
-    //    for (PoP poP : poPList) updatePoPList.add(poPManagement.registerPoP(poP));
-    //
-    //    for (Network network : networksList)
-    //      updateNetworkList.add(networkManagement.createNetwork(network));
-    //
-    //    for (VDU vdu : vduList) updateVDUList.add(vduManagement.deployVdu(vdu));
-    //
-    //    List<Object> models = new ArrayList<>();
-    //    models.add(updateVDUList);
-    //    models.add(updatePoPList);
-    //     models.add(updateNetworkList);
-
     ResourceGroup resourceGroup = new ResourceGroup();
     resourceGroup.setName(resourceGroupName);
     resourceGroup.setPops(poPList);
