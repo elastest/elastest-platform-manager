@@ -1,0 +1,17 @@
+version: '2.1'
+services:
+    elastest-platform-manager:
+        container_name: elastest-epm
+        image: elastest/epm
+        entrypoint: java -jar elastest-platform-manager-0.1.0.jar
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        expose:
+            - 8180
+        ports:
+            - 8180:8180
+        networks:
+            - elastest
+networks:
+    elastest:
+        driver: bridge
