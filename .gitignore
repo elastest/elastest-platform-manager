@@ -45,3 +45,5 @@ out
 test-output
 atlassian-ide-plugin.xml
 .gradletasknamecache
+
+src/main/generated-protobuf/*

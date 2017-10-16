@@ -10,6 +10,7 @@ buildscript {
 plugins {
     id "nebula.os-package" version "2.2.6"
     id 'com.github.sherter.google-java-format' version '0.6'
+    id "com.google.protobuf" version "0.8.3"
 }
 group 'io.elastest.epm'
 
@@ -20,6 +21,7 @@ apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'docker'
 apply plugin: 'jacoco'
+apply plugin: 'com.google.protobuf'
 
 repositories {
     mavenCentral()
@@ -32,6 +34,7 @@ project.ext {
     springVersion = '4.3.9.RELEASE'
     springBootVersion = '1.5.4.RELEASE'
     springFoxVersion = '2.7.0'
+    grpcVersion = "1.6.1"
     /**
      * Application Related Version
      */
@@ -80,6 +83,14 @@ dependencies {
     // https://mvnrepository.com/artifact/org.kamranzafar/jtar
     compile group: 'org.kamranzafar', name: 'jtar', version: '2.3'
 
+    // https://mvnrepository.com/artifact/io.grpc/grpc-stub
+    compile group: 'io.grpc', name: 'grpc-stub', version: grpcVersion
+
+    // https://mvnrepository.com/artifact/io.grpc/grpc-protobuf
+    compile group: 'io.grpc', name: 'grpc-netty', version: grpcVersion
+
+    // https://mvnrepository.com/artifact/io.grpc/grpc-protobuf
+    compile group: 'io.grpc', name: 'grpc-protobuf', version: grpcVersion
 
     // https://mvnrepository.com/artifact/org.mockito/mockito-all
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
@@ -98,6 +109,24 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.4.RELEASE'
 }
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.1.0'
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    outputSubDir = 'generated-protobuf'
+                }
+            }
+        }
+    }
+
+    generatedFilesBaseDir = "${projectDir}/src/"
+}
+
 
 bootRepackage {
     mainClass = 'io.elastest.epm.main.Application'
