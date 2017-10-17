@@ -199,6 +199,86 @@ Updates an existing Network.
 * Network
 
 
+<a name="receivepackage"></a>
+### Receives a package.
+```
+POST /packages
+```
+
+
+#### Description
+Receives a package so that it can be forwarded to the correct environment.
+
+
+#### Parameters
+
+|Type|Name|Description|Schema|
+|---|---|---|---|
+|**FormData**|**file**  <br>*required*|Package in a multipart form|file|
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Package received OK|[ResourceGroup](#resourcegroup)|
+|**201**|Created|No Content|
+|**400**|Bad Request|string|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+|**404**|Not Found|string|
+
+
+#### Consumes
+
+* `multipart/form-data`
+
+
+#### Produces
+
+* `application/json`
+
+
+#### Tags
+
+* Package
+
+
+<a name="deletepackage"></a>
+### Deletes a package.
+```
+DELETE /packages/{id}
+```
+
+
+#### Description
+Deletes the package that matches with a given ID.
+
+
+#### Parameters
+
+|Type|Name|Description|Schema|
+|---|---|---|---|
+|**Path**|**id**  <br>*required*|ID of Package|string|
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Package deleted successfully|No Content|
+|**204**|No Content|No Content|
+|**400**|Bad Request|string|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+|**404**|Package not found|string|
+
+
+#### Tags
+
+* Package
+
+
 <a name="registerpop"></a>
 ### Registers a new PoP
 ```
