@@ -8,6 +8,7 @@ import io.elastest.epm.pop.adapter.compose.generated.ComposeIdentifier;
 import io.elastest.epm.pop.adapter.compose.generated.ComposePackage;
 import io.elastest.epm.pop.adapter.compose.generated.ResourceGroupCompose;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
+import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.ResourceGroupRepository;
@@ -38,6 +39,8 @@ public class DockerComposeAdapter {
 
   @Autowired private ResourceGroupRepository resourceGroupRepository;
 
+  @Autowired private DockerProperties dockerProperties;
+
   private ManagedChannel channel;
   private ComposeHandlerGrpc.ComposeHandlerBlockingStub blockingStub;
 
@@ -45,7 +48,8 @@ public class DockerComposeAdapter {
   public void init() {
     // TODO: FIX GET IP AND PORT FROM SETTINGS
     ManagedChannelBuilder<?> channelBuilder =
-        ManagedChannelBuilder.forAddress("localhost", 50051).usePlaintext(true);
+        ManagedChannelBuilder.forAddress(dockerProperties.getCompose_ip(), 50051)
+            .usePlaintext(true);
     channel = channelBuilder.build();
     blockingStub = ComposeHandlerGrpc.newBlockingStub(channel);
   }

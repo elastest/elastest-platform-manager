@@ -29,6 +29,8 @@ public class DockerProperties {
 
   private LogStash logStash;
 
+  private String compose_ip;
+
   private Registration registration;
 
   public LogStash getLogStash() {
@@ -45,6 +47,14 @@ public class DockerProperties {
 
   public void setRegistration(Registration registration) {
     this.registration = registration;
+  }
+
+  public String getCompose_ip() {
+    return compose_ip;
+  }
+
+  public void setCompose_ip(String compose_ip) {
+    this.compose_ip = compose_ip;
   }
 
   @Override
