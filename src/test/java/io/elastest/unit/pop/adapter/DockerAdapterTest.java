@@ -9,6 +9,9 @@ import io.elastest.epm.pop.messages.compute.QueryComputeRequest;
 import io.elastest.epm.pop.model.common.Filter;
 import io.elastest.unit.MockedConfig;
 import io.elastest.unit.core.PoPManagementTest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,10 +26,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -74,12 +73,13 @@ public class DockerAdapterTest {
   public void queryVirtualisedComputeResource() throws Exception {
     QueryComputeRequest queryComputeRequest = new QueryComputeRequest();
     Filter filter = new Filter();
-    Predicate predicate = new Predicate() {
-      @Override
-      public boolean test(Object o) {
-        return false;
-      }
-    };
+    Predicate predicate =
+        new Predicate() {
+          @Override
+          public boolean test(Object o) {
+            return false;
+          }
+        };
     List<Predicate> predicateList = new ArrayList<>();
     predicateList.add(predicate);
     filter.setPredicates(predicateList);

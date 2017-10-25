@@ -1,18 +1,13 @@
 package io.elastest.unit.tosca;
 
-import com.google.common.io.Files;
 import io.elastest.epm.core.ResourceGroupManagement;
 import io.elastest.epm.model.ResourceGroup;
 import io.elastest.epm.tosca.parser.ToscaParser;
 import io.elastest.epm.tosca.templates.service.ServiceTemplate;
 import io.elastest.epm.tosca.templates.types.NodeTypeTemplate;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import org.apache.commons.io.Charsets;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -23,11 +18,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ParserTest {
 
-  @InjectMocks
-  private ToscaParser mockToscaParser = new ToscaParser();
+  @InjectMocks private ToscaParser mockToscaParser = new ToscaParser();
 
-  @Mock
-  private ResourceGroupManagement resourceGroupManagement;
+  @Mock private ResourceGroupManagement resourceGroupManagement;
 
   @Test
   public void testNodeTypes() throws FileNotFoundException {
