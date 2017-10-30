@@ -33,10 +33,6 @@ public class ResourceGroupManagement {
     log.info("Deploying Resource Group: " + resourceGroup);
     int groupId = (int) (Math.random() * 1000000);
     try {
-      for (PoP pop : resourceGroup.getPops()) {
-        pop.setName(resourceGroup.getName() + "_" + pop.getName() + "_" + groupId);
-        poPManagement.registerPoP(pop);
-      }
       for (Network net : resourceGroup.getNetworks()) {
         net.setName(resourceGroup.getName() + "_" + net.getName() + "_" + groupId);
         net.setPoPName(resourceGroup.getName() + "_" + net.getPoPName() + "_" + groupId);
@@ -65,11 +61,6 @@ public class ResourceGroupManagement {
           networkManagement.deleteNetwork(net.getId());
         }
       }
-      for (PoP pop : resourceGroup.getPops()) {
-        if (pop.getId() != null) {
-          poPManagement.unregisterPoP(pop.getId());
-        }
-      }
       throw exc;
     }
     resourceGroupRepository.save(resourceGroup);
@@ -86,9 +77,6 @@ public class ResourceGroupManagement {
     }
     for (Network net : resourceGroup.getNetworks()) {
       networkManagement.deleteNetwork(net.getId());
-    }
-    for (PoP pop : resourceGroup.getPops()) {
-      poPManagement.unregisterPoP(pop.getId());
     }
     resourceGroupRepository.delete(resourceGroup.getId());
     log.info("Terminated Resource Group: " + "_" + resourceGroupId);

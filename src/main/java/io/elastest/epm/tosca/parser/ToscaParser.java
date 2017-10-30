@@ -243,7 +243,6 @@ public class ToscaParser {
 
     ResourceGroup resourceGroup = new ResourceGroup();
     resourceGroup.setName(resourceGroupName);
-    resourceGroup.setPops(poPList);
     resourceGroup.setNetworks(networksList);
     resourceGroup.setVdus(vduList);
     resourceGroup = resourceGroupManagement.deployResourceGroup(resourceGroup);

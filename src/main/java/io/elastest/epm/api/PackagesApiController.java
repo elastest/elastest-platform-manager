@@ -1,5 +1,6 @@
 package io.elastest.epm.api;
 
+import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.ResourceGroup;
 import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
 import io.elastest.epm.repository.ResourceGroupRepository;
@@ -47,6 +48,9 @@ public class PackagesApiController implements PackagesApi {
       return new ResponseEntity<ResourceGroup>(HttpStatus.OK).ok(resourceGroup);
     } catch (IOException exception) {
       return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
+    } catch (NotFoundException e) {
+      e.printStackTrace();
+      return new ResponseEntity<ResourceGroup>(HttpStatus.NOT_FOUND);
     }
   }
 }

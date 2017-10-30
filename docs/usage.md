@@ -132,6 +132,57 @@ curl -X PUT "http://localhost:8180/v1/runtime/{VDU_ID}/action/start"
 curl -X PUT "http://localhost:8180/v1/runtime/{VDU_ID}/action/stop"
 ```
 
+## Using the Docker-Compose client
+
+To launch Docker-Compose files using the client you have to follow these steps
+
+1. Follow the instructions to launch the Docker-Compose client: https://github.com/mpauls/epm-client-docker-compose
+
+2. If you launched the Docker-Compose client in a docker container retrieve the ip of the container
+
+3. Register a Docker-Compose PoP using the Docker-Compose client IP (Change the value in the "interfaceInfo")
+
+```bash
+curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "compose", "interfaceEndpoint": "unix:///var/run/docker.sock", "interfaceInfo": [{"key":"type","value":"docker-compose"},{"key":"ip","value":"DOCKER-COMPOSE-CLIENT-IP"}]}' localhost:8180/v1/pop
+
+```
+4. Create a **tar** package with the following structure
+
+```bash
+- metadata.yaml
+- docker-compose.yml
+```
+
+The **Metadata.yaml** should look like this:
+
+```yaml
+name: package #Here you can specify the name of the package
+```
+
+You can create the **tar** file using the following command
+
+```bash
+tar -cvf compose-package.tar *
+```
+
+5. Send the compose package to the EPM
+
+```bash
+curl -X POST http://localhost:8180/v1/packages -H "Accept: application/json" -v -F file=@compose-package.tar
+```
+
+This will forward the package to the client and it will be launched using Docker-Compose. 
+The EPM will return a Resource-Group as json. 
+
+6. Stopping the docker-compose package
+
+After you are done using it you can also stop the Docker-Compose package. 
+You have to replace the ID with the Resource Group ID of the package.
+
+```bash
+curl -X DELETE http://localhost:8180/v1/packages/9915ceda-c1a1-4521-ad87-a1791b12002a -H "Accept: application/json"
+```
+
 ## Json examples
 
 In the following you can find some descriptors how a json for a certain body to be passed has to be defined:

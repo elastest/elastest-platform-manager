@@ -39,10 +39,6 @@ public class ResourceGroup {
   @OneToMany(cascade = CascadeType.ALL)
   private List<Network> networks = new ArrayList<Network>();
 
-  @JsonProperty("pops")
-  @OneToMany(cascade = CascadeType.ALL)
-  private List<PoP> pops = new ArrayList<PoP>();
-
   public ResourceGroup id(String id) {
     this.id = id;
     return this;
@@ -135,30 +131,6 @@ public class ResourceGroup {
     this.networks = networks;
   }
 
-  public ResourceGroup pops(List<PoP> pops) {
-    this.pops = pops;
-    return this;
-  }
-
-  public ResourceGroup addPopsItem(PoP popsItem) {
-    this.pops.add(popsItem);
-    return this;
-  }
-
-  /**
-   * Get pops
-   *
-   * @return pops
-   */
-  @ApiModelProperty(value = "")
-  public List<PoP> getPops() {
-    return pops;
-  }
-
-  public void setPops(List<PoP> pops) {
-    this.pops = pops;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -171,13 +143,12 @@ public class ResourceGroup {
     return Objects.equals(this.id, resourceGroup.id)
         && Objects.equals(this.name, resourceGroup.name)
         && Objects.equals(this.vdus, resourceGroup.vdus)
-        && Objects.equals(this.networks, resourceGroup.networks)
-        && Objects.equals(this.pops, resourceGroup.pops);
+        && Objects.equals(this.networks, resourceGroup.networks);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, vdus, networks, pops);
+    return Objects.hash(id, name, vdus, networks);
   }
 
   @Override
@@ -189,7 +160,6 @@ public class ResourceGroup {
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    vdus: ").append(toIndentedString(vdus)).append("\n");
     sb.append("    networks: ").append(toIndentedString(networks)).append("\n");
-    sb.append("    pops: ").append(toIndentedString(pops)).append("\n");
     sb.append("}");
     return sb.toString();
   }
