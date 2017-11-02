@@ -56,9 +56,7 @@ public class MockedConfig {
     resourceGroup.setId("mocked_id");
     resourceGroup.setName("mocked_resource_group_name");
     resourceGroup.setVdus(new ArrayList<>());
-    resourceGroup.setPops(new ArrayList<>());
     resourceGroup.setNetworks(new ArrayList<>());
-    resourceGroup.getPops().add(pop());
     resourceGroup.getNetworks().add(network());
     resourceGroup.getVdus().add(vdu());
     return resourceGroup;
