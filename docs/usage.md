@@ -134,7 +134,14 @@ curl -X PUT "http://localhost:8180/v1/runtime/{VDU_ID}/action/stop"
 
 ## Using the Docker-Compose client
 
-To launch Docker-Compose files using the client you have to follow these steps
+To launch Docker-Compose files using the client you have two options:
+ 
+ **Use Docker Compose** 
+ You can start the EPM and the Docker-Compose client using the docker-compose.yaml from
+ the compose-client repository: https://github.com/mpauls/epm-client-docker-compose
+ 
+ **Setup the client yourself**
+ Follow these steps
 
 1. Follow the instructions to launch the Docker-Compose client: https://github.com/mpauls/epm-client-docker-compose
 
@@ -143,8 +150,7 @@ To launch Docker-Compose files using the client you have to follow these steps
 3. Register a Docker-Compose PoP using the Docker-Compose client IP (Change the value in the "interfaceInfo")
 
 ```bash
-curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "compose", "interfaceEndpoint": "unix:///var/run/docker.sock", "interfaceInfo": [{"key":"type","value":"docker-compose"},{"key":"ip","value":"DOCKER-COMPOSE-CLIENT-IP"}]}' localhost:8180/v1/pop
-
+{"name": "compose", "interfaceEndpoint": "$DOCKER_CLIENT_IP$", "interfaceInfo": [{"key":"type","value":"docker-compose"}]}
 ```
 4. Create a **tar** package with the following structure
 

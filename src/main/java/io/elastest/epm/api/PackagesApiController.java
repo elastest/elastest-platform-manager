@@ -33,7 +33,11 @@ public class PackagesApiController implements PackagesApi {
       @ApiParam(value = "ID of Package", required = true) @PathVariable("id") String id) {
     ResourceGroup resourceGroup = resourceGroupRepository.findOne(id);
     if (resourceGroup != null) {
-      dockerComposeAdapter.rmCompose(resourceGroup.getName());
+      try {
+        dockerComposeAdapter.terminate(resourceGroup.getName());
+      } catch (NotFoundException e) {
+        return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+      }
       return new ResponseEntity<Void>(HttpStatus.OK);
     } else return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
   }
@@ -44,7 +48,7 @@ public class PackagesApiController implements PackagesApi {
     log.debug("Name: " + file.getOriginalFilename());
 
     try {
-      ResourceGroup resourceGroup = dockerComposeAdapter.upCompose(file.getInputStream());
+      ResourceGroup resourceGroup = dockerComposeAdapter.deploy(file.getInputStream());
       return new ResponseEntity<ResourceGroup>(HttpStatus.OK).ok(resourceGroup);
     } catch (IOException exception) {
       return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);

@@ -1,14 +1,14 @@
 package io.elastest.epm.pop.adapter.compose;
 
 import com.google.protobuf.ByteString;
-import io.elastest.epm.core.NetworkManagement;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.adapter.compose.generated.ComposeHandlerGrpc;
+import io.elastest.epm.pop.adapter.compose.generated.ComposeHandlerGrpc.ComposeHandlerBlockingStub;
 import io.elastest.epm.pop.adapter.compose.generated.ComposeIdentifier;
 import io.elastest.epm.pop.adapter.compose.generated.ComposePackage;
 import io.elastest.epm.pop.adapter.compose.generated.ResourceGroupCompose;
-import io.elastest.epm.pop.adapter.exception.AdapterException;
+import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DockerComposeAdapter {
+public class DockerComposeAdapter implements PackageManagementInterface {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -33,64 +33,49 @@ public class DockerComposeAdapter {
 
   @Autowired private NetworkRepository networkRepository;
 
-  @Autowired private NetworkManagement networkManagement;
-
   @Autowired private VduRepository vduRepository;
 
   @Autowired private ResourceGroupRepository resourceGroupRepository;
 
   @Autowired private DockerProperties dockerProperties;
 
-  private ManagedChannel channel;
-  private ComposeHandlerGrpc.ComposeHandlerBlockingStub blockingStub;
+  private ComposeHandlerBlockingStub getDockerComposeClient(PoP poP) {
 
-  public void init(String adapterIp) {
     ManagedChannelBuilder<?> channelBuilder =
-        ManagedChannelBuilder.forAddress(adapterIp, 50051).usePlaintext(true);
-    channel = channelBuilder.build();
-    blockingStub = ComposeHandlerGrpc.newBlockingStub(channel);
+        ManagedChannelBuilder.forAddress(poP.getInterfaceEndpoint(), 50051).usePlaintext(true);
+    ManagedChannel channel = channelBuilder.build();
+    return ComposeHandlerGrpc.newBlockingStub(channel);
   }
 
-  public ResourceGroup upCompose(InputStream inputStream) throws IOException, NotFoundException {
-
-    String adapterIp = null;
+  private PoP findComposePoP() throws NotFoundException {
     PoP composePoP = null;
     Iterable<PoP> pops = poPRepository.findAll();
     for (PoP pop : pops) {
       for (KeyValuePair kvp : pop.getInterfaceInfo()) {
         if (kvp.getKey().equals("type") && kvp.getValue().equals("docker-compose")) {
-          for (KeyValuePair kvp_a : pop.getInterfaceInfo()) {
-            if (kvp_a.getKey().equals("ip")) {
-              adapterIp = kvp_a.getValue();
-              composePoP = pop;
-              break;
-            }
-          }
+          composePoP = pop;
+          break;
         }
       }
     }
 
-    if (adapterIp == null || composePoP == null)
+    if (composePoP == null || composePoP.getInterfaceEndpoint() == null)
       throw new NotFoundException("No docker-compose pop was registered!");
-    init(adapterIp);
+    return composePoP;
+  }
 
-    ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(inputStream));
+  @Override
+  public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException {
+
+    PoP composePoP = findComposePoP();
+    ComposeHandlerBlockingStub composeClient = getDockerComposeClient(composePoP);
+
+    ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
     ComposePackage composePackage = ComposePackage.newBuilder().setComposeFile(yamlFile).build();
-    ResourceGroupCompose rg = blockingStub.upCompose(composePackage);
+    ResourceGroupCompose rg = composeClient.upCompose(composePackage);
 
     ResourceGroup resourceGroup = new ResourceGroup();
     resourceGroup.setName(rg.getName());
-
-    /*for (ResourceGroupCompose.PoPCompose poPCompose : rg.getPopsList()) {
-      if (poPRepository.findOneByName(poPCompose.getName()) == null) {
-        //PoP poP = new PoP();
-        //poP.setName(poPCompose.getName());
-        poP.setInterfaceEndpoint(poPCompose.getInterfaceEndpoint());
-        poPRepository.save(poP);
-        resourceGroup.addPopsItem(poP);
-      }
-    }*/
-    //resourceGroup.addPopsItem(composePoP);
 
     for (ResourceGroupCompose.NetworkCompose networkCompose : rg.getNetworksList()) {
       Network network = new Network();
@@ -125,25 +110,19 @@ public class DockerComposeAdapter {
     return resourceGroup;
   }
 
-  public void rmCompose(String composeId) {
-
+  @Override
+  public void terminate(String packageId) throws NotFoundException {
     ComposeIdentifier composeIdentifier =
-        ComposeIdentifier.newBuilder().setComposeId(composeId).build();
-    blockingStub.removeCompose(composeIdentifier);
+        ComposeIdentifier.newBuilder().setComposeId(packageId).build();
 
-    ResourceGroup resourceGroup = resourceGroupRepository.findOneByName(composeId);
+    PoP composePop = findComposePoP();
+    ComposeHandlerBlockingStub composeClient = getDockerComposeClient(composePop);
+    composeClient.removeCompose(composeIdentifier);
+
+    ResourceGroup resourceGroup = resourceGroupRepository.findOneByName(packageId);
 
     vduRepository.delete(resourceGroup.getVdus());
-
-    for (Network network : resourceGroup.getNetworks()) {
-      try {
-        networkManagement.deleteNetwork(network.getId());
-      } catch (AdapterException exception) {
-        log.warn("Could not delete network: " + network.getId());
-        log.warn(exception.getMessage());
-      }
-    }
-    //poPRepository.delete(resourceGroup.getPops());
+    networkRepository.delete(resourceGroup.getNetworks());
     resourceGroupRepository.delete(resourceGroup);
   }
 }
