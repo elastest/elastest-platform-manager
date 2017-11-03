@@ -5,10 +5,14 @@ import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.adapter.compose.generated.ComposeHandlerGrpc;
 import io.elastest.epm.pop.adapter.compose.generated.ComposeHandlerGrpc.ComposeHandlerBlockingStub;
+import io.elastest.epm.pop.adapter.compose.generated.DockerRuntimeMessage;
 import io.elastest.epm.pop.adapter.compose.generated.FileMessage;
 import io.elastest.epm.pop.adapter.compose.generated.ResourceGroupCompose;
 import io.elastest.epm.pop.adapter.compose.generated.ResourceIdentifier;
+import io.elastest.epm.pop.adapter.compose.generated.StringResponse;
+import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
+import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
 import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
@@ -16,6 +20,7 @@ import io.elastest.epm.repository.ResourceGroupRepository;
 import io.elastest.epm.repository.VduRepository;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
@@ -23,9 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
-public class DockerComposeAdapter implements PackageManagementInterface {
+public class DockerComposeAdapter implements PackageManagementInterface, RuntimeManagmentInterface {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -124,5 +130,67 @@ public class DockerComposeAdapter implements PackageManagementInterface {
     vduRepository.delete(resourceGroup.getVdus());
     networkRepository.delete(resourceGroup.getNetworks());
     resourceGroupRepository.delete(resourceGroup);
+  }
+
+  @Override
+  public InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop)
+      throws AdapterException {
+    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+    log.debug("Downloading file");
+    DockerRuntimeMessage dockerRuntimeMessage =
+        DockerRuntimeMessage.newBuilder()
+            .setResourceId(vdu.getComputeId())
+            .setProperty(filepath)
+            .build();
+    FileMessage response = client.downloadFile(dockerRuntimeMessage);
+    return new ByteArrayInputStream(response.getFile().toByteArray());
+  }
+
+  @Override
+  public String executeOnInstance(VDU vdu, String command, boolean awaitCompletion, PoP pop)
+      throws AdapterException {
+    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+    DockerRuntimeMessage dockerRuntimeMessage =
+        DockerRuntimeMessage.newBuilder()
+            .setResourceId(vdu.getComputeId())
+            .setProperty(command)
+            .build();
+    StringResponse response = client.executeCommand(dockerRuntimeMessage);
+    return response.getResponse();
+  }
+
+  @Override
+  public void startInstance(VDU vdu, PoP pop) throws AdapterException {
+
+    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+    ResourceIdentifier resourceIdentifier =
+        ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
+    client.startContainer(resourceIdentifier);
+  }
+
+  @Override
+  public void stopInstance(VDU vdu, PoP pop) throws AdapterException {
+
+    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+    ResourceIdentifier resourceIdentifier =
+        ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
+    client.stopContainer(resourceIdentifier);
+  }
+
+  @Override
+  public void uploadFileToInstance(VDU vdu, String remotePath, String hostPath, PoP pop)
+      throws AdapterException, IOException {}
+
+  @Override
+  public void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop)
+      throws AdapterException, IOException {
+    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+    DockerRuntimeMessage dockerRuntimeMessage =
+        DockerRuntimeMessage.newBuilder()
+            .setResourceId(vdu.getComputeId())
+            .setProperty(remotePath)
+            .setFile(ByteString.copyFrom(file.getBytes()))
+            .build();
+    client.uploadFile(dockerRuntimeMessage);
   }
 }
