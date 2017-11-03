@@ -5,8 +5,10 @@ import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.PrePersist;
 import javax.validation.constraints.*;
 /** This entity is a Key-Value pair for storing metadata contained in other entities */
@@ -27,6 +29,8 @@ public class KeyValuePair {
   private String key = null;
 
   @JsonProperty("value")
+  @Lob
+  @Column(length = 20971520)
   private String value = null;
 
   public KeyValuePair() {}
