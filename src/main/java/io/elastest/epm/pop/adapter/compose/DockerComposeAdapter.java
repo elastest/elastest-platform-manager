@@ -5,9 +5,9 @@ import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.adapter.compose.generated.ComposeHandlerGrpc;
 import io.elastest.epm.pop.adapter.compose.generated.ComposeHandlerGrpc.ComposeHandlerBlockingStub;
-import io.elastest.epm.pop.adapter.compose.generated.ComposeIdentifier;
-import io.elastest.epm.pop.adapter.compose.generated.ComposePackage;
+import io.elastest.epm.pop.adapter.compose.generated.FileMessage;
 import io.elastest.epm.pop.adapter.compose.generated.ResourceGroupCompose;
+import io.elastest.epm.pop.adapter.compose.generated.ResourceIdentifier;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.NetworkRepository;
@@ -71,7 +71,7 @@ public class DockerComposeAdapter implements PackageManagementInterface {
     ComposeHandlerBlockingStub composeClient = getDockerComposeClient(composePoP);
 
     ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
-    ComposePackage composePackage = ComposePackage.newBuilder().setComposeFile(yamlFile).build();
+    FileMessage composePackage = FileMessage.newBuilder().setFile(yamlFile).build();
     ResourceGroupCompose rg = composeClient.upCompose(composePackage);
 
     ResourceGroup resourceGroup = new ResourceGroup();
@@ -112,8 +112,8 @@ public class DockerComposeAdapter implements PackageManagementInterface {
 
   @Override
   public void terminate(String packageId) throws NotFoundException {
-    ComposeIdentifier composeIdentifier =
-        ComposeIdentifier.newBuilder().setComposeId(packageId).build();
+    ResourceIdentifier composeIdentifier =
+        ResourceIdentifier.newBuilder().setResourceId(packageId).build();
 
     PoP composePop = findComposePoP();
     ComposeHandlerBlockingStub composeClient = getDockerComposeClient(composePop);
