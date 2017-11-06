@@ -104,7 +104,7 @@ curl -X GET -H "Accept: application/json" localhost:8180/v1/resourceGroup
 
 * Download a file from an instance:
 ```bash
-curl -X GET -H "accept: multipart/form-data" -H "content-type: multipart/form-data" -d {"filePath":"/PATH_TO_FILE“} "http://localhost:8180/v1/runtime/{VDU_ID}/file“
+curl -X GET -H "accept: multipart/form-data" -H "content-type: application/json" -d '{"path":"/PATH_TO_FILE"}' "http://localhost:8180/v1/runtime/{VDU_ID}/file"
 ```
 
 * Upload a file from the given path:
@@ -114,12 +114,12 @@ curl -X POST -H "accept: application/json" -H "content-type: application/json" -
 
 * Upload a file that is passed within the request:
 ```bash
-curl -X POST -H "content-type: multipart/form-data" -F "remotePath=/" -F "file=@{PATH_TO_FILE}“ "http://localhost:8180/v1/runtime/{VDU_ID}/file“
+curl -X POST -H "content-type: multipart/form-data" -F "remotePath=/" -F "file=@{PATH_TO_FILE}" "http://localhost:8180/v1/runtime/{VDU_ID}/file"
 ```
 
 * Execute a command on the instance:
 ```bash
-curl -X PUT -H "accept: application/json" -H "content-type: application/json" -d {"command":"ls","awaitCompletion":"true“} "http://localhost:8180/v1/runtime/{VDU_ID}/action/execute“
+curl -X PUT -H "accept: application/json" -H "content-type: application/json" -d '{"command":"ls","awaitCompletion":"true"}' "http://localhost:8180/v1/runtime/{VDU_ID}/action/execute"
 ```
 
 * Start instance
