@@ -135,46 +135,54 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   @Override
   public InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop)
       throws AdapterException {
-    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
-    log.debug("Downloading file");
-    DockerRuntimeMessage dockerRuntimeMessage =
-        DockerRuntimeMessage.newBuilder()
-            .setResourceId(vdu.getComputeId())
-            .setProperty(filepath)
-            .build();
-    FileMessage response = client.downloadFile(dockerRuntimeMessage);
-    return new ByteArrayInputStream(response.getFile().toByteArray());
+    if (isRunning(vdu.getComputeId(), pop)) {
+      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      log.debug("Downloading file");
+      DockerRuntimeMessage dockerRuntimeMessage =
+          DockerRuntimeMessage.newBuilder()
+              .setResourceId(vdu.getComputeId())
+              .setProperty(filepath)
+              .build();
+      FileMessage response = client.downloadFile(dockerRuntimeMessage);
+      return new ByteArrayInputStream(response.getFile().toByteArray());
+    } else throw new AdapterException("Can't download file from stopped container.");
   }
 
   @Override
   public String executeOnInstance(VDU vdu, String command, boolean awaitCompletion, PoP pop)
       throws AdapterException {
-    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
-    DockerRuntimeMessage dockerRuntimeMessage =
-        DockerRuntimeMessage.newBuilder()
-            .setResourceId(vdu.getComputeId())
-            .setProperty(command)
-            .build();
-    StringResponse response = client.executeCommand(dockerRuntimeMessage);
-    return response.getResponse();
+    if (isRunning(vdu.getComputeId(), pop)) {
+      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      DockerRuntimeMessage dockerRuntimeMessage =
+          DockerRuntimeMessage.newBuilder()
+              .setResourceId(vdu.getComputeId())
+              .setProperty(command)
+              .build();
+      StringResponse response = client.executeCommand(dockerRuntimeMessage);
+      return response.getResponse();
+    } else throw new AdapterException("Can't execute command on stopped container.");
   }
 
   @Override
   public void startInstance(VDU vdu, PoP pop) throws AdapterException {
 
-    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
-    ResourceIdentifier resourceIdentifier =
-        ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
-    client.startContainer(resourceIdentifier);
+    if (existsContainer(vdu.getComputeId(), pop) && !isRunning(vdu.getComputeId(), pop)) {
+      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      ResourceIdentifier resourceIdentifier =
+          ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
+      client.startContainer(resourceIdentifier);
+    }
   }
 
   @Override
   public void stopInstance(VDU vdu, PoP pop) throws AdapterException {
 
-    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
-    ResourceIdentifier resourceIdentifier =
-        ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
-    client.stopContainer(resourceIdentifier);
+    if (isRunning(vdu.getComputeId(), pop)) {
+      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      ResourceIdentifier resourceIdentifier =
+          ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
+      client.stopContainer(resourceIdentifier);
+    }
   }
 
   @Override
@@ -184,13 +192,31 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   @Override
   public void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop)
       throws AdapterException, IOException {
+    if (isRunning(vdu.getComputeId(), pop)) {
+      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      DockerRuntimeMessage dockerRuntimeMessage =
+          DockerRuntimeMessage.newBuilder()
+              .setResourceId(vdu.getComputeId())
+              .setProperty(remotePath)
+              .setFile(ByteString.copyFrom(file.getBytes()))
+              .build();
+      client.uploadFile(dockerRuntimeMessage);
+    } else throw new AdapterException("Can't upload a file to a stopped container.");
+  }
+
+  private boolean existsContainer(String containerId, PoP pop) {
     ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
-    DockerRuntimeMessage dockerRuntimeMessage =
-        DockerRuntimeMessage.newBuilder()
-            .setResourceId(vdu.getComputeId())
-            .setProperty(remotePath)
-            .setFile(ByteString.copyFrom(file.getBytes()))
-            .build();
-    client.uploadFile(dockerRuntimeMessage);
+    ResourceIdentifier resourceIdentifier =
+        ResourceIdentifier.newBuilder().setResourceId(containerId).build();
+    StringResponse stringResponse = client.checkIfContainerExists(resourceIdentifier);
+    return Boolean.parseBoolean(stringResponse.getResponse().toLowerCase());
+  }
+
+  private boolean isRunning(String containerId, PoP pop) {
+    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+    ResourceIdentifier resourceIdentifier =
+        ResourceIdentifier.newBuilder().setResourceId(containerId).build();
+    StringResponse stringResponse = client.checkIfContainerRunning(resourceIdentifier);
+    return Boolean.parseBoolean(stringResponse.getResponse().toLowerCase());
   }
 }

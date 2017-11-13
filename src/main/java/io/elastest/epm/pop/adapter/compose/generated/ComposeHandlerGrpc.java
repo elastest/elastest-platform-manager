@@ -52,6 +52,31 @@ public final class ComposeHandlerGrpc {
           .build();
 
   @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static final io.grpc.MethodDescriptor<ResourceIdentifier, StringResponse>
+      METHOD_CHECK_IF_CONTAINER_EXISTS =
+          io.grpc.MethodDescriptor.<ResourceIdentifier, StringResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(generateFullMethodName("ComposeHandler", "CheckIfContainerExists"))
+              .setRequestMarshaller(
+                  io.grpc.protobuf.ProtoUtils.marshaller(ResourceIdentifier.getDefaultInstance()))
+              .setResponseMarshaller(
+                  io.grpc.protobuf.ProtoUtils.marshaller(StringResponse.getDefaultInstance()))
+              .build();
+
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static final io.grpc.MethodDescriptor<ResourceIdentifier, StringResponse>
+      METHOD_CHECK_IF_CONTAINER_RUNNING =
+          io.grpc.MethodDescriptor.<ResourceIdentifier, StringResponse>newBuilder()
+              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName(
+                  generateFullMethodName("ComposeHandler", "CheckIfContainerRunning"))
+              .setRequestMarshaller(
+                  io.grpc.protobuf.ProtoUtils.marshaller(ResourceIdentifier.getDefaultInstance()))
+              .setResponseMarshaller(
+                  io.grpc.protobuf.ProtoUtils.marshaller(StringResponse.getDefaultInstance()))
+              .build();
+
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static final io.grpc.MethodDescriptor<ResourceIdentifier, Empty> METHOD_START_CONTAINER =
       io.grpc.MethodDescriptor.<ResourceIdentifier, Empty>newBuilder()
           .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
@@ -134,6 +159,18 @@ public final class ComposeHandlerGrpc {
     }
 
     /** */
+    public void checkIfContainerExists(
+        ResourceIdentifier request, io.grpc.stub.StreamObserver<StringResponse> responseObserver) {
+      asyncUnimplementedUnaryCall(METHOD_CHECK_IF_CONTAINER_EXISTS, responseObserver);
+    }
+
+    /** */
+    public void checkIfContainerRunning(
+        ResourceIdentifier request, io.grpc.stub.StreamObserver<StringResponse> responseObserver) {
+      asyncUnimplementedUnaryCall(METHOD_CHECK_IF_CONTAINER_RUNNING, responseObserver);
+    }
+
+    /** */
     public void startContainer(
         ResourceIdentifier request, io.grpc.stub.StreamObserver<Empty> responseObserver) {
       asyncUnimplementedUnaryCall(METHOD_START_CONTAINER, responseObserver);
@@ -173,6 +210,16 @@ public final class ComposeHandlerGrpc {
               METHOD_STOP_CONTAINER,
               asyncUnaryCall(
                   new MethodHandlers<ResourceIdentifier, Empty>(this, METHODID_STOP_CONTAINER)))
+          .addMethod(
+              METHOD_CHECK_IF_CONTAINER_EXISTS,
+              asyncUnaryCall(
+                  new MethodHandlers<ResourceIdentifier, StringResponse>(
+                      this, METHODID_CHECK_IF_CONTAINER_EXISTS)))
+          .addMethod(
+              METHOD_CHECK_IF_CONTAINER_RUNNING,
+              asyncUnaryCall(
+                  new MethodHandlers<ResourceIdentifier, StringResponse>(
+                      this, METHODID_CHECK_IF_CONTAINER_RUNNING)))
           .addMethod(
               METHOD_START_CONTAINER,
               asyncUnaryCall(
@@ -230,6 +277,24 @@ public final class ComposeHandlerGrpc {
         ResourceIdentifier request, io.grpc.stub.StreamObserver<Empty> responseObserver) {
       asyncUnaryCall(
           getChannel().newCall(METHOD_STOP_CONTAINER, getCallOptions()), request, responseObserver);
+    }
+
+    /** */
+    public void checkIfContainerExists(
+        ResourceIdentifier request, io.grpc.stub.StreamObserver<StringResponse> responseObserver) {
+      asyncUnaryCall(
+          getChannel().newCall(METHOD_CHECK_IF_CONTAINER_EXISTS, getCallOptions()),
+          request,
+          responseObserver);
+    }
+
+    /** */
+    public void checkIfContainerRunning(
+        ResourceIdentifier request, io.grpc.stub.StreamObserver<StringResponse> responseObserver) {
+      asyncUnaryCall(
+          getChannel().newCall(METHOD_CHECK_IF_CONTAINER_RUNNING, getCallOptions()),
+          request,
+          responseObserver);
     }
 
     /** */
@@ -299,6 +364,18 @@ public final class ComposeHandlerGrpc {
     }
 
     /** */
+    public StringResponse checkIfContainerExists(ResourceIdentifier request) {
+      return blockingUnaryCall(
+          getChannel(), METHOD_CHECK_IF_CONTAINER_EXISTS, getCallOptions(), request);
+    }
+
+    /** */
+    public StringResponse checkIfContainerRunning(ResourceIdentifier request) {
+      return blockingUnaryCall(
+          getChannel(), METHOD_CHECK_IF_CONTAINER_RUNNING, getCallOptions(), request);
+    }
+
+    /** */
     public Empty startContainer(ResourceIdentifier request) {
       return blockingUnaryCall(getChannel(), METHOD_START_CONTAINER, getCallOptions(), request);
     }
@@ -357,6 +434,20 @@ public final class ComposeHandlerGrpc {
     }
 
     /** */
+    public com.google.common.util.concurrent.ListenableFuture<StringResponse>
+        checkIfContainerExists(ResourceIdentifier request) {
+      return futureUnaryCall(
+          getChannel().newCall(METHOD_CHECK_IF_CONTAINER_EXISTS, getCallOptions()), request);
+    }
+
+    /** */
+    public com.google.common.util.concurrent.ListenableFuture<StringResponse>
+        checkIfContainerRunning(ResourceIdentifier request) {
+      return futureUnaryCall(
+          getChannel().newCall(METHOD_CHECK_IF_CONTAINER_RUNNING, getCallOptions()), request);
+    }
+
+    /** */
     public com.google.common.util.concurrent.ListenableFuture<Empty> startContainer(
         ResourceIdentifier request) {
       return futureUnaryCall(
@@ -386,10 +477,12 @@ public final class ComposeHandlerGrpc {
   private static final int METHODID_UP_COMPOSE = 0;
   private static final int METHODID_REMOVE_COMPOSE = 1;
   private static final int METHODID_STOP_CONTAINER = 2;
-  private static final int METHODID_START_CONTAINER = 3;
-  private static final int METHODID_EXECUTE_COMMAND = 4;
-  private static final int METHODID_DOWNLOAD_FILE = 5;
-  private static final int METHODID_UPLOAD_FILE = 6;
+  private static final int METHODID_CHECK_IF_CONTAINER_EXISTS = 3;
+  private static final int METHODID_CHECK_IF_CONTAINER_RUNNING = 4;
+  private static final int METHODID_START_CONTAINER = 5;
+  private static final int METHODID_EXECUTE_COMMAND = 6;
+  private static final int METHODID_DOWNLOAD_FILE = 7;
+  private static final int METHODID_UPLOAD_FILE = 8;
 
   private static final class MethodHandlers<Req, Resp>
       implements io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -420,6 +513,16 @@ public final class ComposeHandlerGrpc {
         case METHODID_STOP_CONTAINER:
           serviceImpl.stopContainer(
               (ResourceIdentifier) request, (io.grpc.stub.StreamObserver<Empty>) responseObserver);
+          break;
+        case METHODID_CHECK_IF_CONTAINER_EXISTS:
+          serviceImpl.checkIfContainerExists(
+              (ResourceIdentifier) request,
+              (io.grpc.stub.StreamObserver<StringResponse>) responseObserver);
+          break;
+        case METHODID_CHECK_IF_CONTAINER_RUNNING:
+          serviceImpl.checkIfContainerRunning(
+              (ResourceIdentifier) request,
+              (io.grpc.stub.StreamObserver<StringResponse>) responseObserver);
           break;
         case METHODID_START_CONTAINER:
           serviceImpl.startContainer(
@@ -479,6 +582,8 @@ public final class ComposeHandlerGrpc {
                       .addMethod(METHOD_UP_COMPOSE)
                       .addMethod(METHOD_REMOVE_COMPOSE)
                       .addMethod(METHOD_STOP_CONTAINER)
+                      .addMethod(METHOD_CHECK_IF_CONTAINER_EXISTS)
+                      .addMethod(METHOD_CHECK_IF_CONTAINER_RUNNING)
                       .addMethod(METHOD_START_CONTAINER)
                       .addMethod(METHOD_EXECUTE_COMMAND)
                       .addMethod(METHOD_DOWNLOAD_FILE)
