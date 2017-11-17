@@ -3,6 +3,7 @@ package io.elastest.epm.pop.adapter.compose;
 import com.google.protobuf.ByteString;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
+import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.compose.generated.ComposeHandlerGrpc;
 import io.elastest.epm.pop.adapter.compose.generated.ComposeHandlerGrpc.ComposeHandlerBlockingStub;
 import io.elastest.epm.pop.adapter.compose.generated.DockerRuntimeMessage;
@@ -21,8 +22,10 @@ import io.elastest.epm.repository.VduRepository;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -193,14 +196,21 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   public void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop)
       throws AdapterException, IOException {
     if (isRunning(vdu.getComputeId(), pop)) {
+      File output = Utils.convert(file);
+      output.deleteOnExit();
       ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      if (!file.getOriginalFilename().endsWith(".tar")) {
+        output = Utils.compressFileToTar(output);
+      }
+
       DockerRuntimeMessage dockerRuntimeMessage =
           DockerRuntimeMessage.newBuilder()
               .setResourceId(vdu.getComputeId())
               .setProperty(remotePath)
-              .setFile(ByteString.copyFrom(file.getBytes()))
+              .setFile(ByteString.copyFrom(FileUtils.readFileToByteArray(output)))
               .build();
       client.uploadFile(dockerRuntimeMessage);
+      log.debug(String.valueOf("File deletion: " + output.delete()));
     } else throw new AdapterException("Can't upload a file to a stopped container.");
   }
 
