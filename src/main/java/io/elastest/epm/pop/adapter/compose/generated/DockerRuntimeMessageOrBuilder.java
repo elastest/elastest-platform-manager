@@ -11,10 +11,14 @@ public interface DockerRuntimeMessageOrBuilder
   /** <code>optional string resource_id = 1;</code> */
   com.google.protobuf.ByteString getResourceIdBytes();
 
-  /** <code>optional string property = 2;</code> */
-  String getProperty();
-  /** <code>optional string property = 2;</code> */
-  com.google.protobuf.ByteString getPropertyBytes();
+  /** <code>repeated string property = 2;</code> */
+  java.util.List<String> getPropertyList();
+  /** <code>repeated string property = 2;</code> */
+  int getPropertyCount();
+  /** <code>repeated string property = 2;</code> */
+  String getProperty(int index);
+  /** <code>repeated string property = 2;</code> */
+  com.google.protobuf.ByteString getPropertyBytes(int index);
 
   /** <code>optional bytes file = 3;</code> */
   com.google.protobuf.ByteString getFile();

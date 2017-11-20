@@ -158,7 +158,15 @@ public class RuntimeManagement {
     if (hostPath == null) {
       throw new BadRequestException("hostPath must be provided.");
     }
-    dockerAdapter.uploadFileToInstance(vdu, remotePath, hostPath, pop);
+    boolean compose = false;
+    for (KeyValuePair kvp : pop.getInterfaceInfo()) {
+      if (kvp.getKey().equals("type") && kvp.getValue().equals("docker-compose")) {
+        compose = true;
+        break;
+      }
+    }
+    if (compose) composeAdapter.uploadFileToInstance(vdu, remotePath, hostPath, pop);
+    else dockerAdapter.uploadFileToInstance(vdu, remotePath, hostPath, pop);
     vdu.getEvents().add(createEvent("Uploaded file from " + hostPath + " to " + remotePath));
     vduRepository.save(vdu);
   }

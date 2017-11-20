@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -144,7 +145,8 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
       DockerRuntimeMessage dockerRuntimeMessage =
           DockerRuntimeMessage.newBuilder()
               .setResourceId(vdu.getComputeId())
-              .setProperty(filepath)
+              .addAllProperty(new ArrayList<String>())
+              .addProperty(filepath)
               .build();
       FileMessage response = client.downloadFile(dockerRuntimeMessage);
       return new ByteArrayInputStream(response.getFile().toByteArray());
@@ -156,10 +158,12 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
       throws AdapterException {
     if (isRunning(vdu.getComputeId(), pop)) {
       ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+
       DockerRuntimeMessage dockerRuntimeMessage =
           DockerRuntimeMessage.newBuilder()
               .setResourceId(vdu.getComputeId())
-              .setProperty(command)
+              .addAllProperty(new ArrayList<String>())
+              .addProperty(command)
               .build();
       StringResponse response = client.executeCommand(dockerRuntimeMessage);
       return response.getResponse();
@@ -190,7 +194,21 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
 
   @Override
   public void uploadFileToInstance(VDU vdu, String remotePath, String hostPath, PoP pop)
-      throws AdapterException, IOException {}
+      throws AdapterException, IOException {
+    if (isRunning(vdu.getComputeId(), pop)) {
+      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+
+      DockerRuntimeMessage dockerRuntimeMessage =
+          DockerRuntimeMessage.newBuilder()
+              .setResourceId(vdu.getComputeId())
+              .addAllProperty(new ArrayList<String>())
+              .addProperty("withPath")
+              .addProperty(hostPath)
+              .addProperty(remotePath)
+              .build();
+      client.uploadFile(dockerRuntimeMessage);
+    } else throw new AdapterException("Can't upload a file to a stopped container.");
+  }
 
   @Override
   public void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop)
@@ -206,7 +224,8 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
       DockerRuntimeMessage dockerRuntimeMessage =
           DockerRuntimeMessage.newBuilder()
               .setResourceId(vdu.getComputeId())
-              .setProperty(remotePath)
+              .addAllProperty(new ArrayList<String>())
+              .addProperty(remotePath)
               .setFile(ByteString.copyFrom(FileUtils.readFileToByteArray(output)))
               .build();
       client.uploadFile(dockerRuntimeMessage);

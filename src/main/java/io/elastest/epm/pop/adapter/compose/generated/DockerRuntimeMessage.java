@@ -13,7 +13,7 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
 
   private DockerRuntimeMessage() {
     resourceId_ = "";
-    property_ = "";
+    property_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     file_ = com.google.protobuf.ByteString.EMPTY;
   }
 
@@ -53,8 +53,11 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
           case 18:
             {
               String s = input.readStringRequireUtf8();
-
-              property_ = s;
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                property_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              property_.add(s);
               break;
             }
           case 26:
@@ -69,6 +72,9 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
     } catch (java.io.IOException e) {
       throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
     } finally {
+      if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+        property_ = property_.getUnmodifiableView();
+      }
       makeExtensionsImmutable();
     }
   }
@@ -82,6 +88,7 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
         .ensureFieldAccessorsInitialized(DockerRuntimeMessage.class, Builder.class);
   }
 
+  private int bitField0_;
   public static final int RESOURCE_ID_FIELD_NUMBER = 1;
   private volatile Object resourceId_;
   /** <code>optional string resource_id = 1;</code> */
@@ -109,29 +116,22 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
   }
 
   public static final int PROPERTY_FIELD_NUMBER = 2;
-  private volatile Object property_;
-  /** <code>optional string property = 2;</code> */
-  public String getProperty() {
-    Object ref = property_;
-    if (ref instanceof String) {
-      return (String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
-      String s = bs.toStringUtf8();
-      property_ = s;
-      return s;
-    }
+  private com.google.protobuf.LazyStringList property_;
+  /** <code>repeated string property = 2;</code> */
+  public com.google.protobuf.ProtocolStringList getPropertyList() {
+    return property_;
   }
-  /** <code>optional string property = 2;</code> */
-  public com.google.protobuf.ByteString getPropertyBytes() {
-    Object ref = property_;
-    if (ref instanceof String) {
-      com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-      property_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
+  /** <code>repeated string property = 2;</code> */
+  public int getPropertyCount() {
+    return property_.size();
+  }
+  /** <code>repeated string property = 2;</code> */
+  public String getProperty(int index) {
+    return property_.get(index);
+  }
+  /** <code>repeated string property = 2;</code> */
+  public com.google.protobuf.ByteString getPropertyBytes(int index) {
+    return property_.getByteString(index);
   }
 
   public static final int FILE_FIELD_NUMBER = 3;
@@ -156,8 +156,8 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
     if (!getResourceIdBytes().isEmpty()) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, resourceId_);
     }
-    if (!getPropertyBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, property_);
+    for (int i = 0; i < property_.size(); i++) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, property_.getRaw(i));
     }
     if (!file_.isEmpty()) {
       output.writeBytes(3, file_);
@@ -172,8 +172,13 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
     if (!getResourceIdBytes().isEmpty()) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, resourceId_);
     }
-    if (!getPropertyBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, property_);
+    {
+      int dataSize = 0;
+      for (int i = 0; i < property_.size(); i++) {
+        dataSize += computeStringSizeNoTag(property_.getRaw(i));
+      }
+      size += dataSize;
+      size += 1 * getPropertyList().size();
     }
     if (!file_.isEmpty()) {
       size += com.google.protobuf.CodedOutputStream.computeBytesSize(3, file_);
@@ -196,7 +201,7 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
 
     boolean result = true;
     result = result && getResourceId().equals(other.getResourceId());
-    result = result && getProperty().equals(other.getProperty());
+    result = result && getPropertyList().equals(other.getPropertyList());
     result = result && getFile().equals(other.getFile());
     return result;
   }
@@ -210,8 +215,10 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
     hash = (19 * hash) + getDescriptorForType().hashCode();
     hash = (37 * hash) + RESOURCE_ID_FIELD_NUMBER;
     hash = (53 * hash) + getResourceId().hashCode();
-    hash = (37 * hash) + PROPERTY_FIELD_NUMBER;
-    hash = (53 * hash) + getProperty().hashCode();
+    if (getPropertyCount() > 0) {
+      hash = (37 * hash) + PROPERTY_FIELD_NUMBER;
+      hash = (53 * hash) + getPropertyList().hashCode();
+    }
     hash = (37 * hash) + FILE_FIELD_NUMBER;
     hash = (53 * hash) + getFile().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
@@ -332,8 +339,8 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
       super.clear();
       resourceId_ = "";
 
-      property_ = "";
-
+      property_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000002);
       file_ = com.google.protobuf.ByteString.EMPTY;
 
       return this;
@@ -357,9 +364,16 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
 
     public DockerRuntimeMessage buildPartial() {
       DockerRuntimeMessage result = new DockerRuntimeMessage(this);
+      int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
       result.resourceId_ = resourceId_;
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        property_ = property_.getUnmodifiableView();
+        bitField0_ = (bitField0_ & ~0x00000002);
+      }
       result.property_ = property_;
       result.file_ = file_;
+      result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
@@ -405,8 +419,14 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
         resourceId_ = other.resourceId_;
         onChanged();
       }
-      if (!other.getProperty().isEmpty()) {
-        property_ = other.property_;
+      if (!other.property_.isEmpty()) {
+        if (property_.isEmpty()) {
+          property_ = other.property_;
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          ensurePropertyIsMutable();
+          property_.addAll(other.property_);
+        }
         onChanged();
       }
       if (other.getFile() != com.google.protobuf.ByteString.EMPTY) {
@@ -437,6 +457,8 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
       }
       return this;
     }
+
+    private int bitField0_;
 
     private Object resourceId_ = "";
     /** <code>optional string resource_id = 1;</code> */
@@ -492,56 +514,73 @@ public final class DockerRuntimeMessage extends com.google.protobuf.GeneratedMes
       return this;
     }
 
-    private Object property_ = "";
-    /** <code>optional string property = 2;</code> */
-    public String getProperty() {
-      Object ref = property_;
-      if (!(ref instanceof String)) {
-        com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        property_ = s;
-        return s;
-      } else {
-        return (String) ref;
+    private com.google.protobuf.LazyStringList property_ =
+        com.google.protobuf.LazyStringArrayList.EMPTY;
+
+    private void ensurePropertyIsMutable() {
+      if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+        property_ = new com.google.protobuf.LazyStringArrayList(property_);
+        bitField0_ |= 0x00000002;
       }
     }
-    /** <code>optional string property = 2;</code> */
-    public com.google.protobuf.ByteString getPropertyBytes() {
-      Object ref = property_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b =
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        property_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    /** <code>repeated string property = 2;</code> */
+    public com.google.protobuf.ProtocolStringList getPropertyList() {
+      return property_.getUnmodifiableView();
     }
-    /** <code>optional string property = 2;</code> */
-    public Builder setProperty(String value) {
+    /** <code>repeated string property = 2;</code> */
+    public int getPropertyCount() {
+      return property_.size();
+    }
+    /** <code>repeated string property = 2;</code> */
+    public String getProperty(int index) {
+      return property_.get(index);
+    }
+    /** <code>repeated string property = 2;</code> */
+    public com.google.protobuf.ByteString getPropertyBytes(int index) {
+      return property_.getByteString(index);
+    }
+    /** <code>repeated string property = 2;</code> */
+    public Builder setProperty(int index, String value) {
       if (value == null) {
         throw new NullPointerException();
       }
-
-      property_ = value;
+      ensurePropertyIsMutable();
+      property_.set(index, value);
       onChanged();
       return this;
     }
-    /** <code>optional string property = 2;</code> */
+    /** <code>repeated string property = 2;</code> */
+    public Builder addProperty(String value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      ensurePropertyIsMutable();
+      property_.add(value);
+      onChanged();
+      return this;
+    }
+    /** <code>repeated string property = 2;</code> */
+    public Builder addAllProperty(Iterable<String> values) {
+      ensurePropertyIsMutable();
+      com.google.protobuf.AbstractMessageLite.Builder.addAll(values, property_);
+      onChanged();
+      return this;
+    }
+    /** <code>repeated string property = 2;</code> */
     public Builder clearProperty() {
-
-      property_ = getDefaultInstance().getProperty();
+      property_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
-    /** <code>optional string property = 2;</code> */
-    public Builder setPropertyBytes(com.google.protobuf.ByteString value) {
+    /** <code>repeated string property = 2;</code> */
+    public Builder addPropertyBytes(com.google.protobuf.ByteString value) {
       if (value == null) {
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
-      property_ = value;
+      ensurePropertyIsMutable();
+      property_.add(value);
       onChanged();
       return this;
     }

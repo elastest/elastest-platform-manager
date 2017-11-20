@@ -109,7 +109,7 @@ curl -X GET -H "accept: multipart/form-data" -H "content-type: application/json"
 
 * Upload a file from the given path:
 ```bash
-curl -X POST -H "accept: application/json" -H "content-type: application/json" -d "{ "remotePath": "{PATH_ON_INSTANCE}", "hostPath": "{PATH_ON_HOST}"}" "http://localhost:8180/v1/runtime/{VDU_ID}/path"
+curl -X POST -H "content-type: application/json" -d '{ "remotePath": "{PATH_ON_INSTANCE}", "hostPath": "{PATH_ON_HOST}"}' "http://localhost:8180/v1/runtime/{VDU_ID}/path"
 ```
 
 * Upload a file that is passed within the request:
