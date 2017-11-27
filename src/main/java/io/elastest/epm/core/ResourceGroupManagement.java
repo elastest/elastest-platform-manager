@@ -35,13 +35,11 @@ public class ResourceGroupManagement {
     try {
       for (Network net : resourceGroup.getNetworks()) {
         net.setName(resourceGroup.getName() + "_" + net.getName() + "_" + groupId);
-        net.setPoPName(resourceGroup.getName() + "_" + net.getPoPName() + "_" + groupId);
         networkManagement.createNetwork(net);
       }
       for (VDU vdu : resourceGroup.getVdus()) {
         vdu.setName(resourceGroup.getName() + "_" + vdu.getName() + "_" + groupId);
         vdu.setNetName(resourceGroup.getName() + "_" + vdu.getNetName() + "_" + groupId);
-        vdu.setPoPName(resourceGroup.getName() + "_" + vdu.getPoPName() + "_" + groupId);
         vduManagement.deployVdu(vdu);
       }
     } catch (Exception exc) {
