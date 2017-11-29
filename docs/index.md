@@ -83,5 +83,5 @@ The Development Guide can be found [here][development_guide].
 [api_overview]: api/overview.md
 [api_definitions]: api/definitions.md
 [api_paths]: api/paths.md
-[development_guide]: delevopment.md
+[development_guide]: development.md
 
