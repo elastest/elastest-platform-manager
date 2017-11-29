@@ -13,7 +13,7 @@ It also implements Runtime operations, which are called from the Runtime Managem
 ## Docker Compose Adapter
 
 The Docker Compose Adapter is implemented seperately. It connects to the EPM using the Google RPC framework. 
-Source code and documentation can be found [here][compose_adapter_link].
+Source code and documentation can be found [here][epm-adapter-docker-compose].
 
 
-[compose_adapter_link]: https://github.com/mpauls/epm-client-docker-compose
+[epm-adapter-docker-compose]: https://github.com/mpauls/epm-adapter-docker-compose
