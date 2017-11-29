@@ -2,8 +2,23 @@
 
 The ElasTest Platform Manager is the interface between the ElasTest testing components (e.g. TORM, Test Support Services, etc.) and the cloud infrastructure where ElasTest is deployed. Hence, this Platform Manager must abstract the cloud services so that ElasTest becomes fully agnostic to them and provide this abstraction via Software Development Toolkits (SDK) or REST APIs to the northbound consumers (i.e. the TORM). The ElasTest Platform Manager enabling ElasTest to be deployed and to execute seamlessly in the target cloud infrastructure that the consortium considers as appropriate (e.g. OpenStack, CloudStack, Mantl, AWS, etc.).
 
-## Details
-This section gives an overview of the overall architecture of the ElasTest Platform Manager. It consists of 4 main modules:
+## Getting Started
+
+This documentation gives an introduction of the Elastest Platform Manager and includes the following sections:
+
+* [Architecture](#architecture)
+* [Features](#features)
+* [Installation](#installation)
+* [APIs and Information Model](#apis-and-information-model)
+* [Usage](#usage)
+* [PoP Adapters](#adapters)
+* [SDKs](#sdks)
+* [Development](#development)
+
+### Architecture
+This section gives an overview of the overall architecture of the ElasTest Platform Manager. As shown in the architecrual overview below, it consists of 4 main modules:
+
+![Elastest Platform Manager Architecture](imgs/epm-architecture.png)
 
 * API: The API exposes a ReSTful API in order to allow the consumer (e.g. TORM, ESM) to manage virtual resources in a target cloud environment. It allows to allocate, terminate, update virtual resources (e.g. compute, network) and request information of those as well.
 Repository: The repository persists information of managed VDUs and networks, and PoPs as well. The following gives an overview of what those entities are:
@@ -17,23 +32,6 @@ Repository: The repository persists information of managed VDUs and networks, an
     * Network Management: This component manages virtualized resource related to the network domain. It creates and deletes network in the target PoP.
     * Runtime Management: This component executes runtime operations, such as, downloading/uploading file, executing commands, start/stop instances, etc.
 * PoP Adapter: A PoP Adapter provides an abstracted way to interact with any kind of cloud environment. The northbound interface is exposed to the Core and abstracted in such a way, that the Core do not need to take care about the type of the target cloud environment. The southbound interface is dependent on the type of cloud environment under consideration. This allows an easy way to provide any kind of cloud environment by providing an adapter without changing anything in the core. The PoP Adapter takes also care about the configuration of logging and monitoring of the virtualized resources by receiving those information by the Core component.
-
-## Getting Started
-
-This section gives an introduction of the Elastest Platform Manager and includes the following sections:
-
-* [Architecture](#architecture)
-* [Features](#features)
-* [Installation](#installation)
-* [APIs and Information Model](#apis-and-information-model)
-* [Usage](#usage)
-* [PoP Adapters](#adapters)
-* [SDKs](#sdks)
-* [Development](#development)
-
-### Architecture
-
-![Elastest Platform Manager Architecture](imgs/epm-architecture.png)
 
 ### Features
 
