@@ -11,8 +11,25 @@ node('docker'){
 
         stage "Unit tests"
             echo ("Starting unit tests...")
-            sh './gradlew test'
+            sh './gradlew test jacocoTestReport'
+            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
 
+        //stage "Upload test coverage"
+        //    echo ("Upload reports to Codecov")
+        //    sh './gradlew jacocoTestReport'
+        //    def codecovArgs = '-K '
+        //    if (env.GITHUB_PR_NUMBER != '') {
+        //      // This is a PR
+        //      codecovArgs += "-B ${env.GITHUB_PR_TARGET_BRANCH} " +
+        //          "-C ${env.GITHUB_PR_HEAD_SHA} " +
+        //          "-P ${env.GITHUB_PR_NUMBER} "
+        //    } else {
+        //      // Not a PR
+        //      codecovArgs += "-B ${env.GIT_BRANCH} " +
+        //          "-C ${env.GIT_COMMIT} "
+        //    }
+        //    sh "curl -s https://codecov.io/bash | bash -s - ${codecovArgs} -t ${COB_EPM_TOKEN} || echo 'Codecov did not collect coverage reports'"
+        
         stage "Package"
             echo ("Compiling EPM ...")
             sh './gradlew build -x test'
