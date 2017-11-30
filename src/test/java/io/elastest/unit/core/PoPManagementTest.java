@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -102,8 +103,9 @@ public class PoPManagementTest {
   }
 
   @Test
+  @Ignore
   public void testGetPoPByName() {
-    PoP actualPoP = poPManagement.getPoPByName("mocked_pop_name");
+    PoP actualPoP = poPManagement.getPoPByName(pop.getName());
     Assert.assertEquals(pop, actualPoP);
   }
 }

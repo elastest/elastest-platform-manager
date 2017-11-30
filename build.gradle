@@ -127,6 +127,13 @@ protobuf {
     generatedFilesBaseDir = "${projectDir}/src/"
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
 
 bootRepackage {
     mainClass = 'io.elastest.epm.main.Application'
