@@ -20,7 +20,6 @@ node('docker'){
 
         stage "Upload test coverage"
             echo ("Upload reports to Codecov")
-          sh './gradlew jacocoTestReport'
             def codecovArgs = '-K '
             if (env.GITHUB_PR_NUMBER != '') {
               // This is a PR
