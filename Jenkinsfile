@@ -18,21 +18,21 @@ node('docker'){
             sh './gradlew test jacocoTestReport'
             step([$class: 'JUnitResultArchiver', testResults: '**/build/reports/jacoco/test/jacocoTestReport.xml'])
 
-        //stage "Upload test coverage"
-        //    echo ("Upload reports to Codecov")
-        //    sh './gradlew jacocoTestReport'
-        //    def codecovArgs = '-K '
-        //    if (env.GITHUB_PR_NUMBER != '') {
-        //      // This is a PR
-        //      codecovArgs += "-B ${env.GITHUB_PR_TARGET_BRANCH} " +
-        //          "-C ${env.GITHUB_PR_HEAD_SHA} " +
-        //          "-P ${env.GITHUB_PR_NUMBER} "
-        //    } else {
-        //      // Not a PR
-        //      codecovArgs += "-B ${env.GIT_BRANCH} " +
-        //          "-C ${env.GIT_COMMIT} "
-        //    }
-        //    sh "curl -s https://codecov.io/bash | bash -s - ${codecovArgs} -t ${COB_EPM_TOKEN} || echo 'Codecov did not collect coverage reports'"
+        stage "Upload test coverage"
+            echo ("Upload reports to Codecov")
+          sh './gradlew jacocoTestReport'
+            def codecovArgs = '-K '
+            if (env.GITHUB_PR_NUMBER != '') {
+              // This is a PR
+              codecovArgs += "-B ${env.GITHUB_PR_TARGET_BRANCH} " +
+                  "-C ${env.GITHUB_PR_HEAD_SHA} " +
+                  "-P ${env.GITHUB_PR_NUMBER} "
+            } else {
+              // Not a PR
+              codecovArgs += "-B ${env.GIT_BRANCH} " +
+                  "-C ${env.GIT_COMMIT} "
+            }
+            sh "curl -s https://codecov.io/bash | bash -s - ${codecovArgs} -t ${COB_EPM_TOKEN} || echo 'Codecov did not collect coverage reports'"
         
         stage "Build image - Package"
             echo ("Building docker image...")
