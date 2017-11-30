@@ -8,6 +8,10 @@ node('docker'){
     mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw") {
 
         git 'https://github.com/elastest/elastest-platform-manager'
+        
+        stage "Package"
+            echo ("Compiling EPM ...")
+            sh './gradlew clean build -x test'
 
         stage "Unit tests"
             echo ("Starting unit tests...")
@@ -30,10 +34,6 @@ node('docker'){
         //    }
         //    sh "curl -s https://codecov.io/bash | bash -s - ${codecovArgs} -t ${COB_EPM_TOKEN} || echo 'Codecov did not collect coverage reports'"
         
-        stage "Package"
-            echo ("Compiling EPM ...")
-            sh './gradlew build -x test'
-
         stage "Build image - Package"
             echo ("Building docker image...")
             sh 'cp build/libs/elastest-platform-manager-*.jar docker/elastest-platform-manager/epm.jar'
