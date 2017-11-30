@@ -12,7 +12,7 @@ node('docker'){
         stage "Unit tests"
             echo ("Starting unit tests...")
             sh './gradlew test jacocoTestReport'
-            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+            step([$class: 'JUnitResultArchiver', testResults: '**/build/reports/jacoco/test/jacocoTestReport.xml'])
 
         //stage "Upload test coverage"
         //    echo ("Upload reports to Codecov")
