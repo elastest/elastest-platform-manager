@@ -15,23 +15,11 @@ node('docker'){
 
         stage "Unit tests"
             echo ("Starting unit tests...")
-            sh './gradlew test jacocoTestReport'
-            //step([$class: 'JUnitResultArchiver', testResults: '**/build/reports/jacoco/test/jacocoTestReport.xml'])
+            sh './gradlew test jacocoTestReport
 
         stage "Upload test coverage"
             echo ("Upload reports to Codecov")
             def codecovArgs = '-K '
-            //if (env.GITHUB_PR_NUMBER != '') {
-              // This is a PR
-            //  codecovArgs += "-B ${env.GITHUB_PR_TARGET_BRANCH} " +
-            //      "-C ${env.GITHUB_PR_HEAD_SHA} " +
-            //      "-P ${env.GITHUB_PR_NUMBER} "
-            //} else {
-              // Not a PR
-            //  codecovArgs += "-B ${env.GIT_BRANCH} " +
-            //      "-C ${env.GIT_COMMIT} "
-            //}
-            //sh "curl -s https://codecov.io/bash | bash -s - ${codecovArgs} -t ${COB_EPM_TOKEN} || echo 'Codecov did not collect coverage reports'"
             sh "curl -s https://codecov.io/bash | bash -s - ${codecovArgs} -t ${COB_EPM_TOKEN} || echo 'Codecov did not collect coverage reports'"
         
         stage "Build image - Package"
@@ -49,7 +37,6 @@ node('docker'){
 
         stage "Publish"
             echo ("Publishing as all tests succeeded...")
-            //this is work arround as withDockerRegistry is not working properly
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
