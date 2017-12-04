@@ -15,7 +15,7 @@ node('docker'){
 
         stage "Unit tests"
             echo ("Starting unit tests...")
-            sh './gradlew test jacocoTestReport
+            sh './gradlew test jacocoTestReport'
 
         stage "Upload test coverage"
             echo ("Upload reports to Codecov")
