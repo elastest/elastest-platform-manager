@@ -3,12 +3,11 @@ package io.elastest.epm.core;
 import io.elastest.epm.exception.BadRequestException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Event;
-import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.VDU;
-import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
-import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
+import io.elastest.epm.pop.interfaces.AdapterBrokerInterface;
+import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
 import io.elastest.epm.repository.VduRepository;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,15 +22,13 @@ public class RuntimeManagement {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired private DockerComposeAdapter composeAdapter;
-
-  @Autowired private DockerAdapter dockerAdapter;
-
   @Autowired private VduManagement vduManagement;
 
   @Autowired private VduRepository vduRepository;
 
   @Autowired private PoPManagement poPManagement;
+
+  @Autowired private AdapterBrokerInterface adapterBroker;
 
   public InputStream downloadFileFromInstance(String vduId, String filepath)
       throws AdapterException, NotFoundException {
@@ -41,16 +38,8 @@ public class RuntimeManagement {
     vdu.getEvents().add(createEvent("Downloading file: " + filepath));
     vdu = vduRepository.save(vdu);
 
-    boolean compose = false;
-    for (KeyValuePair kvp : pop.getInterfaceInfo()) {
-      if (kvp.getKey().equals("type") && kvp.getValue().equals("docker-compose")) {
-        compose = true;
-        break;
-      }
-    }
-    InputStream inputStream;
-    if (compose) inputStream = composeAdapter.downloadFileFromInstance(vdu, filepath, pop);
-    else inputStream = dockerAdapter.downloadFileFromInstance(vdu, filepath, pop);
+    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
+    InputStream inputStream = adapter.downloadFileFromInstance(vdu, filepath, pop);
     vdu.getEvents().add(createEvent("Downloaded file: " + filepath));
     vduRepository.save(vdu);
     return inputStream;
@@ -64,16 +53,8 @@ public class RuntimeManagement {
     vdu = vduRepository.save(vdu);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
 
-    boolean compose = false;
-    for (KeyValuePair kvp : pop.getInterfaceInfo()) {
-      if (kvp.getKey().equals("type") && kvp.getValue().equals("docker-compose")) {
-        compose = true;
-        break;
-      }
-    }
-    String output;
-    if (compose) output = composeAdapter.executeOnInstance(vdu, command, awaitCompletion, pop);
-    else output = dockerAdapter.executeOnInstance(vdu, command, awaitCompletion, pop);
+    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
+    String output = adapter.executeOnInstance(vdu, command, awaitCompletion, pop);
     vdu.getEvents().add(createEvent("Executed command: " + command));
     log.debug("Output: " + output);
     vduRepository.save(vdu);
@@ -86,16 +67,8 @@ public class RuntimeManagement {
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     vdu.getEvents().add(createEvent("Starting"));
     vdu = vduRepository.save(vdu);
-
-    boolean compose = false;
-    for (KeyValuePair kvp : pop.getInterfaceInfo()) {
-      if (kvp.getKey().equals("type") && kvp.getValue().equals("docker-compose")) {
-        compose = true;
-        break;
-      }
-    }
-    if (compose) composeAdapter.startInstance(vdu, pop);
-    else dockerAdapter.startInstance(vdu, pop);
+    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
+    adapter.startInstance(vdu, pop);
     vdu.setStatus(VDU.StatusEnum.RUNNING);
     vdu.getEvents().add(createEvent("Started"));
     vduRepository.save(vdu);
@@ -107,16 +80,8 @@ public class RuntimeManagement {
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     vdu.getEvents().add(createEvent("Stopping"));
     vdu = vduRepository.save(vdu);
-
-    boolean compose = false;
-    for (KeyValuePair kvp : pop.getInterfaceInfo()) {
-      if (kvp.getKey().equals("type") && kvp.getValue().equals("docker-compose")) {
-        compose = true;
-        break;
-      }
-    }
-    if (compose) composeAdapter.stopInstance(vdu, pop);
-    else dockerAdapter.stopInstance(vdu, pop);
+    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
+    adapter.stopInstance(vdu, pop);
     vdu.setStatus(VDU.StatusEnum.DEPLOYED);
     vdu.getEvents().add(createEvent("Stopped"));
     vduRepository.save(vdu);
@@ -134,15 +99,8 @@ public class RuntimeManagement {
     vdu = vduRepository.save(vdu);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
 
-    boolean compose = false;
-    for (KeyValuePair kvp : pop.getInterfaceInfo()) {
-      if (kvp.getKey().equals("type") && kvp.getValue().equals("docker-compose")) {
-        compose = true;
-        break;
-      }
-    }
-    if (compose) composeAdapter.uploadFileToInstance(vdu, remotePath, file, pop);
-    else dockerAdapter.uploadFileToInstance(vdu, remotePath, file, pop);
+    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
+    adapter.uploadFileToInstance(vdu, remotePath, file, pop);
     vdu.getEvents()
         .add(createEvent("Uploaded file " + file.getOriginalFilename() + " to " + remotePath));
     vduRepository.save(vdu);
@@ -158,15 +116,8 @@ public class RuntimeManagement {
     if (hostPath == null) {
       throw new BadRequestException("hostPath must be provided.");
     }
-    boolean compose = false;
-    for (KeyValuePair kvp : pop.getInterfaceInfo()) {
-      if (kvp.getKey().equals("type") && kvp.getValue().equals("docker-compose")) {
-        compose = true;
-        break;
-      }
-    }
-    if (compose) composeAdapter.uploadFileToInstance(vdu, remotePath, hostPath, pop);
-    else dockerAdapter.uploadFileToInstance(vdu, remotePath, hostPath, pop);
+    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
+    adapter.uploadFileToInstance(vdu, remotePath, hostPath, pop);
     vdu.getEvents().add(createEvent("Uploaded file from " + hostPath + " to " + remotePath));
     vduRepository.save(vdu);
   }

@@ -116,6 +116,7 @@ protobuf {
     }
     generateProtoTasks {
         all().each { task ->
+            task.enabled = project.hasProperty('runProtobuf')
             task.builtins {
                 java {
                     outputSubDir = 'generated-protobuf'
