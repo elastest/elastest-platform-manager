@@ -16,7 +16,7 @@ git clone https://github.com/elastest/elastest-platform-manager
 ```
 There are two ways to start it:
 
-* Using the command line: Inside the project folder run: ``` ./gradlew build && java -jar build/libs/elastest-platform-manager-0.1.0.jar```
+* Using the command line: Inside the project folder run: ``` ./gradlew build && java -jar build/libs/elastest-platform-manager-0.5.0.jar```
 * Using Intellij Idea: Import the project as a gradle project and then run the application.
 
 ## The Docker Compose Adapter development environment
