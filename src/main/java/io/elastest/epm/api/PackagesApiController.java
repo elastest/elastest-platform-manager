@@ -1,12 +1,16 @@
 package io.elastest.epm.api;
 
 import io.elastest.epm.exception.NotFoundException;
+import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.ResourceGroup;
-import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
+import io.elastest.epm.pop.interfaces.AdapterBrokerInterface;
+import io.elastest.epm.pop.interfaces.PackageManagementInterface;
+import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.ResourceGroupRepository;
 import io.swagger.annotations.*;
 import java.io.IOException;
 import javax.validation.constraints.*;
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +30,22 @@ public class PackagesApiController implements PackagesApi {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired private DockerComposeAdapter dockerComposeAdapter;
+  @Autowired private AdapterBrokerInterface adapterBroker;
+
   @Autowired private ResourceGroupRepository resourceGroupRepository;
+
+  @Autowired private PoPRepository poPRepository;
 
   public ResponseEntity<Void> deletePackage(
       @ApiParam(value = "ID of Package", required = true) @PathVariable("id") String id) {
     ResourceGroup resourceGroup = resourceGroupRepository.findOne(id);
+
+    PoP pop = poPRepository.findOneByName(resourceGroup.getVdus().get(0).getPoPName());
+    PackageManagementInterface adapter = adapterBroker.getPackageManagementPerPop(pop);
+
     if (resourceGroup != null) {
       try {
-        dockerComposeAdapter.terminate(resourceGroup.getName());
+        adapter.terminate(resourceGroup.getName());
       } catch (NotFoundException e) {
         return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
       }
@@ -43,12 +54,15 @@ public class PackagesApiController implements PackagesApi {
   }
 
   public ResponseEntity<ResourceGroup> receivePackage(
-      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file) {
+      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
+      throws IOException, ArchiveException {
     log.debug("Received package");
     log.debug("Name: " + file.getOriginalFilename());
 
+    PackageManagementInterface adapter = adapterBroker.getAdapter(file.getInputStream());
+
     try {
-      ResourceGroup resourceGroup = dockerComposeAdapter.deploy(file.getInputStream());
+      ResourceGroup resourceGroup = adapter.deploy(file.getInputStream());
       return new ResponseEntity<ResourceGroup>(HttpStatus.OK).ok(resourceGroup);
     } catch (IOException exception) {
       return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);

@@ -1,4 +1,4 @@
-package io.elastest.epm.pop.adapter.compose.generated;
+package io.elastest.epm.pop.generated;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;

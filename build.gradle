@@ -92,6 +92,9 @@ dependencies {
     // https://mvnrepository.com/artifact/io.grpc/grpc-protobuf
     compile group: 'io.grpc', name: 'grpc-protobuf', version: grpcVersion
 
+    // https://mvnrepository.com/artifact/org.yaml/snakeyaml
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.19'
+
     // https://mvnrepository.com/artifact/org.mockito/mockito-all
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 

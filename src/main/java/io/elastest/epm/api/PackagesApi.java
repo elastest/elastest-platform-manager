@@ -6,7 +6,9 @@ package io.elastest.epm.api;
 
 import io.elastest.epm.model.ResourceGroup;
 import io.swagger.annotations.*;
+import java.io.IOException;
 import javax.validation.constraints.*;
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,5 +70,6 @@ public interface PackagesApi {
     method = RequestMethod.POST
   )
   ResponseEntity<ResourceGroup> receivePackage(
-      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file);
+      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
+      throws IOException, ArchiveException;
 }
