@@ -7,7 +7,9 @@ import io.elastest.epm.core.NetworkManagement;
 import io.elastest.epm.core.PoPManagement;
 import io.elastest.epm.core.VduManagement;
 import io.elastest.epm.model.*;
+import io.elastest.epm.pop.adapter.ansible.AnsibleAdapter;
 import io.elastest.epm.pop.adapter.broker.AdapterBroker;
+import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.messages.compute.AllocateComputeRequest;
@@ -30,10 +32,15 @@ import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.ResourceGroupRepository;
 import io.elastest.epm.repository.VduRepository;
 import io.elastest.unit.MockedConfig;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -195,10 +202,28 @@ public class CoreTest {
 
   @Bean
   @Qualifier("mocked_adapterBroker")
-  AdapterBroker adapterBroker() throws AdapterException {
+  AdapterBroker adapterBroker() throws AdapterException, IOException, ArchiveException {
     AdapterBroker adapterBroker = mock(AdapterBroker.class);
     when(adapterBroker.getAdapter(any(PoP.class))).thenReturn(dockerAdapter());
+    when(adapterBroker.getPackageManagementPerPop(any(PoP.class))).thenReturn(dockerComposeAdapter());
+    when(adapterBroker.getAdapter(any(InputStream.class))).thenReturn(dockerComposeAdapter());
     return adapterBroker;
+  }
+
+  @Bean
+  @Qualifier("mocked_composeAdapter")
+  DockerComposeAdapter dockerComposeAdapter() throws AdapterException {
+    DockerComposeAdapter composeAdapter = mock(DockerComposeAdapter.class);
+
+    return composeAdapter;
+  }
+
+  @Bean
+  @Qualifier("mocked_ansibleAdapter")
+  AnsibleAdapter ansibleAdapter() throws AdapterException {
+    AnsibleAdapter ansibleAdapter = mock(AnsibleAdapter.class);
+
+    return ansibleAdapter;
   }
 
   @Bean

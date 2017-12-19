@@ -57,27 +57,10 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
     return ComposeHandlerGrpc.newBlockingStub(channel);
   }
 
-  private PoP findComposePoP() throws NotFoundException {
-    PoP composePoP = null;
-    Iterable<PoP> pops = poPRepository.findAll();
-    for (PoP pop : pops) {
-      for (KeyValuePair kvp : pop.getInterfaceInfo()) {
-        if (kvp.getKey().equals("type") && kvp.getValue().equals("docker-compose")) {
-          composePoP = pop;
-          break;
-        }
-      }
-    }
-
-    if (composePoP == null || composePoP.getInterfaceEndpoint() == null)
-      throw new NotFoundException("No docker-compose pop was registered!");
-    return composePoP;
-  }
-
   @Override
   public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException {
 
-    PoP composePoP = findComposePoP();
+    PoP composePoP = poPRepository.findPoPForType("docker-compose");
     ComposeHandlerBlockingStub composeClient = getDockerComposeClient(composePoP);
 
     ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
@@ -125,7 +108,7 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
     ResourceIdentifier composeIdentifier =
         ResourceIdentifier.newBuilder().setResourceId(packageId).build();
 
-    PoP composePop = findComposePoP();
+    PoP composePop = poPRepository.findPoPForType("docker-compose");
     ComposeHandlerBlockingStub composeClient = getDockerComposeClient(composePop);
     composeClient.removeCompose(composeIdentifier);
 

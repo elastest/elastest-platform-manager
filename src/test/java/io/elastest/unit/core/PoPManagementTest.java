@@ -3,6 +3,8 @@ package io.elastest.unit.core;
 import io.elastest.epm.core.PoPManagement;
 import io.elastest.epm.model.Network;
 import io.elastest.epm.model.PoP;
+import io.elastest.epm.pop.adapter.ansible.AnsibleAdapter;
+import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.repository.NetworkRepository;
@@ -41,6 +43,14 @@ public class PoPManagementTest {
   @Autowired
   @Qualifier("mocked_dockerAdapter")
   DockerAdapter dockerAdapter;
+
+  @Autowired
+  @Qualifier("mocked_composeAdapter")
+  DockerComposeAdapter composeAdapter;
+
+  @Autowired
+  @Qualifier("mocked_ansibleAdapter")
+  AnsibleAdapter ansibleAdapter;
 
   @InjectMocks private PoPManagement poPManagement;
   @Autowired private PoP pop;
