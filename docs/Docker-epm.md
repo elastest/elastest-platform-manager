@@ -37,7 +37,7 @@ The ElasTest Platform Manager is the interface between the ElasTest testing comp
 
 -	**Source of this description**:  
 
-	[docs repo's `template/` directory](https://github.com/elastest/epm/edit/master/docs/Docker-epm.md) ([history](https://github.com/elastest/epm/commits/master/docs/Docker-epm.md))
+	[docs repo's `template/` directory](https://github.com/elastest/elastest-platform-manager/blob/master/docs/Docker-epm.md) ([history](https://github.com/elastest/epm/commits/master/docs/Docker-epm.md))
 
 -	**Supported Docker versions**:  
 
