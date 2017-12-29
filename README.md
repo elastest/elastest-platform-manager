@@ -13,7 +13,7 @@ elastest-platform-manager (EPM)
 
 The ElasTest Platform Manager (EPM) is the interface between the ElasTest testing components (e.g. TORM, Test Support Services, etc.) and the cloud infrastructure where ElasTest is deployed. Hence, this Platform Manager must abstract the cloud services so that ElasTest becomes fully agnostic to them and provide this abstraction via Software Development Toolkits (SDK) or REST APIs to the northbound consumers (i.e. the TORM). The ElasTest Platform Manager enabling ElasTest to be deployed and to execute seamlessly in the target cloud infrastructure that the consortium considers as appropriate (e.g. OpenStack, CloudStack, Mantl, AWS, etc.).
 
-The ElasTest Platform Manager component is currently in development. If you want to contribute to the this project you need to read the [Development documentation](https://github.com/elastest/elastest-platform-manager/blob/master/docs/index.md) 
+The ElasTest Platform Manager component is currently in development. If you want to contribute to the this project you need to read the [Development documentation](https://github.com/elastest/elastest-platform-manager/blob/master/docs/index.md). 
 
 What is ElasTest
 -----------------
