@@ -1,5 +1,5 @@
 [![License badge](https://img.shields.io/badge/license-Apache2-orange.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Docker badge](https://img.shields.io/docker/pulls/elastest/epm.svg)](https://hub.docker.com/r/elastests/epm/)
+[![Docker badge](https://img.shields.io/docker/pulls/elastest/epm.svg)](https://hub.docker.com/r/elastest/epm/)
 
 <!-- Elastest logo -->
 [![][ElasTest Logo]][ElasTest]
