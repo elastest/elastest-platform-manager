@@ -32,14 +32,12 @@ import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.ResourceGroupRepository;
 import io.elastest.epm.repository.VduRepository;
 import io.elastest.unit.MockedConfig;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.junit.Before;
 import org.junit.Test;
@@ -205,7 +203,8 @@ public class CoreTest {
   AdapterBroker adapterBroker() throws AdapterException, IOException, ArchiveException {
     AdapterBroker adapterBroker = mock(AdapterBroker.class);
     when(adapterBroker.getAdapter(any(PoP.class))).thenReturn(dockerAdapter());
-    when(adapterBroker.getPackageManagementPerPop(any(PoP.class))).thenReturn(dockerComposeAdapter());
+    when(adapterBroker.getPackageManagementPerPop(any(PoP.class)))
+        .thenReturn(dockerComposeAdapter());
     when(adapterBroker.getAdapter(any(InputStream.class))).thenReturn(dockerComposeAdapter());
     return adapterBroker;
   }

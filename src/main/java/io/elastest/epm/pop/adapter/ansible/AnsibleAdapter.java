@@ -4,9 +4,10 @@ import com.google.protobuf.ByteString;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
-import io.elastest.epm.pop.generated.ComposeHandlerGrpc;
 import io.elastest.epm.pop.generated.FileMessage;
-import io.elastest.epm.pop.generated.ResourceGroupCompose;
+import io.elastest.epm.pop.generated.OperationHandlerGrpc;
+import io.elastest.epm.pop.generated.OperationHandlerGrpc.OperationHandlerBlockingStub;
+import io.elastest.epm.pop.generated.ResourceGroupProto;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
 import io.elastest.epm.repository.NetworkRepository;
@@ -37,28 +38,28 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
 
   @Autowired private ResourceGroupRepository resourceGroupRepository;
 
-  private ComposeHandlerGrpc.ComposeHandlerBlockingStub getAnsibleClient(PoP poP) {
+  private OperationHandlerBlockingStub getAnsibleClient(PoP poP) {
 
     ManagedChannelBuilder<?> channelBuilder =
         ManagedChannelBuilder.forAddress(poP.getInterfaceEndpoint(), 50052).usePlaintext(true);
     ManagedChannel channel = channelBuilder.build();
-    return ComposeHandlerGrpc.newBlockingStub(channel);
+    return OperationHandlerGrpc.newBlockingStub(channel);
   }
 
   @Override
   public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException {
 
     PoP composePoP = poPRepository.findPoPForType("ansible");
-    ComposeHandlerGrpc.ComposeHandlerBlockingStub composeClient = getAnsibleClient(composePoP);
+    OperationHandlerBlockingStub ansibleClient = getAnsibleClient(composePoP);
 
     ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
     FileMessage composePackage = FileMessage.newBuilder().setFile(yamlFile).build();
-    ResourceGroupCompose rg = composeClient.upCompose(composePackage);
+    ResourceGroupProto rg = ansibleClient.create(composePackage);
 
     ResourceGroup resourceGroup = new ResourceGroup();
     resourceGroup.setName(rg.getName());
 
-    for (ResourceGroupCompose.NetworkCompose networkCompose : rg.getNetworksList()) {
+    for (ResourceGroupProto.Network networkCompose : rg.getNetworksList()) {
       Network network = new Network();
       network.setName(networkCompose.getName());
       network.setCidr(networkCompose.getCidr());
@@ -68,7 +69,7 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
       resourceGroup.addNetworksItem(network);
     }
 
-    for (ResourceGroupCompose.VDUCompose vduCompose : rg.getVdusList()) {
+    for (ResourceGroupProto.VDU vduCompose : rg.getVdusList()) {
 
       VDU vdu = new VDU();
       vdu.setName(vduCompose.getName());
@@ -77,8 +78,7 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
       vdu.setNetName(vduCompose.getNetName());
       vdu.setPoPName(composePoP.getName());
       vdu.setIp(vduCompose.getIp());
-      for (ResourceGroupCompose.MetadataEntryCompose metadataEntryCompose :
-          vduCompose.getMetadataList()) {
+      for (ResourceGroupProto.MetadataEntry metadataEntryCompose : vduCompose.getMetadataList()) {
         KeyValuePair kvp =
             new KeyValuePair(metadataEntryCompose.getKey(), metadataEntryCompose.getValue());
         vdu.addMetadataItem(kvp);

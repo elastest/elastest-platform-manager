@@ -5,13 +5,8 @@ import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
-import io.elastest.epm.pop.generated.ComposeHandlerGrpc;
-import io.elastest.epm.pop.generated.ComposeHandlerGrpc.ComposeHandlerBlockingStub;
-import io.elastest.epm.pop.generated.DockerRuntimeMessage;
-import io.elastest.epm.pop.generated.FileMessage;
-import io.elastest.epm.pop.generated.ResourceGroupCompose;
-import io.elastest.epm.pop.generated.ResourceIdentifier;
-import io.elastest.epm.pop.generated.StringResponse;
+import io.elastest.epm.pop.generated.*;
+import io.elastest.epm.pop.generated.OperationHandlerGrpc.OperationHandlerBlockingStub;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
 import io.elastest.epm.properties.DockerProperties;
@@ -49,28 +44,28 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
 
   @Autowired private DockerProperties dockerProperties;
 
-  private ComposeHandlerBlockingStub getDockerComposeClient(PoP poP) {
+  private OperationHandlerBlockingStub getDockerComposeClient(PoP poP) {
 
     ManagedChannelBuilder<?> channelBuilder =
         ManagedChannelBuilder.forAddress(poP.getInterfaceEndpoint(), 50051).usePlaintext(true);
     ManagedChannel channel = channelBuilder.build();
-    return ComposeHandlerGrpc.newBlockingStub(channel);
+    return OperationHandlerGrpc.newBlockingStub(channel);
   }
 
   @Override
   public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException {
 
     PoP composePoP = poPRepository.findPoPForType("docker-compose");
-    ComposeHandlerBlockingStub composeClient = getDockerComposeClient(composePoP);
+    OperationHandlerBlockingStub composeClient = getDockerComposeClient(composePoP);
 
     ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
     FileMessage composePackage = FileMessage.newBuilder().setFile(yamlFile).build();
-    ResourceGroupCompose rg = composeClient.upCompose(composePackage);
+    ResourceGroupProto rg = composeClient.create(composePackage);
 
     ResourceGroup resourceGroup = new ResourceGroup();
     resourceGroup.setName(rg.getName());
 
-    for (ResourceGroupCompose.NetworkCompose networkCompose : rg.getNetworksList()) {
+    for (ResourceGroupProto.Network networkCompose : rg.getNetworksList()) {
       Network network = new Network();
       network.setName(networkCompose.getName());
       network.setCidr(networkCompose.getCidr());
@@ -80,7 +75,7 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
       resourceGroup.addNetworksItem(network);
     }
 
-    for (ResourceGroupCompose.VDUCompose vduCompose : rg.getVdusList()) {
+    for (ResourceGroupProto.VDU vduCompose : rg.getVdusList()) {
 
       VDU vdu = new VDU();
       vdu.setName(vduCompose.getName());
@@ -89,8 +84,7 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
       vdu.setNetName(vduCompose.getNetName());
       vdu.setPoPName(composePoP.getName());
       vdu.setIp(vduCompose.getIp());
-      for (ResourceGroupCompose.MetadataEntryCompose metadataEntryCompose :
-          vduCompose.getMetadataList()) {
+      for (ResourceGroupProto.MetadataEntry metadataEntryCompose : vduCompose.getMetadataList()) {
         KeyValuePair kvp =
             new KeyValuePair(metadataEntryCompose.getKey(), metadataEntryCompose.getValue());
         vdu.addMetadataItem(kvp);
@@ -109,8 +103,8 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
         ResourceIdentifier.newBuilder().setResourceId(packageId).build();
 
     PoP composePop = poPRepository.findPoPForType("docker-compose");
-    ComposeHandlerBlockingStub composeClient = getDockerComposeClient(composePop);
-    composeClient.removeCompose(composeIdentifier);
+    OperationHandlerBlockingStub composeClient = getDockerComposeClient(composePop);
+    composeClient.remove(composeIdentifier);
 
     ResourceGroup resourceGroup = resourceGroupRepository.findOneByName(packageId);
 
@@ -123,10 +117,10 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   public InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop)
       throws AdapterException {
     if (isRunning(vdu.getComputeId(), pop)) {
-      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      OperationHandlerBlockingStub client = getDockerComposeClient(pop);
       log.debug("Downloading file");
-      DockerRuntimeMessage dockerRuntimeMessage =
-          DockerRuntimeMessage.newBuilder()
+      RuntimeMessage dockerRuntimeMessage =
+          RuntimeMessage.newBuilder()
               .setResourceId(vdu.getComputeId())
               .addAllProperty(new ArrayList<String>())
               .addProperty(filepath)
@@ -140,10 +134,10 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   public String executeOnInstance(VDU vdu, String command, boolean awaitCompletion, PoP pop)
       throws AdapterException {
     if (isRunning(vdu.getComputeId(), pop)) {
-      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      OperationHandlerBlockingStub client = getDockerComposeClient(pop);
 
-      DockerRuntimeMessage dockerRuntimeMessage =
-          DockerRuntimeMessage.newBuilder()
+      RuntimeMessage dockerRuntimeMessage =
+          RuntimeMessage.newBuilder()
               .setResourceId(vdu.getComputeId())
               .addAllProperty(new ArrayList<String>())
               .addProperty(command)
@@ -157,7 +151,7 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   public void startInstance(VDU vdu, PoP pop) throws AdapterException {
 
     if (existsContainer(vdu.getComputeId(), pop) && !isRunning(vdu.getComputeId(), pop)) {
-      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      OperationHandlerBlockingStub client = getDockerComposeClient(pop);
       ResourceIdentifier resourceIdentifier =
           ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
       client.startContainer(resourceIdentifier);
@@ -168,7 +162,7 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   public void stopInstance(VDU vdu, PoP pop) throws AdapterException {
 
     if (isRunning(vdu.getComputeId(), pop)) {
-      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      OperationHandlerBlockingStub client = getDockerComposeClient(pop);
       ResourceIdentifier resourceIdentifier =
           ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
       client.stopContainer(resourceIdentifier);
@@ -179,10 +173,10 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   public void uploadFileToInstance(VDU vdu, String remotePath, String hostPath, PoP pop)
       throws AdapterException, IOException {
     if (isRunning(vdu.getComputeId(), pop)) {
-      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      OperationHandlerBlockingStub client = getDockerComposeClient(pop);
 
-      DockerRuntimeMessage dockerRuntimeMessage =
-          DockerRuntimeMessage.newBuilder()
+      RuntimeMessage dockerRuntimeMessage =
+          RuntimeMessage.newBuilder()
               .setResourceId(vdu.getComputeId())
               .addAllProperty(new ArrayList<String>())
               .addProperty("withPath")
@@ -199,13 +193,13 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
     if (isRunning(vdu.getComputeId(), pop)) {
       File output = Utils.convert(file);
       output.deleteOnExit();
-      ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+      OperationHandlerBlockingStub client = getDockerComposeClient(pop);
       if (!file.getOriginalFilename().endsWith(".tar")) {
         output = Utils.compressFileToTar(output);
       }
 
-      DockerRuntimeMessage dockerRuntimeMessage =
-          DockerRuntimeMessage.newBuilder()
+      RuntimeMessage dockerRuntimeMessage =
+          RuntimeMessage.newBuilder()
               .setResourceId(vdu.getComputeId())
               .addAllProperty(new ArrayList<String>())
               .addProperty(remotePath)
@@ -217,7 +211,7 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   }
 
   private boolean existsContainer(String containerId, PoP pop) {
-    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+    OperationHandlerBlockingStub client = getDockerComposeClient(pop);
     ResourceIdentifier resourceIdentifier =
         ResourceIdentifier.newBuilder().setResourceId(containerId).build();
     StringResponse stringResponse = client.checkIfContainerExists(resourceIdentifier);
@@ -225,7 +219,7 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   }
 
   private boolean isRunning(String containerId, PoP pop) {
-    ComposeHandlerBlockingStub client = getDockerComposeClient(pop);
+    OperationHandlerBlockingStub client = getDockerComposeClient(pop);
     ResourceIdentifier resourceIdentifier =
         ResourceIdentifier.newBuilder().setResourceId(containerId).build();
     StringResponse stringResponse = client.checkIfContainerRunning(resourceIdentifier);

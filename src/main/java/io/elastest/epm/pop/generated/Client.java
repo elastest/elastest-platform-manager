@@ -17,10 +17,9 @@ public final class Client {
       internal_static_ResourceIdentifier_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ResourceIdentifier_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-      internal_static_DockerRuntimeMessage_descriptor;
+  static final com.google.protobuf.Descriptors.Descriptor internal_static_RuntimeMessage_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_DockerRuntimeMessage_fieldAccessorTable;
+      internal_static_RuntimeMessage_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor internal_static_StringResponse_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_StringResponse_fieldAccessorTable;
@@ -31,26 +30,29 @@ public final class Client {
   static final com.google.protobuf.Descriptors.Descriptor internal_static_Empty_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_Empty_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-      internal_static_ResourceGroupCompose_descriptor;
+  static final com.google.protobuf.Descriptors.Descriptor internal_static_Auth_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ResourceGroupCompose_fieldAccessorTable;
+      internal_static_Auth_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-      internal_static_ResourceGroupCompose_PoPCompose_descriptor;
+      internal_static_ResourceGroupProto_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ResourceGroupCompose_PoPCompose_fieldAccessorTable;
+      internal_static_ResourceGroupProto_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-      internal_static_ResourceGroupCompose_MetadataEntryCompose_descriptor;
+      internal_static_ResourceGroupProto_PoP_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ResourceGroupCompose_MetadataEntryCompose_fieldAccessorTable;
+      internal_static_ResourceGroupProto_PoP_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-      internal_static_ResourceGroupCompose_NetworkCompose_descriptor;
+      internal_static_ResourceGroupProto_MetadataEntry_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ResourceGroupCompose_NetworkCompose_fieldAccessorTable;
+      internal_static_ResourceGroupProto_MetadataEntry_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-      internal_static_ResourceGroupCompose_VDUCompose_descriptor;
+      internal_static_ResourceGroupProto_Network_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ResourceGroupCompose_VDUCompose_fieldAccessorTable;
+      internal_static_ResourceGroupProto_Network_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_ResourceGroupProto_VDU_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ResourceGroupProto_VDU_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
     return descriptor;
@@ -62,34 +64,38 @@ public final class Client {
     String[] descriptorData = {
       "\n\014client.proto\"\033\n\013FileMessage\022\014\n\004file\030\001 "
           + "\001(\014\")\n\022ResourceIdentifier\022\023\n\013resource_id"
-          + "\030\001 \001(\t\"K\n\024DockerRuntimeMessage\022\023\n\013resour"
-          + "ce_id\030\001 \001(\t\022\020\n\010property\030\002 \001(\t\022\014\n\004file\030\003 "
-          + "\001(\014\"\"\n\016StringResponse\022\020\n\010response\030\001 \001(\t\""
-          + "(\n\020StartStopMessage\022\024\n\014container_id\030\001 \001("
-          + "\t\"\007\n\005Empty\"\250\004\n\024ResourceGroupCompose\022\014\n\004n"
-          + "ame\030\001 \001(\t\022.\n\004pops\030\002 \003(\0132 .ResourceGroupC"
-          + "ompose.PoPCompose\0226\n\010networks\030\003 \003(\0132$.Re"
-          + "sourceGroupCompose.NetworkCompose\022.\n\004vdu",
-      "s\030\004 \003(\0132 .ResourceGroupCompose.VDUCompos"
-          + "e\0325\n\nPoPCompose\022\014\n\004name\030\001 \001(\t\022\031\n\021interfa"
-          + "ceEndpoint\030\002 \001(\t\0322\n\024MetadataEntryCompose"
-          + "\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\032P\n\016NetworkC"
-          + "ompose\022\014\n\004name\030\001 \001(\t\022\017\n\007poPName\030\002 \001(\t\022\014\n"
-          + "\004cidr\030\003 \001(\t\022\021\n\tnetworkId\030\004 \001(\t\032\254\001\n\nVDUCo"
-          + "mpose\022\014\n\004name\030\001 \001(\t\022\021\n\timageName\030\002 \001(\t\022\017"
-          + "\n\007netName\030\003 \001(\t\022\017\n\007poPName\030\004 \001(\t\022\021\n\tcomp"
-          + "uteId\030\005 \001(\t\022\n\n\002ip\030\006 \001(\t\022<\n\010metadata\030\007 \003("
-          + "\0132*.ResourceGroupCompose.MetadataEntryCo",
-      "mpose2\367\002\n\016ComposeHandler\0222\n\tUpCompose\022\014."
-          + "FileMessage\032\025.ResourceGroupCompose\"\000\022.\n\r"
-          + "RemoveCompose\022\023.ResourceIdentifier\032\006.Emp"
-          + "ty\"\000\022.\n\rStopContainer\022\023.ResourceIdentifi"
-          + "er\032\006.Empty\"\000\022/\n\016StartContainer\022\023.Resourc"
-          + "eIdentifier\032\006.Empty\"\000\022:\n\016ExecuteCommand\022"
-          + "\025.DockerRuntimeMessage\032\017.StringResponse\""
-          + "\000\0225\n\014DownloadFile\022\025.DockerRuntimeMessage"
-          + "\032\014.FileMessage\"\000\022-\n\nUploadFile\022\025.DockerR"
-          + "untimeMessage\032\006.Empty\"\000B\002P\001b\006proto3"
+          + "\030\001 \001(\t\"E\n\016RuntimeMessage\022\023\n\013resource_id\030"
+          + "\001 \001(\t\022\020\n\010property\030\002 \003(\t\022\014\n\004file\030\003 \001(\014\"\"\n"
+          + "\016StringResponse\022\020\n\010response\030\001 \001(\t\"(\n\020Sta"
+          + "rtStopMessage\022\024\n\014container_id\030\001 \001(\t\"\007\n\005E"
+          + "mpty\"M\n\004Auth\022\020\n\010auth_url\030\001 \001(\t\022\020\n\010userna"
+          + "me\030\002 \001(\t\022\020\n\010password\030\003 \001(\t\022\017\n\007project\030\004 "
+          + "\001(\t\"\373\003\n\022ResourceGroupProto\022\014\n\004name\030\001 \001(\t"
+          + "\022%\n\004pops\030\002 \003(\0132\027.ResourceGroupProto.PoP\022",
+      "-\n\010networks\030\003 \003(\0132\033.ResourceGroupProto.N"
+          + "etwork\022%\n\004vdus\030\004 \003(\0132\027.ResourceGroupProt"
+          + "o.VDU\022\023\n\004auth\030\005 \001(\0132\005.Auth\032.\n\003PoP\022\014\n\004nam"
+          + "e\030\001 \001(\t\022\031\n\021interfaceEndpoint\030\002 \001(\t\032+\n\rMe"
+          + "tadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\032"
+          + "I\n\007Network\022\014\n\004name\030\001 \001(\t\022\017\n\007poPName\030\002 \001("
+          + "\t\022\014\n\004cidr\030\003 \001(\t\022\021\n\tnetworkId\030\004 \001(\t\032\234\001\n\003V"
+          + "DU\022\014\n\004name\030\001 \001(\t\022\021\n\timageName\030\002 \001(\t\022\017\n\007n"
+          + "etName\030\003 \001(\t\022\017\n\007poPName\030\004 \001(\t\022\021\n\tcompute"
+          + "Id\030\005 \001(\t\022\n\n\002ip\030\006 \001(\t\0223\n\010metadata\030\007 \003(\0132!",
+      ".ResourceGroupProto.MetadataEntry2\340\003\n\020Op"
+          + "erationHandler\022-\n\006Create\022\014.FileMessage\032\023"
+          + ".ResourceGroupProto\"\000\022\'\n\006Remove\022\023.Resour"
+          + "ceIdentifier\032\006.Empty\"\000\022.\n\rStopContainer\022"
+          + "\023.ResourceIdentifier\032\006.Empty\"\000\022@\n\026CheckI"
+          + "fContainerExists\022\023.ResourceIdentifier\032\017."
+          + "StringResponse\"\000\022A\n\027CheckIfContainerRunn"
+          + "ing\022\023.ResourceIdentifier\032\017.StringRespons"
+          + "e\"\000\022/\n\016StartContainer\022\023.ResourceIdentifi"
+          + "er\032\006.Empty\"\000\0224\n\016ExecuteCommand\022\017.Runtime",
+      "Message\032\017.StringResponse\"\000\022/\n\014DownloadFi"
+          + "le\022\017.RuntimeMessage\032\014.FileMessage\"\000\022\'\n\nU"
+          + "ploadFile\022\017.RuntimeMessage\032\006.Empty\"\000B\002P\001"
+          + "b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -115,10 +121,10 @@ public final class Client {
             new String[] {
               "ResourceId",
             });
-    internal_static_DockerRuntimeMessage_descriptor = getDescriptor().getMessageTypes().get(2);
-    internal_static_DockerRuntimeMessage_fieldAccessorTable =
+    internal_static_RuntimeMessage_descriptor = getDescriptor().getMessageTypes().get(2);
+    internal_static_RuntimeMessage_fieldAccessorTable =
         new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-            internal_static_DockerRuntimeMessage_descriptor,
+            internal_static_RuntimeMessage_descriptor,
             new String[] {
               "ResourceId", "Property", "File",
             });
@@ -140,42 +146,49 @@ public final class Client {
     internal_static_Empty_fieldAccessorTable =
         new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
             internal_static_Empty_descriptor, new String[] {});
-    internal_static_ResourceGroupCompose_descriptor = getDescriptor().getMessageTypes().get(6);
-    internal_static_ResourceGroupCompose_fieldAccessorTable =
+    internal_static_Auth_descriptor = getDescriptor().getMessageTypes().get(6);
+    internal_static_Auth_fieldAccessorTable =
         new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-            internal_static_ResourceGroupCompose_descriptor,
+            internal_static_Auth_descriptor,
             new String[] {
-              "Name", "Pops", "Networks", "Vdus",
+              "AuthUrl", "Username", "Password", "Project",
             });
-    internal_static_ResourceGroupCompose_PoPCompose_descriptor =
-        internal_static_ResourceGroupCompose_descriptor.getNestedTypes().get(0);
-    internal_static_ResourceGroupCompose_PoPCompose_fieldAccessorTable =
+    internal_static_ResourceGroupProto_descriptor = getDescriptor().getMessageTypes().get(7);
+    internal_static_ResourceGroupProto_fieldAccessorTable =
         new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-            internal_static_ResourceGroupCompose_PoPCompose_descriptor,
+            internal_static_ResourceGroupProto_descriptor,
+            new String[] {
+              "Name", "Pops", "Networks", "Vdus", "Auth",
+            });
+    internal_static_ResourceGroupProto_PoP_descriptor =
+        internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(0);
+    internal_static_ResourceGroupProto_PoP_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_ResourceGroupProto_PoP_descriptor,
             new String[] {
               "Name", "InterfaceEndpoint",
             });
-    internal_static_ResourceGroupCompose_MetadataEntryCompose_descriptor =
-        internal_static_ResourceGroupCompose_descriptor.getNestedTypes().get(1);
-    internal_static_ResourceGroupCompose_MetadataEntryCompose_fieldAccessorTable =
+    internal_static_ResourceGroupProto_MetadataEntry_descriptor =
+        internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(1);
+    internal_static_ResourceGroupProto_MetadataEntry_fieldAccessorTable =
         new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-            internal_static_ResourceGroupCompose_MetadataEntryCompose_descriptor,
+            internal_static_ResourceGroupProto_MetadataEntry_descriptor,
             new String[] {
               "Key", "Value",
             });
-    internal_static_ResourceGroupCompose_NetworkCompose_descriptor =
-        internal_static_ResourceGroupCompose_descriptor.getNestedTypes().get(2);
-    internal_static_ResourceGroupCompose_NetworkCompose_fieldAccessorTable =
+    internal_static_ResourceGroupProto_Network_descriptor =
+        internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(2);
+    internal_static_ResourceGroupProto_Network_fieldAccessorTable =
         new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-            internal_static_ResourceGroupCompose_NetworkCompose_descriptor,
+            internal_static_ResourceGroupProto_Network_descriptor,
             new String[] {
               "Name", "PoPName", "Cidr", "NetworkId",
             });
-    internal_static_ResourceGroupCompose_VDUCompose_descriptor =
-        internal_static_ResourceGroupCompose_descriptor.getNestedTypes().get(3);
-    internal_static_ResourceGroupCompose_VDUCompose_fieldAccessorTable =
+    internal_static_ResourceGroupProto_VDU_descriptor =
+        internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(3);
+    internal_static_ResourceGroupProto_VDU_fieldAccessorTable =
         new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-            internal_static_ResourceGroupCompose_VDUCompose_descriptor,
+            internal_static_ResourceGroupProto_VDU_descriptor,
             new String[] {
               "Name", "ImageName", "NetName", "PoPName", "ComputeId", "Ip", "Metadata",
             });
