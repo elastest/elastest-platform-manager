@@ -44,6 +44,8 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
 
   @Autowired private DockerProperties dockerProperties;
 
+  @Autowired private Utils utils;
+
   private OperationHandlerBlockingStub getDockerComposeClient(PoP poP) {
 
     ManagedChannelBuilder<?> channelBuilder =
@@ -62,36 +64,7 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
     FileMessage composePackage = FileMessage.newBuilder().setFile(yamlFile).build();
     ResourceGroupProto rg = composeClient.create(composePackage);
 
-    ResourceGroup resourceGroup = new ResourceGroup();
-    resourceGroup.setName(rg.getName());
-
-    for (ResourceGroupProto.Network networkCompose : rg.getNetworksList()) {
-      Network network = new Network();
-      network.setName(networkCompose.getName());
-      network.setCidr(networkCompose.getCidr());
-      network.setPoPName(composePoP.getName());
-      network.setNetworkId(networkCompose.getNetworkId());
-      networkRepository.save(network);
-      resourceGroup.addNetworksItem(network);
-    }
-
-    for (ResourceGroupProto.VDU vduCompose : rg.getVdusList()) {
-
-      VDU vdu = new VDU();
-      vdu.setName(vduCompose.getName());
-      vdu.setImageName(vduCompose.getImageName());
-      vdu.setComputeId(vduCompose.getComputeId());
-      vdu.setNetName(vduCompose.getNetName());
-      vdu.setPoPName(composePoP.getName());
-      vdu.setIp(vduCompose.getIp());
-      for (ResourceGroupProto.MetadataEntry metadataEntryCompose : vduCompose.getMetadataList()) {
-        KeyValuePair kvp =
-            new KeyValuePair(metadataEntryCompose.getKey(), metadataEntryCompose.getValue());
-        vdu.addMetadataItem(kvp);
-      }
-      vduRepository.save(vdu);
-      resourceGroup.addVdusItem(vdu);
-    }
+    ResourceGroup resourceGroup = utils.parseRGProto(rg, composePoP);
 
     resourceGroupRepository.save(resourceGroup);
     return resourceGroup;

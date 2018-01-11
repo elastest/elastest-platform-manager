@@ -3,6 +3,7 @@ package io.elastest.epm.pop.adapter.ansible;
 import com.google.protobuf.ByteString;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
+import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.generated.FileMessage;
 import io.elastest.epm.pop.generated.OperationHandlerGrpc;
@@ -38,6 +39,8 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
 
   @Autowired private ResourceGroupRepository resourceGroupRepository;
 
+  @Autowired private Utils utils;
+
   private OperationHandlerBlockingStub getAnsibleClient(PoP poP) {
 
     ManagedChannelBuilder<?> channelBuilder =
@@ -49,43 +52,14 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
   @Override
   public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException {
 
-    PoP composePoP = poPRepository.findPoPForType("ansible");
-    OperationHandlerBlockingStub ansibleClient = getAnsibleClient(composePoP);
+    PoP ansiblePoP = poPRepository.findPoPForType("ansible");
+    OperationHandlerBlockingStub ansibleClient = getAnsibleClient(ansiblePoP);
 
     ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
     FileMessage composePackage = FileMessage.newBuilder().setFile(yamlFile).build();
     ResourceGroupProto rg = ansibleClient.create(composePackage);
 
-    ResourceGroup resourceGroup = new ResourceGroup();
-    resourceGroup.setName(rg.getName());
-
-    for (ResourceGroupProto.Network networkCompose : rg.getNetworksList()) {
-      Network network = new Network();
-      network.setName(networkCompose.getName());
-      network.setCidr(networkCompose.getCidr());
-      network.setPoPName(composePoP.getName());
-      network.setNetworkId(networkCompose.getNetworkId());
-      networkRepository.save(network);
-      resourceGroup.addNetworksItem(network);
-    }
-
-    for (ResourceGroupProto.VDU vduCompose : rg.getVdusList()) {
-
-      VDU vdu = new VDU();
-      vdu.setName(vduCompose.getName());
-      vdu.setImageName(vduCompose.getImageName());
-      vdu.setComputeId(vduCompose.getComputeId());
-      vdu.setNetName(vduCompose.getNetName());
-      vdu.setPoPName(composePoP.getName());
-      vdu.setIp(vduCompose.getIp());
-      for (ResourceGroupProto.MetadataEntry metadataEntryCompose : vduCompose.getMetadataList()) {
-        KeyValuePair kvp =
-            new KeyValuePair(metadataEntryCompose.getKey(), metadataEntryCompose.getValue());
-        vdu.addMetadataItem(kvp);
-      }
-      vduRepository.save(vdu);
-      resourceGroup.addVdusItem(vdu);
-    }
+    ResourceGroup resourceGroup = utils.parseRGProto(rg, ansiblePoP);
 
     resourceGroupRepository.save(resourceGroup);
     return resourceGroup;

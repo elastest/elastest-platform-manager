@@ -7,6 +7,7 @@ import io.elastest.epm.core.NetworkManagement;
 import io.elastest.epm.core.PoPManagement;
 import io.elastest.epm.core.VduManagement;
 import io.elastest.epm.model.*;
+import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.ansible.AnsibleAdapter;
 import io.elastest.epm.pop.adapter.broker.AdapterBroker;
 import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
@@ -223,6 +224,11 @@ public class CoreTest {
     AnsibleAdapter ansibleAdapter = mock(AnsibleAdapter.class);
 
     return ansibleAdapter;
+  }
+
+  @Bean
+  Utils utils() {
+    return new Utils();
   }
 
   @Bean
