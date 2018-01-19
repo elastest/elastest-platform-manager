@@ -40,7 +40,7 @@ public class PoPApiController implements PoPApi {
   public ResponseEntity<PoP> registerPoP(
       @ApiParam(
             value = "Defintion of a PoP which defines a Point-of-Presence used to host resources",
-            required = false
+            required = true
           )
           @Valid
           @RequestPart

@@ -36,7 +36,7 @@ public class AdapterLauncher {
 
     InputStream in = channelExec.getInputStream();
 
-    // Change to start adapters script
+    // Install Everything needed for the adapters to run
     channelExec.setCommand("wget -O - https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/adapters_installation.sh | bash");
     channelExec.connect();
 
@@ -47,6 +47,21 @@ public class AdapterLauncher {
     while ((line = reader.readLine()) != null) {
       log.debug(++index + " : " + line);
     }
+
+    // Start the adapters
+    // Install Everything needed for the adapters to run
+    channelExec.setCommand("wget https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/docker-compose-adapters.yml" +
+            " -O docker-compose.yml | docker-compose up");
+    channelExec.connect();
+
+    reader = new BufferedReader(new InputStreamReader(in));
+    index = 0;
+
+    while ((line = reader.readLine()) != null) {
+      log.debug(++index + " : " + line);
+    }
+
+
 
     int exitStatus = channelExec.getExitStatus();
     channelExec.disconnect();

@@ -5,19 +5,24 @@
 
 install_docker () {
 
-    sudo apt-get update && sudo apt-get install -y build-essential autoconf libtool curl
+    # Taken from the docker website: https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-repository
+    sudo apt-get update
 
     if [ $? -ne 0 ]
     then
         echo "Updating failed"
     else
-        echo "Success"
+        echo "Done"
     fi
 
-    curl -fsSLO https://get.docker.com/builds/Linux/x86_64/docker-17.04.0-ce.tgz \
-    && tar xzvf docker-17.04.0-ce.tgz \
-    && sudo mv docker/docker /usr/local/bin \
-    && rm -r docker docker-17.04.0-ce.tgz
+    sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+        $(lsb_release -cs) stable"
+
+    sudo apt-get install docker-ce=17.12.0~ce-0~ubuntu
 
     if [ $? -ne 0 ]
     then
@@ -29,28 +34,28 @@ install_docker () {
 }
 
 install_docker_compose() {
-    curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+
+    # Taken from the docker website: https://docs.docker.com/compose/install/#install-compose
+    sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     docker-compose --version
 }
 
-echo "Checking if Docker is installed"
-which docker
-
+docker --version | grep "Docker version"
 if [ $? -eq 0 ]
 then
-    docker --version | grep "Docker version"
-    if [ $? -eq 0 ]
-    then
-        echo "Docker already installed"
-    else
-        echo "Installing Docker and Docker Compose"
+    echo "Docker already installed"
 
-        install_docker
-    fi
 else
-    echo "Installing Docker and Docker Compose" >&2
+    echo "Installing Docker and Docker Compose"
 
-    install_docker
+install_docker
+fi
+
+docker-compose --version | grep docker-compose
+if [ $? -ne 0 ]
+then
     install_docker_compose
+else
+    echo "Docker compose already installed"
 fi
