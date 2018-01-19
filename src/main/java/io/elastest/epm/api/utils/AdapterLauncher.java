@@ -37,17 +37,7 @@ public class AdapterLauncher {
     InputStream in = channelExec.getInputStream();
 
     // Change to start adapters script
-    channelExec.setCommand("bash -s");
-    channelExec.connect();
-    OutputStream out = channelExec.getOutputStream();
-    FileInputStream fis = new FileInputStream("adapters_installation.sh");
-    byte[] buf = new byte[1024];
-    while (true)
-    {
-      int len = fis.read(buf, 0, buf.length);
-      if (len <= 0) break;
-      out.write(buf, 0, len);
-    }
+    channelExec.setCommand("wget -O - https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/adapters_installation.sh | bash");
     channelExec.connect();
 
     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
