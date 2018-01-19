@@ -454,12 +454,17 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
+        - in: part
           name: body
           description: Defintion of a PoP which defines a Point-of-Presence used to host resources
           required: true
           schema:
             $ref: '#/definitions/PoP'
+        - in: formData
+          name: file
+          description: Package in a multipart form
+          required: true
+          type: file
       responses:
         '200':
           description: PoP registration OK

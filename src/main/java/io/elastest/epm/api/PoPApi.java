@@ -1,15 +1,16 @@
 package io.elastest.epm.api;
 
+import com.jcraft.jsch.JSchException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.swagger.annotations.*;
+import java.io.IOException;
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @javax.annotation.Generated(
   value = "io.swagger.codegen.languages.SpringCodegen",
@@ -87,17 +88,18 @@ public interface PoPApi {
   @RequestMapping(
     value = "/pop",
     produces = {"application/json"},
-    consumes = {"application/json"},
     method = RequestMethod.POST
   )
   ResponseEntity<PoP> registerPoP(
       @ApiParam(
             value = "Defintion of a PoP which defines a Point-of-Presence used to host resources",
-            required = true
+            required = false
           )
-          @RequestBody
-          PoP body)
-      throws AdapterException;
+          @Valid
+          @RequestPart
+          PoP body,
+      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
+      throws AdapterException, IOException, JSchException;
 
   @ApiOperation(
     value = "Unregisters a PoP.",

@@ -1,17 +1,24 @@
 package io.elastest.epm.api;
 
+import com.jcraft.jsch.JSchException;
+import io.elastest.epm.api.utils.AdapterLauncher;
 import io.elastest.epm.core.PoPManagement;
 import io.elastest.epm.exception.NotFoundException;
+import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.swagger.annotations.ApiParam;
+import java.io.IOException;
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @javax.annotation.Generated(
   value = "io.swagger.codegen.languages.SpringCodegen",
@@ -33,14 +40,26 @@ public class PoPApiController implements PoPApi {
   public ResponseEntity<PoP> registerPoP(
       @ApiParam(
             value = "Defintion of a PoP which defines a Point-of-Presence used to host resources",
-            required = true
+            required = false
           )
-          @RequestBody
-          PoP body)
-      throws AdapterException {
+          @Valid
+          @RequestPart
+          PoP body,
+      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
+      throws AdapterException, IOException, JSchException {
     // do some magic!
-    PoP poP = popManagement.registerPoP(body);
-    return new ResponseEntity<PoP>(poP, HttpStatus.OK);
+    PoP poP;
+    boolean worker = false;
+    for (KeyValuePair kvp : body.getInterfaceInfo()) {
+      if (kvp.getKey().equals("type") && kvp.getValue().equals("worker")) worker = true;
+    }
+
+    if (worker) {
+      // register adapters
+      AdapterLauncher.startAdapters(file.getInputStream(), "192.168.161.159", "ubuntu", "test");
+    } else poP = popManagement.registerPoP(body);
+
+    return new ResponseEntity<PoP>(HttpStatus.OK);
   }
 
   public ResponseEntity<List<PoP>> getAllPoPs() {
