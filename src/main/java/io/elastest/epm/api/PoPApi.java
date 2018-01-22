@@ -88,6 +88,7 @@ public interface PoPApi {
   @RequestMapping(
     value = "/pop",
     produces = {"application/json"},
+    consumes = {"application/json"},
     method = RequestMethod.POST
   )
   ResponseEntity<PoP> registerPoP(

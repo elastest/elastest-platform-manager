@@ -51,7 +51,7 @@ public class AdapterLauncher {
     // Start the adapters
     // Install Everything needed for the adapters to run
     channelExec.setCommand("wget https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/docker-compose-adapters.yml" +
-            " -O docker-compose.yml | docker-compose up");
+            " -O docker-compose.yml | docker-compose pull | docker-compose up -d --force-recreate ");
     channelExec.connect();
 
     reader = new BufferedReader(new InputStreamReader(in));
