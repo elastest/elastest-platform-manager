@@ -12,7 +12,7 @@ public class AdapterLauncher {
 
   public static void startAdapters(
       InputStream privateKey, String host, String user, String passPhrase)
-      throws JSchException, IOException {
+          throws JSchException, IOException, SftpException {
 
     final File tempFile = File.createTempFile("private", "");
     tempFile.deleteOnExit();
@@ -52,7 +52,7 @@ public class AdapterLauncher {
     tempFile.delete();
   }
 
-  private static void executeCommand(Session session, String command) throws IOException, JSchException {
+  private static void executeCommand(Session session, String command) throws IOException, JSchException, SftpException {
     ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
     InputStream in = channelExec.getInputStream();
 
@@ -77,5 +77,15 @@ public class AdapterLauncher {
     } else {
       log.debug("Done!");
     }
+  }
+
+  private static void sendFile(Session session, InputStream is, String fileName) throws JSchException, SftpException {
+
+    Channel uploadChannel = session.openChannel("sftp");
+    uploadChannel.connect();
+
+    ((ChannelSftp) uploadChannel).put(is, fileName);
+
+    uploadChannel.disconnect();
   }
 }

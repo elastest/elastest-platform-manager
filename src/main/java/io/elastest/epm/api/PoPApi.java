@@ -1,6 +1,7 @@
 package io.elastest.epm.api;
 
 import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
@@ -118,7 +119,7 @@ public interface PoPApi {
           method = RequestMethod.POST)
   ResponseEntity<PoP> registerWorker(
           @ApiParam(value = "ID of PoP",required=true ) @PathVariable("id") String id,
-          @ApiParam(value = "file detail") @RequestPart("file") MultipartFile privateKey) throws AdapterException, NotFoundException, IOException, JSchException;
+          @ApiParam(value = "file detail") @RequestPart("file") MultipartFile privateKey) throws AdapterException, NotFoundException, IOException, JSchException, SftpException;
 
 
 

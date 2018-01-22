@@ -1,6 +1,7 @@
 package io.elastest.epm.api;
 
 import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
 import io.elastest.epm.api.utils.AdapterLauncher;
 import io.elastest.epm.core.PoPManagement;
 import io.elastest.epm.exception.NotFoundException;
@@ -53,7 +54,7 @@ public class PoPApiController implements PoPApi {
 
   public ResponseEntity<PoP> registerWorker(
           @ApiParam(value = "ID of PoP",required=true ) @PathVariable("id") String id,
-          @ApiParam(value = "file detail") @RequestPart("file") MultipartFile privateKey) throws AdapterException, NotFoundException, IOException, JSchException {
+          @ApiParam(value = "file detail") @RequestPart("file") MultipartFile privateKey) throws AdapterException, NotFoundException, IOException, JSchException, SftpException {
     // do some magic!
     PoP poP = popManagement.getPoPById(id);
 
