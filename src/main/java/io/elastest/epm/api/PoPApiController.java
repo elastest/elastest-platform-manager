@@ -43,22 +43,11 @@ public class PoPApiController implements PoPApi {
             required = true
           )
           @Valid
-          @RequestPart
-          PoP body,
-      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
-      throws AdapterException, IOException, JSchException {
+          @RequestBody
+          PoP body)
+      throws AdapterException {
     // do some magic!
-    PoP poP;
-    boolean worker = false;
-    for (KeyValuePair kvp : body.getInterfaceInfo()) {
-      if (kvp.getKey().equals("type") && kvp.getValue().equals("worker")) worker = true;
-    }
-
-    if (worker) {
-      // register adapters
-      AdapterLauncher.startAdapters(file.getInputStream(), "192.168.161.159", "ubuntu", "test");
-    } else poP = popManagement.registerPoP(body);
-
+    PoP poP = popManagement.registerPoP(body);
     return new ResponseEntity<PoP>(HttpStatus.OK);
   }
 

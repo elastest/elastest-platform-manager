@@ -97,10 +97,9 @@ public interface PoPApi {
             required = true
           )
           @Valid
-          @RequestPart
-          PoP body,
-      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
-      throws AdapterException, IOException, JSchException;
+          @RequestBody
+          PoP body)
+      throws AdapterException;
 
   @ApiOperation(
     value = "Unregisters a PoP.",
