@@ -102,6 +102,27 @@ public interface PoPApi {
       throws AdapterException;
 
   @ApiOperation(
+          value = "Starts a worker",
+          notes = "Provides the private key for executing the commands needed for starting the adapters inside a worker",
+          response = PoP.class, tags={ "PoP", })
+  @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Worker Registration OK", response = PoP.class),
+          @ApiResponse(code = 400, message = "Bad Request", response = Void.class),
+          @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
+          @ApiResponse(code = 403, message = "Forbidden", response = Void.class),
+          @ApiResponse(code = 404, message = "Not Found", response = String.class) })
+
+  @RequestMapping(value = "/pop/{id}",
+          produces = { "application/json" },
+          consumes = { "multipart/form-data" },
+          method = RequestMethod.POST)
+  ResponseEntity<PoP> registerWorker(
+          @ApiParam(value = "ID of PoP",required=true ) @PathVariable("id") String id,
+          @ApiParam(value = "file detail") @RequestPart("file") MultipartFile privateKey) throws AdapterException, NotFoundException, IOException, JSchException;
+
+
+
+  @ApiOperation(
     value = "Unregisters a PoP.",
     notes = "Unregisters the PoP that matches with a given ID.",
     response = String.class,
