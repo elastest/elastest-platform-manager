@@ -32,12 +32,31 @@ public class AdapterLauncher {
 
     session.connect();
 
-    ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+    // Install Everything needed for the adapters to run
+    String install = "wget -O - https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/adapters_installation.sh | bash";
+    executeCommand(session, install);
 
+    // Export the environment variables that the adapters need for registering to the EPM
+    /*String exportVariables = "EXPORT EPM_WORKER=" + host + " | EXPORT EPM_WORKER=" + epmIp;
+    * executeCommand(session, exportVariables);
+    * */
+
+    // Start the adapters
+    // Install Everything needed for the adapters to run
+    String startAdapters = "wget https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/docker-compose-adapters.yml" +
+            " -O docker-compose.yml | docker-compose pull | docker-compose up -d --force-recreate ";
+    executeCommand(session, startAdapters);
+
+    session.disconnect();
+
+    tempFile.delete();
+  }
+
+  private static void executeCommand(Session session, String command) throws IOException, JSchException {
+    ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
     InputStream in = channelExec.getInputStream();
 
-    // Install Everything needed for the adapters to run
-    channelExec.setCommand("wget -O - https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/adapters_installation.sh | bash");
+    channelExec.setCommand(command);
     channelExec.connect();
 
     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -48,38 +67,8 @@ public class AdapterLauncher {
       log.debug(++index + " : " + line);
     }
 
-
-    // Export the environment variables that the adapters need for registering to the EPM
-    /*channelExec.setCommand("EXPORT EPM_WORKER=" + host + " | EXPORT EPM_WORKER=" + epmIp);
-    channelExec.connect();
-
-    reader = new BufferedReader(new InputStreamReader(in));
-    index = 0;
-
-    while ((line = reader.readLine()) != null) {
-      log.debug(++index + " : " + line);
-    }*/
-
-    // Start the adapters
-    // Install Everything needed for the adapters to run
-    channelExec.setCommand("wget https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/docker-compose-adapters.yml" +
-            " -O docker-compose.yml | docker-compose pull | docker-compose up -d --force-recreate ");
-    channelExec.connect();
-
-    reader = new BufferedReader(new InputStreamReader(in));
-    index = 0;
-
-    while ((line = reader.readLine()) != null) {
-      log.debug(++index + " : " + line);
-    }
-
-
-
     int exitStatus = channelExec.getExitStatus();
     channelExec.disconnect();
-    session.disconnect();
-
-    tempFile.delete();
 
     if (exitStatus < 0) {
       log.error("Done, but exit status not set!");
