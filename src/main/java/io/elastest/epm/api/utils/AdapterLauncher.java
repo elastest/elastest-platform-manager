@@ -11,8 +11,8 @@ public class AdapterLauncher {
   private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
   public static void startAdapters(
-      InputStream privateKey, String host, String user, String passPhrase)
-          throws JSchException, IOException, SftpException {
+      InputStream privateKey, String host, String user, String passPhrase, String password)
+      throws JSchException, IOException, SftpException {
 
     final File tempFile = File.createTempFile("private", "");
     tempFile.deleteOnExit();
@@ -26,6 +26,8 @@ public class AdapterLauncher {
 
     Session session = jsch.getSession(user, host, 22);
 
+    session.setPassword(password);
+
     java.util.Properties config = new java.util.Properties();
     config.put("StrictHostKeyChecking", "no");
     session.setConfig(config);
@@ -33,18 +35,20 @@ public class AdapterLauncher {
     session.connect();
 
     // Install Everything needed for the adapters to run
-    String install = "wget -O - https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/adapters_installation.sh | bash";
+    String install =
+        "wget -O - https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/adapters_installation.sh | bash";
     executeCommand(session, install);
 
     // Export the environment variables that the adapters need for registering to the EPM
     /*String exportVariables = "EXPORT EPM_WORKER=" + host + " | EXPORT EPM_WORKER=" + epmIp;
-    * executeCommand(session, exportVariables);
-    * */
+     * executeCommand(session, exportVariables);
+     * */
 
     // Start the adapters
     // Install Everything needed for the adapters to run
-    String startAdapters = "wget https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/docker-compose-adapters.yml" +
-            " -O docker-compose.yml | docker-compose pull | docker-compose up -d --force-recreate ";
+    String startAdapters =
+        "wget https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/docker-compose-adapters.yml"
+            + " -O docker-compose.yml | docker-compose pull | docker-compose up -d --force-recreate ";
     executeCommand(session, startAdapters);
 
     session.disconnect();
@@ -52,7 +56,8 @@ public class AdapterLauncher {
     tempFile.delete();
   }
 
-  private static void executeCommand(Session session, String command) throws IOException, JSchException, SftpException {
+  private static void executeCommand(Session session, String command)
+      throws IOException, JSchException, SftpException {
     ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
     InputStream in = channelExec.getInputStream();
 
@@ -79,7 +84,8 @@ public class AdapterLauncher {
     }
   }
 
-  private static void sendFile(Session session, InputStream is, String fileName) throws JSchException, SftpException {
+  private static void sendFile(Session session, InputStream is, String fileName)
+      throws JSchException, SftpException {
 
     Channel uploadChannel = session.openChannel("sftp");
     uploadChannel.connect();

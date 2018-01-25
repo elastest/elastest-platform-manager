@@ -53,36 +53,40 @@ public class PoPApiController implements PoPApi {
   }
 
   public ResponseEntity<PoP> registerWorker(
-          @ApiParam(value = "ID of PoP",required=true ) @PathVariable("id") String id,
-          @ApiParam(value = "file detail") @RequestPart("file") MultipartFile privateKey) throws AdapterException, NotFoundException, IOException, JSchException, SftpException {
+      @ApiParam(value = "ID of PoP", required = true) @PathVariable("id") String id,
+      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile privateKey)
+      throws AdapterException, NotFoundException, IOException, JSchException, SftpException {
     // do some magic!
     PoP poP = popManagement.getPoPById(id);
 
     boolean worker = false;
-    for(KeyValuePair kvp : poP.getInterfaceInfo()){
-      if(kvp.getKey().equals("type") && kvp.getValue().equals("worker")) worker = true;
+    for (KeyValuePair kvp : poP.getInterfaceInfo()) {
+      if (kvp.getKey().equals("type") && kvp.getValue().equals("worker")) worker = true;
     }
-    if(!worker)
-      throw new AdapterException("You can register a worker only on a worker pop. The type of the pop must be worker");
+    if (!worker)
+      throw new AdapterException(
+          "You can register a worker only on a worker pop. The type of the pop must be worker");
 
     String user = "";
     String passphrase = "";
+    String password = "";
     String host = poP.getInterfaceEndpoint();
 
-    for(KeyValuePair kvp : poP.getInterfaceInfo()){
-      if(kvp.getKey().equals("user")) user = kvp.getValue();
-      if(kvp.getKey().equals("passphrase")) passphrase = kvp.getValue();
+    for (KeyValuePair kvp : poP.getInterfaceInfo()) {
+      if (kvp.getKey().equals("user")) user = kvp.getValue();
+      if (kvp.getKey().equals("passphrase")) passphrase = kvp.getValue();
+      if (kvp.getKey().equals("password")) password = kvp.getValue();
     }
 
-    if(user.equals("") || host.equals(null))
-      throw new NotFoundException("To register a worker the PoP must provide the InferaceEndpoint" +
-              " and InterfaceInfo containing user and passphrase information");
+    if (user.equals("") || host.equals(null))
+      throw new NotFoundException(
+          "To register a worker the PoP must provide the InferaceEndpoint"
+              + " and InterfaceInfo containing user and passphrase information");
 
-    AdapterLauncher.startAdapters(privateKey.getInputStream(), host, user, passphrase);
+    AdapterLauncher.startAdapters(privateKey.getInputStream(), host, user, passphrase, password);
 
     return new ResponseEntity<PoP>(HttpStatus.OK);
   }
-
 
   public ResponseEntity<List<PoP>> getAllPoPs() {
     // do some magic!
