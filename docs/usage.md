@@ -132,7 +132,7 @@ curl -X PUT "http://localhost:8180/v1/runtime/{VDU_ID}/action/start"
 curl -X PUT "http://localhost:8180/v1/runtime/{VDU_ID}/action/stop"
 ```
 
-## Using the Docker-Compose client
+## Using the Docker-Compose adapter
 
 To launch Docker-Compose files using the client you have two options:
  
