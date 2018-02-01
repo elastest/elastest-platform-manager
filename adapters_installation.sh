@@ -15,14 +15,14 @@ install_docker () {
         echo "Done"
     fi
 
-    sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+    #echo "y" | sudo apt-get install --yes --force-yes apt-transport-https ca-certificates curl software-properties-common
 
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
         $(lsb_release -cs) stable"
 
-    sudo apt-get install docker-ce=17.12.0~ce-0~ubuntu
+    sudo apt-get install --yes --force-yes docker-ce=17.12.0~ce-0~ubuntu
 
     if [ $? -ne 0 ]
     then
@@ -30,7 +30,7 @@ install_docker () {
     else
         echo "Done"
     fi
-    sudo groupadd docker && sudo usermod -aG docker $USER
+    sudo groupadd docker && sudo usermod -aG docker ubuntu
 }
 
 install_docker_compose() {
@@ -59,3 +59,5 @@ then
 else
     echo "Docker compose already installed"
 fi
+
+sudo docker-compose up -d

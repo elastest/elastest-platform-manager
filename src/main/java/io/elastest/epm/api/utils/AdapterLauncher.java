@@ -23,10 +23,11 @@ public class AdapterLauncher {
     JSch jsch = new JSch();
 
     jsch.addIdentity(tempFile.getAbsolutePath(), passPhrase.getBytes());
+    //jsch.addIdentity(tempFile.getAbsolutePath());
 
     Session session = jsch.getSession(user, host, 22);
 
-    session.setPassword(password);
+    //session.setPassword(password);
 
     java.util.Properties config = new java.util.Properties();
     config.put("StrictHostKeyChecking", "no");
@@ -34,22 +35,16 @@ public class AdapterLauncher {
 
     session.connect();
 
-    // Install Everything needed for the adapters to run
-    String install =
-        "wget -O - https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/adapters_installation.sh | bash";
-    executeCommand(session, install);
+    //executeCommand(session, "sudo su root");
 
-    // Export the environment variables that the adapters need for registering to the EPM
-    /*String exportVariables = "EXPORT EPM_WORKER=" + host + " | EXPORT EPM_WORKER=" + epmIp;
-     * executeCommand(session, exportVariables);
-     * */
+    InputStream installationIs = new FileInputStream("adapters_installation.sh");
+    sendFile(session, installationIs, "adapters_installation.sh");
 
-    // Start the adapters
-    // Install Everything needed for the adapters to run
-    String startAdapters =
-        "wget https://raw.githubusercontent.com/elastest/elastest-platform-manager/worker_registration/docker-compose-adapters.yml"
-            + " -O docker-compose.yml | docker-compose pull | docker-compose up -d --force-recreate ";
-    executeCommand(session, startAdapters);
+    InputStream compose = new FileInputStream("docker-compose-adapters.yml");
+    sendFile(session, compose, "docker-compose.yml");
+
+
+    executeCommand(session, "sudo su root ./adapters_installation.sh");
 
     session.disconnect();
 
@@ -92,6 +87,13 @@ public class AdapterLauncher {
 
     ((ChannelSftp) uploadChannel).put(is, fileName);
 
+    int exitStatus = uploadChannel.getExitStatus();
     uploadChannel.disconnect();
+
+    if (exitStatus == 0) {
+        log.debug("Uploaded successfully!");
+    } else {
+        log.debug("Failed to upload file: " + fileName);
+    }
   }
 }
