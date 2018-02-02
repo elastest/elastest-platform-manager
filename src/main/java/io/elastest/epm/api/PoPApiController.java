@@ -49,7 +49,7 @@ public class PoPApiController implements PoPApi {
       throws AdapterException {
     // do some magic!
     PoP poP = popManagement.registerPoP(body);
-    return new ResponseEntity<PoP>(HttpStatus.OK);
+    return new ResponseEntity<PoP>(poP, HttpStatus.OK);
   }
 
   public ResponseEntity<PoP> registerWorker(

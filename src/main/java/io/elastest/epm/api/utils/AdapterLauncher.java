@@ -23,7 +23,6 @@ public class AdapterLauncher {
     JSch jsch = new JSch();
 
     jsch.addIdentity(tempFile.getAbsolutePath(), passPhrase.getBytes());
-    //jsch.addIdentity(tempFile.getAbsolutePath());
 
     Session session = jsch.getSession(user, host, 22);
 
@@ -34,8 +33,6 @@ public class AdapterLauncher {
     session.setConfig(config);
 
     session.connect();
-
-    //executeCommand(session, "sudo su root");
 
     InputStream installationIs = new FileInputStream("adapters_installation.sh");
     sendFile(session, installationIs, "adapters_installation.sh");
