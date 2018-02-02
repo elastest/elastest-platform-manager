@@ -18,11 +18,13 @@ install_docker () {
     #echo "y" | sudo apt-get install --yes --force-yes apt-transport-https ca-certificates curl software-properties-common
 
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    sudo apt-get update
 
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
         $(lsb_release -cs) stable"
+    sudo apt-get update
 
-    sudo apt-get install --yes docker-ce=17.12.0~ce-0~ubuntu
+    sudo apt-get install -y docker-ce=17.12.0~ce-0~ubuntu
 
     if [ $? -ne 0 ]
     then
@@ -60,4 +62,4 @@ else
     echo "Docker compose already installed"
 fi
 
-sudo docker-compose run -d epm-adapter-docker-compose $1 $2
+sudo docker-compose run -d -p 50051:50051 -v /var/run/docker.sock:/var/run/docker.sock:rw epm-adapter-docker-compose $1 $2
