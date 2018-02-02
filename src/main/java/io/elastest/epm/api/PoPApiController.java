@@ -71,19 +71,21 @@ public class PoPApiController implements PoPApi {
     String passphrase = "";
     String password = "";
     String host = poP.getInterfaceEndpoint();
+    String epmIp = "";
 
     for (KeyValuePair kvp : poP.getInterfaceInfo()) {
       if (kvp.getKey().equals("user")) user = kvp.getValue();
       if (kvp.getKey().equals("passphrase")) passphrase = kvp.getValue();
       if (kvp.getKey().equals("password")) password = kvp.getValue();
+      if (kvp.getKey().equals("epmIP")) epmIp = kvp.getValue();
     }
 
-    if (user.equals("") || host.equals(null))
+    if (user.equals("") || epmIp.equals("") || host.equals(null))
       throw new NotFoundException(
           "To register a worker the PoP must provide the InferaceEndpoint"
-              + " and InterfaceInfo containing user and passphrase information");
+              + " and InterfaceInfo containing user, IP of the EPM and passphrase information");
 
-    AdapterLauncher.startAdapters(privateKey.getInputStream(), host, user, passphrase, password);
+    AdapterLauncher.startAdapters(privateKey.getInputStream(), host, user, passphrase, password, epmIp);
 
     return new ResponseEntity<PoP>(HttpStatus.OK);
   }

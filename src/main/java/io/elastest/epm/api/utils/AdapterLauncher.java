@@ -11,7 +11,7 @@ public class AdapterLauncher {
   private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
   public static void startAdapters(
-      InputStream privateKey, String host, String user, String passPhrase, String password)
+      InputStream privateKey, String host, String user, String passPhrase, String password, String epmIp)
       throws JSchException, IOException, SftpException {
 
     final File tempFile = File.createTempFile("private", "");
@@ -43,8 +43,7 @@ public class AdapterLauncher {
     InputStream compose = new FileInputStream("docker-compose-adapters.yml");
     sendFile(session, compose, "docker-compose.yml");
 
-
-    executeCommand(session, "sudo su root ./adapters_installation.sh");
+    executeCommand(session, "sudo su root ./adapters_installation.sh " + epmIp + " " + host);
 
     session.disconnect();
 

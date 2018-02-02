@@ -22,7 +22,7 @@ install_docker () {
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
         $(lsb_release -cs) stable"
 
-    sudo apt-get install --yes --force-yes docker-ce=17.12.0~ce-0~ubuntu
+    sudo apt-get install --yes docker-ce=17.12.0~ce-0~ubuntu
 
     if [ $? -ne 0 ]
     then
@@ -60,4 +60,4 @@ else
     echo "Docker compose already installed"
 fi
 
-sudo docker-compose up -d
+sudo docker-compose run -d epm-adapter-docker-compose $1 $2
