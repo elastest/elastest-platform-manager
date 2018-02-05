@@ -70,7 +70,23 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
   }
 
   @Override
-  public void terminate(String packageId) throws NotFoundException {}
+  public void terminate(String packageId) throws NotFoundException {
+    ResourceGroup resourceGroup = resourceGroupRepository.findOneByName(packageId);
+    PoP composePop = poPRepository.findPoPForType("docker-compose");
+    OperationHandlerBlockingStub composeClient = getAnsibleClient(composePop);
+    // TODO: GET AUTH
+    Auth auth = Auth.newBuilder().setAuthUrl("").setUsername("").setPassword("").setProject("").build();
+    ResourceIdentifier identifier =
+            ResourceIdentifier.newBuilder()
+                    .setResourceId(resourceGroup.getVdus().get(0).getName())
+                    .setAuth(auth)
+                    .build();
+    composeClient.remove(identifier);
+
+    vduRepository.delete(resourceGroup.getVdus());
+    networkRepository.delete(resourceGroup.getNetworks());
+    resourceGroupRepository.delete(resourceGroup);
+  }
 
   @Override
   public InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop)

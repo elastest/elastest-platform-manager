@@ -8,6 +8,7 @@ message FileMessage {
 
 message ResourceIdentifier {
     string resource_id = 1;
+    Auth auth = 2;
 }
 
 message RuntimeMessage {
@@ -29,10 +30,10 @@ message Empty {
 }
 
 message Auth {
-        string auth_url = 1;
-        string username = 2;
-        string password = 3;
-        string project = 4;
+    string auth_url = 1;
+    string username = 2;
+    string password = 3;
+    string project = 4;
 }
 
 message ResourceGroupProto {
