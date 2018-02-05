@@ -5,10 +5,8 @@ import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
-import io.elastest.epm.pop.generated.FileMessage;
-import io.elastest.epm.pop.generated.OperationHandlerGrpc;
+import io.elastest.epm.pop.generated.*;
 import io.elastest.epm.pop.generated.OperationHandlerGrpc.OperationHandlerBlockingStub;
-import io.elastest.epm.pop.generated.ResourceGroupProto;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
 import io.elastest.epm.repository.NetworkRepository;
@@ -17,8 +15,14 @@ import io.elastest.epm.repository.ResourceGroupRepository;
 import io.elastest.epm.repository.VduRepository;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
@@ -71,15 +75,44 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
   @Override
   public InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop)
       throws AdapterException {
-    throw new org.apache.commons.lang.NotImplementedException(
-        "Ansible adapter is under development!");
+    OperationHandlerBlockingStub client = getAnsibleClient(pop);
+    log.debug("Downloading file");
+    RuntimeMessage dockerRuntimeMessage =
+            RuntimeMessage.newBuilder()
+                    .setResourceId(vdu.getIp())
+                    .addAllProperty(new ArrayList<String>())
+                    .addProperty(filepath)
+                    .addProperty("/net/u/rvl/mykey")
+                    .addProperty("ubuntu")
+                    .addProperty("")
+                    .build();
+    FileMessage response = client.downloadFile(dockerRuntimeMessage);
+    return new ByteArrayInputStream(response.getFile().toByteArray());
   }
 
   @Override
   public String executeOnInstance(VDU vdu, String command, boolean awaitCompletion, PoP pop)
       throws AdapterException {
-    throw new org.apache.commons.lang.NotImplementedException(
-        "Ansible adapter is under development!");
+    OperationHandlerBlockingStub client = getAnsibleClient(pop);
+
+    ArrayList<String> properties = new ArrayList<>();
+    //Ip
+    properties.add(command);
+    properties.add("/net/u/rvl/mykey");
+    properties.add("ubuntu");
+    properties.add("");
+
+    RuntimeMessage dockerRuntimeMessage =
+            RuntimeMessage.newBuilder()
+                    .setResourceId(vdu.getIp())
+                    .addAllProperty(new ArrayList<String>())
+                    .addProperty(command)
+                    .addProperty("/net/u/rvl/mykey")
+                    .addProperty("ubuntu")
+                    .addProperty("")
+                    .build();
+    StringResponse response = client.executeCommand(dockerRuntimeMessage);
+    return response.getResponse();
   }
 
   @Override
@@ -97,14 +130,43 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
   @Override
   public void uploadFileToInstance(VDU vdu, String remotePath, String hostPath, PoP pop)
       throws AdapterException, IOException {
-    throw new org.apache.commons.lang.NotImplementedException(
-        "Ansible adapter is under development!");
+    OperationHandlerBlockingStub client = getAnsibleClient(pop);
+
+    RuntimeMessage dockerRuntimeMessage =
+            RuntimeMessage.newBuilder()
+                    .setResourceId(vdu.getIp())
+                    .addAllProperty(new ArrayList<String>())
+                    .addProperty("withPath")
+                    .addProperty("/net/u/rvl/mykey")
+                    .addProperty("ubuntu")
+                    .addProperty("")
+                    .addProperty(hostPath)
+                    .addProperty(remotePath)
+                    .build();
+    client.uploadFile(dockerRuntimeMessage);
   }
 
   @Override
   public void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop)
       throws AdapterException, IOException {
-    throw new org.apache.commons.lang.NotImplementedException(
-        "Ansible adapter is under development!");
+    File output = Utils.convert(file);
+    output.deleteOnExit();
+    OperationHandlerBlockingStub client = getAnsibleClient(pop);
+    if (!file.getOriginalFilename().endsWith(".tar")) {
+      output = Utils.compressFileToTar(output);
+    }
+
+    RuntimeMessage dockerRuntimeMessage =
+            RuntimeMessage.newBuilder()
+                    .setResourceId(vdu.getIp())
+                    .addAllProperty(new ArrayList<String>())
+                    .addProperty(remotePath)
+                    .addProperty("/net/u/rvl/mykey")
+                    .addProperty("ubuntu")
+                    .addProperty("")
+                    .setFile(ByteString.copyFrom(FileUtils.readFileToByteArray(output)))
+                    .build();
+    client.uploadFile(dockerRuntimeMessage);
+    log.debug(String.valueOf("File deletion: " + output.delete()));
   }
 }
