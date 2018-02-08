@@ -48,20 +48,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
               resourceId_ = s;
               break;
             }
-          case 18:
-            {
-              Auth.Builder subBuilder = null;
-              if (auth_ != null) {
-                subBuilder = auth_.toBuilder();
-              }
-              auth_ = input.readMessage(Auth.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(auth_);
-                auth_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
         }
       }
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -111,21 +97,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     }
   }
 
-  public static final int AUTH_FIELD_NUMBER = 2;
-  private Auth auth_;
-  /** <code>optional .Auth auth = 2;</code> */
-  public boolean hasAuth() {
-    return auth_ != null;
-  }
-  /** <code>optional .Auth auth = 2;</code> */
-  public Auth getAuth() {
-    return auth_ == null ? Auth.getDefaultInstance() : auth_;
-  }
-  /** <code>optional .Auth auth = 2;</code> */
-  public AuthOrBuilder getAuthOrBuilder() {
-    return getAuth();
-  }
-
   private byte memoizedIsInitialized = -1;
 
   public final boolean isInitialized() {
@@ -141,9 +112,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     if (!getResourceIdBytes().isEmpty()) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, resourceId_);
     }
-    if (auth_ != null) {
-      output.writeMessage(2, getAuth());
-    }
   }
 
   public int getSerializedSize() {
@@ -153,9 +121,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     size = 0;
     if (!getResourceIdBytes().isEmpty()) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, resourceId_);
-    }
-    if (auth_ != null) {
-      size += com.google.protobuf.CodedOutputStream.computeMessageSize(2, getAuth());
     }
     memoizedSize = size;
     return size;
@@ -175,10 +140,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
 
     boolean result = true;
     result = result && getResourceId().equals(other.getResourceId());
-    result = result && (hasAuth() == other.hasAuth());
-    if (hasAuth()) {
-      result = result && getAuth().equals(other.getAuth());
-    }
     return result;
   }
 
@@ -191,10 +152,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     hash = (19 * hash) + getDescriptorForType().hashCode();
     hash = (37 * hash) + RESOURCE_ID_FIELD_NUMBER;
     hash = (53 * hash) + getResourceId().hashCode();
-    if (hasAuth()) {
-      hash = (37 * hash) + AUTH_FIELD_NUMBER;
-      hash = (53 * hash) + getAuth().hashCode();
-    }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -314,12 +271,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
       super.clear();
       resourceId_ = "";
 
-      if (authBuilder_ == null) {
-        auth_ = null;
-      } else {
-        auth_ = null;
-        authBuilder_ = null;
-      }
       return this;
     }
 
@@ -342,11 +293,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     public ResourceIdentifier buildPartial() {
       ResourceIdentifier result = new ResourceIdentifier(this);
       result.resourceId_ = resourceId_;
-      if (authBuilder_ == null) {
-        result.auth_ = auth_;
-      } else {
-        result.auth_ = authBuilder_.build();
-      }
       onBuilt();
       return result;
     }
@@ -391,9 +337,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
       if (!other.getResourceId().isEmpty()) {
         resourceId_ = other.resourceId_;
         onChanged();
-      }
-      if (other.hasAuth()) {
-        mergeAuth(other.getAuth());
       }
       onChanged();
       return this;
@@ -473,99 +416,6 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
       resourceId_ = value;
       onChanged();
       return this;
-    }
-
-    private Auth auth_ = null;
-    private com.google.protobuf.SingleFieldBuilderV3<Auth, Auth.Builder, AuthOrBuilder>
-        authBuilder_;
-    /** <code>optional .Auth auth = 2;</code> */
-    public boolean hasAuth() {
-      return authBuilder_ != null || auth_ != null;
-    }
-    /** <code>optional .Auth auth = 2;</code> */
-    public Auth getAuth() {
-      if (authBuilder_ == null) {
-        return auth_ == null ? Auth.getDefaultInstance() : auth_;
-      } else {
-        return authBuilder_.getMessage();
-      }
-    }
-    /** <code>optional .Auth auth = 2;</code> */
-    public Builder setAuth(Auth value) {
-      if (authBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        auth_ = value;
-        onChanged();
-      } else {
-        authBuilder_.setMessage(value);
-      }
-
-      return this;
-    }
-    /** <code>optional .Auth auth = 2;</code> */
-    public Builder setAuth(Auth.Builder builderForValue) {
-      if (authBuilder_ == null) {
-        auth_ = builderForValue.build();
-        onChanged();
-      } else {
-        authBuilder_.setMessage(builderForValue.build());
-      }
-
-      return this;
-    }
-    /** <code>optional .Auth auth = 2;</code> */
-    public Builder mergeAuth(Auth value) {
-      if (authBuilder_ == null) {
-        if (auth_ != null) {
-          auth_ = Auth.newBuilder(auth_).mergeFrom(value).buildPartial();
-        } else {
-          auth_ = value;
-        }
-        onChanged();
-      } else {
-        authBuilder_.mergeFrom(value);
-      }
-
-      return this;
-    }
-    /** <code>optional .Auth auth = 2;</code> */
-    public Builder clearAuth() {
-      if (authBuilder_ == null) {
-        auth_ = null;
-        onChanged();
-      } else {
-        auth_ = null;
-        authBuilder_ = null;
-      }
-
-      return this;
-    }
-    /** <code>optional .Auth auth = 2;</code> */
-    public Auth.Builder getAuthBuilder() {
-
-      onChanged();
-      return getAuthFieldBuilder().getBuilder();
-    }
-    /** <code>optional .Auth auth = 2;</code> */
-    public AuthOrBuilder getAuthOrBuilder() {
-      if (authBuilder_ != null) {
-        return authBuilder_.getMessageOrBuilder();
-      } else {
-        return auth_ == null ? Auth.getDefaultInstance() : auth_;
-      }
-    }
-    /** <code>optional .Auth auth = 2;</code> */
-    private com.google.protobuf.SingleFieldBuilderV3<Auth, Auth.Builder, AuthOrBuilder>
-        getAuthFieldBuilder() {
-      if (authBuilder_ == null) {
-        authBuilder_ =
-            new com.google.protobuf.SingleFieldBuilderV3<Auth, Auth.Builder, AuthOrBuilder>(
-                getAuth(), getParentForChildren(), isClean());
-        auth_ = null;
-      }
-      return authBuilder_;
     }
 
     public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {

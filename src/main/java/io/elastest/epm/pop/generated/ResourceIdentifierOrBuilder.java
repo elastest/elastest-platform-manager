@@ -10,11 +10,4 @@ public interface ResourceIdentifierOrBuilder
   String getResourceId();
   /** <code>optional string resource_id = 1;</code> */
   com.google.protobuf.ByteString getResourceIdBytes();
-
-  /** <code>optional .Auth auth = 2;</code> */
-  boolean hasAuth();
-  /** <code>optional .Auth auth = 2;</code> */
-  Auth getAuth();
-  /** <code>optional .Auth auth = 2;</code> */
-  AuthOrBuilder getAuthOrBuilder();
 }
