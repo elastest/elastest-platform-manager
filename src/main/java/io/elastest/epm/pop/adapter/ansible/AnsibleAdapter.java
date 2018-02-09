@@ -96,7 +96,6 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
                     .setResourceId(vdu.getIp())
                     .addAllProperty(new ArrayList<String>())
                     .addProperty(filepath)
-                    .addProperty("/net/u/rvl/mykey")
                     .addProperty("ubuntu")
                     .addProperty("")
                     .build();
@@ -109,19 +108,12 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
       throws AdapterException {
     OperationHandlerBlockingStub client = getAnsibleClient(pop);
 
-    ArrayList<String> properties = new ArrayList<>();
-    //Ip
-    properties.add(command);
-    properties.add("/net/u/rvl/mykey");
-    properties.add("ubuntu");
-    properties.add("");
 
     RuntimeMessage dockerRuntimeMessage =
             RuntimeMessage.newBuilder()
                     .setResourceId(vdu.getIp())
                     .addAllProperty(new ArrayList<String>())
                     .addProperty(command)
-                    .addProperty("/net/u/rvl/mykey")
                     .addProperty("ubuntu")
                     .addProperty("")
                     .build();
@@ -161,7 +153,6 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
                     .setResourceId(vdu.getIp())
                     .addAllProperty(new ArrayList<String>())
                     .addProperty("withPath")
-                    .addProperty("/net/u/rvl/mykey")
                     .addProperty("ubuntu")
                     .addProperty("")
                     .addProperty(hostPath)
@@ -185,7 +176,6 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
                     .setResourceId(vdu.getIp())
                     .addAllProperty(new ArrayList<String>())
                     .addProperty(remotePath)
-                    .addProperty("/net/u/rvl/mykey")
                     .addProperty("ubuntu")
                     .addProperty("")
                     .setFile(ByteString.copyFrom(FileUtils.readFileToByteArray(output)))
