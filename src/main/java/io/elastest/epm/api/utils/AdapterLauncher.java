@@ -11,7 +11,12 @@ public class AdapterLauncher {
   private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
   public static void startAdapters(
-      InputStream privateKey, String host, String user, String passPhrase, String password, String epmIp)
+      InputStream privateKey,
+      String host,
+      String user,
+      String passPhrase,
+      String password,
+      String epmIp)
       throws JSchException, IOException, SftpException {
 
     final File tempFile = File.createTempFile("private", "");
@@ -87,9 +92,9 @@ public class AdapterLauncher {
     uploadChannel.disconnect();
 
     if (exitStatus == 0) {
-        log.debug("Uploaded successfully!");
+      log.debug("Uploaded successfully!");
     } else {
-        log.debug("Failed to upload file: " + fileName);
+      log.debug("Failed to upload file: " + fileName);
     }
   }
 }
