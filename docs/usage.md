@@ -150,7 +150,7 @@ To launch Docker-Compose files using the client you have two options:
 3. Register a Docker-Compose PoP using the Docker-Compose client IP (Change the value in the "interfaceInfo")
 
 ```bash
-{"name": "compose", "interfaceEndpoint": "$DOCKER_CLIENT_IP$", "interfaceInfo": [{"key":"type","value":"docker-compose"}]}
+'{"name": "compose", "interfaceEndpoint": "$DOCKER_CLIENT_IP$", "interfaceInfo": [{"key":"type","value":"docker-compose"}]}'
 ```
 4. Create a **tar** package with the following structure
 
@@ -188,6 +188,31 @@ You have to replace the ID with the Resource Group ID of the package.
 ```bash
 curl -X DELETE http://localhost:8180/v1/packages/9915ceda-c1a1-4521-ad87-a1791b12002a -H "Accept: application/json"
 ```
+
+## Registering a worker
+
+If you have a Virtual Machine, which you want to use as a worker follow these steps:
+
+### Register worker first as a PoP in the following way:
+
+The Worker PoP can be registered in the following way:
+
+```bash
+curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "worker", "interfaceEndpoint": "$WORKER_IP$", "interfaceInfo": [{"key":"type","value":"worker"}, {"key":"user","value":"$USER"},, {"key":"passphrase","value":"$PASSPHRASE_FOR_KEY"}, {"key":"epmIP","value":"$EPM_IP"}]}' localhost:8180/v1/pop
+```
+
+The EPM should be reachable from worker and you have to specify the IP of the EPM, where it will be reachable. 
+
+### Provide the Private Key for starting the Adapters
+
+To provide a Private Key for the Worker execute the following command:
+
+```bash
+curl -X POST -H "Content-Type: multipart/form-data" -v -F file=@key localhost:8180/v1/pop/{POP_ID}
+```
+
+The key file should be the private key, which makes it possible the EPM to access the remote worker and install the adapters.
+If the worker is successfully registered, there will be a PoP registered in the EPM of type docker-compose. Now you can use the docker-compose packages, as explained above.
 
 ## Json examples
 
