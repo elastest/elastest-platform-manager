@@ -15,13 +15,11 @@ import io.elastest.epm.repository.ResourceGroupRepository;
 import io.elastest.epm.repository.VduRepository;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.mariadb.jdbc.internal.logging.Logger;
@@ -76,9 +74,9 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
     OperationHandlerBlockingStub ansibleClient = getAnsibleClient(composePop);
 
     ResourceIdentifier identifier =
-            ResourceIdentifier.newBuilder()
-                    .setResourceId(resourceGroup.getVdus().get(0).getName())
-                    .build();
+        ResourceIdentifier.newBuilder()
+            .setResourceId(resourceGroup.getVdus().get(0).getName())
+            .build();
     ansibleClient.remove(identifier);
 
     vduRepository.delete(resourceGroup.getVdus());
@@ -92,13 +90,13 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
     OperationHandlerBlockingStub client = getAnsibleClient(pop);
     log.debug("Downloading file");
     RuntimeMessage dockerRuntimeMessage =
-            RuntimeMessage.newBuilder()
-                    .setResourceId(vdu.getIp())
-                    .addAllProperty(new ArrayList<String>())
-                    .addProperty(filepath)
-                    .addProperty("ubuntu")
-                    .addProperty("")
-                    .build();
+        RuntimeMessage.newBuilder()
+            .setResourceId(vdu.getIp())
+            .addAllProperty(new ArrayList<String>())
+            .addProperty(filepath)
+            .addProperty("ubuntu")
+            .addProperty("")
+            .build();
     FileMessage response = client.downloadFile(dockerRuntimeMessage);
     return new ByteArrayInputStream(response.getFile().toByteArray());
   }
@@ -108,15 +106,14 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
       throws AdapterException {
     OperationHandlerBlockingStub client = getAnsibleClient(pop);
 
-
     RuntimeMessage dockerRuntimeMessage =
-            RuntimeMessage.newBuilder()
-                    .setResourceId(vdu.getIp())
-                    .addAllProperty(new ArrayList<String>())
-                    .addProperty(command)
-                    .addProperty("ubuntu")
-                    .addProperty("")
-                    .build();
+        RuntimeMessage.newBuilder()
+            .setResourceId(vdu.getIp())
+            .addAllProperty(new ArrayList<String>())
+            .addProperty(command)
+            .addProperty("ubuntu")
+            .addProperty("")
+            .build();
     StringResponse response = client.executeCommand(dockerRuntimeMessage);
     return response.getResponse();
   }
@@ -126,9 +123,7 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
     PoP composePop = poPRepository.findPoPForType("ansible");
     OperationHandlerBlockingStub composeClient = getAnsibleClient(composePop);
     ResourceIdentifier identifier =
-            ResourceIdentifier.newBuilder()
-                    .setResourceId(vdu.getName())
-                    .build();
+        ResourceIdentifier.newBuilder().setResourceId(vdu.getName()).build();
     composeClient.startContainer(identifier);
   }
 
@@ -137,9 +132,7 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
     PoP composePop = poPRepository.findPoPForType("ansible");
     OperationHandlerBlockingStub composeClient = getAnsibleClient(composePop);
     ResourceIdentifier identifier =
-            ResourceIdentifier.newBuilder()
-                    .setResourceId(vdu.getName())
-                    .build();
+        ResourceIdentifier.newBuilder().setResourceId(vdu.getName()).build();
     composeClient.stopContainer(identifier);
   }
 
@@ -149,15 +142,15 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
     OperationHandlerBlockingStub client = getAnsibleClient(pop);
 
     RuntimeMessage dockerRuntimeMessage =
-            RuntimeMessage.newBuilder()
-                    .setResourceId(vdu.getIp())
-                    .addAllProperty(new ArrayList<String>())
-                    .addProperty("withPath")
-                    .addProperty("ubuntu")
-                    .addProperty("")
-                    .addProperty(hostPath)
-                    .addProperty(remotePath)
-                    .build();
+        RuntimeMessage.newBuilder()
+            .setResourceId(vdu.getIp())
+            .addAllProperty(new ArrayList<String>())
+            .addProperty("withPath")
+            .addProperty("ubuntu")
+            .addProperty("")
+            .addProperty(hostPath)
+            .addProperty(remotePath)
+            .build();
     client.uploadFile(dockerRuntimeMessage);
   }
 
@@ -172,14 +165,14 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
     }
 
     RuntimeMessage dockerRuntimeMessage =
-            RuntimeMessage.newBuilder()
-                    .setResourceId(vdu.getIp())
-                    .addAllProperty(new ArrayList<String>())
-                    .addProperty(remotePath)
-                    .addProperty("ubuntu")
-                    .addProperty("")
-                    .setFile(ByteString.copyFrom(FileUtils.readFileToByteArray(output)))
-                    .build();
+        RuntimeMessage.newBuilder()
+            .setResourceId(vdu.getIp())
+            .addAllProperty(new ArrayList<String>())
+            .addProperty(remotePath)
+            .addProperty("ubuntu")
+            .addProperty("")
+            .setFile(ByteString.copyFrom(FileUtils.readFileToByteArray(output)))
+            .build();
     client.uploadFile(dockerRuntimeMessage);
     log.debug(String.valueOf("File deletion: " + output.delete()));
   }
