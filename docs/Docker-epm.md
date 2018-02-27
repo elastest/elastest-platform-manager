@@ -16,6 +16,7 @@ The ElasTest Platform Manager is the interface between the ElasTest testing comp
 
 # Supported tags and respective `Dockerfile` links
 -	[`0.5.0` (*1.0/Dockerfile*)](https://github.com/elastest/elastest-platform-manager/blob/0.5.0/docker/elastest-platform-manager/Dockerfile)
+-	[`0.8.0` (*1.0/Dockerfile*)](https://github.com/elastest/elastest-platform-manager/blob/0.8.0/docker/elastest-platform-manager/Dockerfile)
 
 # Quick reference
 

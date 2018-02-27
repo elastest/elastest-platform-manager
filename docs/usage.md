@@ -163,6 +163,7 @@ The **Metadata.yaml** should look like this:
 
 ```yaml
 name: package #Here you can specify the name of the package
+type: docker-compose
 ```
 
 You can create the **tar** file using the following command
@@ -189,9 +190,22 @@ You have to replace the ID with the Resource Group ID of the package.
 curl -X DELETE http://localhost:8180/v1/packages/9915ceda-c1a1-4521-ad87-a1791b12002a -H "Accept: application/json"
 ```
 
+7. (Optional) If you want to use images from a custom Docker Registry you need to specify the credentials for that registry in the **Metadata.yaml**
+in the following way:
+
+```yaml
+docker_registry: localhost:5000 # Here specify the URL to the registry for registering to it
+docker_username: user # Specify the username and password credentials for registering to it
+docker_password: pass
+```
+
+Besides that in the compose file the user should specify the correct path of the image of the private registry.
+
 ## Registering a worker
 
 If you have a Virtual Machine, which you want to use as a worker follow these steps:
+
+**Note:** Only **Ubuntu** VMs are supported as workers at the moment. The worker registration has been tested with Ubuntu 14.04 and Ubuntu 16.04. 
 
 ### Register worker first as a PoP in the following way:
 
@@ -208,7 +222,7 @@ The EPM should be reachable from worker and you have to specify the IP of the EP
 To provide a Private Key for the Worker execute the following command:
 
 ```bash
-curl -X POST -H "Content-Type: multipart/form-data" -v -F file=@key localhost:8180/v1/pop/{POP_ID}
+curl -X POST -H "Content-Type: multipart/form-data" -v -F privateKey=@key localhost:8180/v1/pop/{POP_ID}
 ```
 
 The key file should be the private key, which makes it possible the EPM to access the remote worker and install the adapters.

@@ -128,7 +128,7 @@ public interface PoPApi {
   )
   ResponseEntity<PoP> registerWorker(
       @ApiParam(value = "ID of PoP", required = true) @PathVariable("id") String id,
-      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile privateKey)
+      @ApiParam(value = "file detail") @RequestPart("privateKey") MultipartFile privateKey)
       throws AdapterException, NotFoundException, IOException, JSchException, SftpException;
 
   @ApiOperation(
