@@ -26,7 +26,7 @@ node('docker'){
             echo ("Building docker image...")
             sh 'cp build/libs/elastest-platform-manager-*.jar docker/elastest-platform-manager/epm.jar'
             //def myimage = docker.build("elastest/epm:latest","./docker/elastest-platform-manager")
-            sh 'cd docker/elastest-platform-manager; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) . -t elastest/epm:latest'
+            sh 'cd docker/elastest-platform-manager; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) . -t elastest/epm:0.8.0'
             def myimage = docker.image('elastest/epm:0.8.0')
 
         stage "Run image"
