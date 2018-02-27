@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -67,12 +66,15 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
     String address = "";
     if (dockerProperties.getLogStash().isEnabled()) {
       enabled = "True";
-      if( dockerProperties.getLogStash().getAddress() != null && !dockerProperties.getLogStash().getAddress().equals(""))
+      if (dockerProperties.getLogStash().getAddress() != null
+          && !dockerProperties.getLogStash().getAddress().equals(""))
         address = dockerProperties.getLogStash().getAddress();
       else address = "tcp://localhost:5000";
     }
 
-    FileMessage composePackage = FileMessage.newBuilder().setFile(yamlFile)
+    FileMessage composePackage =
+        FileMessage.newBuilder()
+            .setFile(yamlFile)
             .addAllOptions(new ArrayList<String>())
             .addOptions(enabled)
             .addOptions(address)
