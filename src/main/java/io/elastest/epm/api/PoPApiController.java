@@ -85,8 +85,8 @@ public class PoPApiController implements PoPApi {
           "To register a worker the PoP must provide the InferaceEndpoint"
               + " and InterfaceInfo containing user, IP of the EPM and passphrase information");
 
-    AdapterLauncher.startAdapters(
-        privateKey.getInputStream(), host, user, passphrase, password, epmIp);
+    //AdapterLauncher.startAdapters(
+      //  privateKey.getInputStream(), host, user, passphrase, password, epmIp);
 
     return new ResponseEntity<PoP>(HttpStatus.OK);
   }

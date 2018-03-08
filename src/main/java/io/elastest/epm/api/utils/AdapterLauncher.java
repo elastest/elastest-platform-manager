@@ -2,7 +2,11 @@ package io.elastest.epm.api.utils;
 
 import com.jcraft.jsch.*;
 import java.io.*;
+
+import io.elastest.epm.model.Key;
+import io.elastest.epm.model.Worker;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.util.CharsetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,26 +14,22 @@ public class AdapterLauncher {
 
   private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
-  public static void startAdapters(
-      InputStream privateKey,
-      String host,
-      String user,
-      String passPhrase,
-      String password,
-      String epmIp)
+  public static void startAdapters(Worker worker, Key key)
       throws JSchException, IOException, SftpException {
 
     final File tempFile = File.createTempFile("private", "");
     tempFile.deleteOnExit();
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
-      IOUtils.copy(privateKey, out);
+      OutputStreamWriter osw = new OutputStreamWriter(out);
+      osw.write(key.getKey());
+      osw.flush();
     }
 
     JSch jsch = new JSch();
 
-    jsch.addIdentity(tempFile.getAbsolutePath(), passPhrase.getBytes());
+    jsch.addIdentity(tempFile.getAbsolutePath(), worker.getPassphrase().getBytes());
 
-    Session session = jsch.getSession(user, host, 22);
+    Session session = jsch.getSession(worker.getUser(), worker.getIp(), 22);
 
     //session.setPassword(password);
 
@@ -45,7 +45,7 @@ public class AdapterLauncher {
     InputStream compose = new FileInputStream("docker-compose-adapters.yml");
     sendFile(session, compose, "docker-compose.yml");
 
-    executeCommand(session, "sudo su root ./adapters_installation.sh " + epmIp + " " + host);
+    executeCommand(session, "sudo su root ./adapters_installation.sh " + worker.getEpmIp() + " " + worker.getIp());
 
     session.disconnect();
 
