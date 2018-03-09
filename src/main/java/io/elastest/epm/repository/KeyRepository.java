@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface KeyRepository extends CrudRepository<Key, String> {
 
-    Key findOneByName(String name);
+  Key findOneByName(String name);
 }

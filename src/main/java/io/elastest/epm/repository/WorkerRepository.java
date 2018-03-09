@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface WorkerRepository extends CrudRepository<Worker, String> {
 
-    Worker findOneByIp(String ip);
+  Worker findOneByIp(String ip);
 }

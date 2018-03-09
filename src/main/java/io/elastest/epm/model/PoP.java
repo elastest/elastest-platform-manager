@@ -38,13 +38,13 @@ public class PoP {
   @JsonProperty("interfaceEndpoint")
   private String interfaceEndpoint = null;
 
-  /**
-   * Gets or Sets status
-   */
+  /** Gets or Sets status */
   public enum StatusEnum {
     CONFIGURE("configure"),
 
-    ACTIVE("active");
+    ACTIVE("active"),
+
+    INACTIVE("inactive");
 
     private String value;
 
@@ -72,7 +72,6 @@ public class PoP {
   @JsonProperty("status")
   private StatusEnum status = null;
 
-
   public StatusEnum getStatus() {
     return status;
   }
@@ -80,8 +79,6 @@ public class PoP {
   public void setStatus(StatusEnum status) {
     this.status = status;
   }
-
-
 
   public PoP id(String id) {
     this.id = id;

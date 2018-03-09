@@ -1,12 +1,9 @@
 package io.elastest.epm.api.utils;
 
 import com.jcraft.jsch.*;
-import java.io.*;
-
 import io.elastest.epm.model.Key;
 import io.elastest.epm.model.Worker;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.util.CharsetUtils;
+import java.io.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +42,9 @@ public class AdapterLauncher {
     InputStream compose = new FileInputStream("docker-compose-adapters.yml");
     sendFile(session, compose, "docker-compose.yml");
 
-    executeCommand(session, "sudo su root ./adapters_installation.sh " + worker.getEpmIp() + " " + worker.getIp());
+    executeCommand(
+        session,
+        "sudo su root ./adapters_installation.sh " + worker.getEpmIp() + " " + worker.getIp());
 
     session.disconnect();
 

@@ -2,7 +2,6 @@ package io.elastest.epm.api;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import io.elastest.epm.api.utils.AdapterLauncher;
 import io.elastest.epm.core.PoPManagement;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.KeyValuePair;
@@ -49,6 +48,7 @@ public class PoPApiController implements PoPApi {
       throws AdapterException {
     // do some magic!
     PoP poP = popManagement.registerPoP(body);
+    poP.setStatus(PoP.StatusEnum.ACTIVE);
     return new ResponseEntity<PoP>(poP, HttpStatus.OK);
   }
 
@@ -86,7 +86,7 @@ public class PoPApiController implements PoPApi {
               + " and InterfaceInfo containing user, IP of the EPM and passphrase information");
 
     //AdapterLauncher.startAdapters(
-      //  privateKey.getInputStream(), host, user, passphrase, password, epmIp);
+    //  privateKey.getInputStream(), host, user, passphrase, password, epmIp);
 
     return new ResponseEntity<PoP>(HttpStatus.OK);
   }

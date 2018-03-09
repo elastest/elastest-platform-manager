@@ -1164,6 +1164,7 @@ definitions:
         enum:
           - configure
           - active
+          - inactive
       interfaceInfo:
         type: array
         example: '[{&quot;key&quot;:&quot;type&quot;,&quot;value&quot;:&quot;docker&quot;}]'

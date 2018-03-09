@@ -1,23 +1,21 @@
 package io.elastest.epm.model;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.validation.Valid;
 import javax.validation.constraints.*;
 
-/**
- * A worker object for registering a machine where adapters can be deployed.
- */
+/** A worker object for registering a machine where adapters can be deployed. */
 @ApiModel(description = "A worker object for registering a machine where adapters can be deployed.")
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-03-07T18:07:29.807+01:00")
+@javax.annotation.Generated(
+  value = "io.swagger.codegen.languages.SpringCodegen",
+  date = "2018-03-07T18:07:29.807+01:00"
+)
 @Entity
-public class Worker   {
+public class Worker {
   @JsonProperty("id")
   @Id
   private String id = null;
@@ -45,13 +43,12 @@ public class Worker   {
     return this;
   }
 
-   /**
+  /**
    * Get id
+   *
    * @return id
-  **/
+   */
   @ApiModelProperty(value = "")
-
-
   public String getId() {
     return id;
   }
@@ -65,14 +62,13 @@ public class Worker   {
     return this;
   }
 
-   /**
+  /**
    * Get ip
+   *
    * @return ip
-  **/
+   */
   @ApiModelProperty(required = true, value = "")
   @NotNull
-
-
   public String getIp() {
     return ip;
   }
@@ -86,14 +82,13 @@ public class Worker   {
     return this;
   }
 
-   /**
+  /**
    * Get user
+   *
    * @return user
-  **/
+   */
   @ApiModelProperty(required = true, value = "")
   @NotNull
-
-
   public String getUser() {
     return user;
   }
@@ -107,14 +102,13 @@ public class Worker   {
     return this;
   }
 
-   /**
+  /**
    * Get passphrase
+   *
    * @return passphrase
-  **/
+   */
   @ApiModelProperty(required = true, value = "")
   @NotNull
-
-
   public String getPassphrase() {
     return passphrase;
   }
@@ -128,13 +122,12 @@ public class Worker   {
     return this;
   }
 
-   /**
+  /**
    * Get password
+   *
    * @return password
-  **/
+   */
   @ApiModelProperty(value = "")
-
-
   public String getPassword() {
     return password;
   }
@@ -148,14 +141,13 @@ public class Worker   {
     return this;
   }
 
-   /**
+  /**
    * Get epmIp
+   *
    * @return epmIp
-  **/
+   */
   @ApiModelProperty(required = true, value = "")
   @NotNull
-
-
   public String getEpmIp() {
     return epmIp;
   }
@@ -169,14 +161,13 @@ public class Worker   {
     return this;
   }
 
-   /**
+  /**
    * Get keyname
+   *
    * @return keyname
-  **/
+   */
   @ApiModelProperty(required = true, value = "")
   @NotNull
-
-
   public String getKeyname() {
     return keyname;
   }
@@ -184,7 +175,6 @@ public class Worker   {
   public void setKeyname(String keyname) {
     this.keyname = keyname;
   }
-
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -195,13 +185,13 @@ public class Worker   {
       return false;
     }
     Worker worker = (Worker) o;
-    return Objects.equals(this.id, worker.id) &&
-        Objects.equals(this.ip, worker.ip) &&
-        Objects.equals(this.user, worker.user) &&
-        Objects.equals(this.passphrase, worker.passphrase) &&
-        Objects.equals(this.password, worker.password) &&
-        Objects.equals(this.epmIp, worker.epmIp) &&
-        Objects.equals(this.keyname, worker.keyname);
+    return Objects.equals(this.id, worker.id)
+        && Objects.equals(this.ip, worker.ip)
+        && Objects.equals(this.user, worker.user)
+        && Objects.equals(this.passphrase, worker.passphrase)
+        && Objects.equals(this.password, worker.password)
+        && Objects.equals(this.epmIp, worker.epmIp)
+        && Objects.equals(this.keyname, worker.keyname);
   }
 
   @Override
@@ -213,7 +203,7 @@ public class Worker   {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class Worker {\n");
-    
+
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    ip: ").append(toIndentedString(ip)).append("\n");
     sb.append("    user: ").append(toIndentedString(user)).append("\n");
@@ -226,8 +216,7 @@ public class Worker   {
   }
 
   /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
+   * Convert the given object to string with each line indented by 4 spaces (except the first line).
    */
   private String toIndentedString(java.lang.Object o) {
     if (o == null) {
@@ -236,4 +225,3 @@ public class Worker   {
     return o.toString().replace("\n", "\n    ");
   }
 }
-
