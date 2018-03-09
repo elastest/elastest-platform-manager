@@ -1159,6 +1159,11 @@ definitions:
         type: string
         example: localhost
         description: Information about the interface endpoint. An example is a URL.
+      status:
+        type: string
+        enum:
+          - configure
+          - active
       interfaceInfo:
         type: array
         example: '[{&quot;key&quot;:&quot;type&quot;,&quot;value&quot;:&quot;docker&quot;}]'
