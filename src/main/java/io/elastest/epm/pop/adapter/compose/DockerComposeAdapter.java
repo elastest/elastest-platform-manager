@@ -60,6 +60,8 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
     PoP composePoP = poPRepository.findPoPForType("docker-compose");
     OperationHandlerBlockingStub composeClient = getDockerComposeClient(composePoP);
 
+    checkStatus(composePoP);
+
     ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
 
     String enabled = "False";
@@ -198,6 +200,27 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
       client.uploadFile(dockerRuntimeMessage);
       log.debug(String.valueOf("File deletion: " + output.delete()));
     } else throw new AdapterException("Can't upload a file to a stopped container.");
+  }
+
+  public void checkStatus(PoP poP) throws NotFoundException {
+    OperationHandlerBlockingStub client = getDockerComposeClient(poP);
+    Empty empty = Empty.newBuilder().build();
+    try {
+        Status status = client.checkStatus(empty);
+        switch (status.getStatus()){
+            case CONFIGURE:
+                poP.setStatus(PoP.StatusEnum.CONFIGURE);
+            case ACTIVE:
+                poP.setStatus(PoP.StatusEnum.ACTIVE);
+            case INACTIVE:
+                poP.setStatus(PoP.StatusEnum.INACTIVE);
+            case UNRECOGNIZED:
+                poP.setStatus(PoP.StatusEnum.INACTIVE);
+        }
+    } catch (Exception e) {
+      poP.setStatus(PoP.StatusEnum.INACTIVE);
+      log.info("PoP: " + poP.getId() + " is INACTIVE");
+    }
   }
 
   private boolean existsContainer(String containerId, PoP pop) {

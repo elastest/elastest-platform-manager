@@ -207,26 +207,44 @@ If you have a Virtual Machine, which you want to use as a worker follow these st
 
 **Note:** Only **Ubuntu** VMs are supported as workers at the moment. The worker registration has been tested with Ubuntu 14.04 and Ubuntu 16.04. 
 
-### Register worker first as a PoP in the following way:
+### Register Key 
 
-The Worker PoP can be registered in the following way:
+Before registering your worker you need to provide the EPM with the private key, so that the EPM can setup the adapters on the worker. 
+Since the same key might be used in more than one workers the EPM stores the Keys, before using them. 
 
-```bash
-curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "worker", "interfaceEndpoint": "$WORKER_IP$", "interfaceInfo": [{"key":"type","value":"worker"}, {"key":"user","value":"$USER"},, {"key":"passphrase","value":"$PASSPHRASE_FOR_KEY"}, {"key":"epmIP","value":"$EPM_IP"}]}' localhost:8180/v1/pop
+Providing the private key directly in the command line is not very practical therefore it makes sense to create a *json* file
+with the following structure:
+
+```json
+// Example file key.json
+{
+"name":"mykey", 
+"key":"-----BEGIN RSA PRIVATE KEY-----\n
+       Proc-Type: 4,ENCRYPTED\n
+       DEK-Info: ... \n
+       \n
+       <KEY>\n
+       -----END RSA PRIVATE KEY-----"
+}
+
 ```
 
-The EPM should be reachable from worker and you have to specify the IP of the EPM, where it will be reachable. 
-
-### Provide the Private Key for starting the Adapters
-
-To provide a Private Key for the Worker execute the following command:
+After that you can register your key in the following way:
 
 ```bash
-curl -X POST -H "Content-Type: multipart/form-data" -v -F privateKey=@key localhost:8180/v1/pop/{POP_ID}
+curl -X POST -H "Content-Type: application/json" -d @key.json localhost:8180/v1/keys
 ```
 
-The key file should be the private key, which makes it possible the EPM to access the remote worker and install the adapters.
-If the worker is successfully registered, there will be a PoP registered in the EPM of type docker-compose. Now you can use the docker-compose packages, as explained above.
+### Register Worker
+
+Once the key for the worker is saved in the EPM we can register the worker itself. This can be done by executing the following command:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"ip":"$WORKER_IP","user":"ubuntu","passphrase":"","epmIp":"$EPM_IP","password":"","keyname":"mykey"}' localhost:8180/v1/workers
+```
+
+The **keyname** is the name specified in the *key.json* when registering the key. The EPM ip should also be specified to enable the 
+newly started adapters on the worker to register to the EPM. 
 
 ## Json examples
 

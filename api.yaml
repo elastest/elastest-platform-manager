@@ -49,6 +49,104 @@ paths:
           description: Not Found
           schema:
             type: string
+  /workers:
+    get:
+      tags:
+        - Worker
+      summary: Returns all registered workers
+      operationId: getAllWorkers
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Worker'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - Worker
+      summary: Registers the worker and saves the information.
+      description: This registers a worker with the information provided.
+      operationId: registerWorker
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: worker in a json
+          required: true
+          schema:
+            $ref: '#/definitions/Worker'
+      responses:
+        '200':
+          description: Worker registered OK
+          schema:
+            $ref: '#/definitions/Worker'
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found/keys
+  /keys:
+    get:
+      tags:
+        - Key
+      summary: Returns all available Keys
+      operationId: getAllKeys
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Key'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - Key
+      summary: Uploads a key to the EPM.
+      description: This uploads a key to the EPM, so it can be later used when registering workers.
+      operationId: addKey
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Key in a json
+          required: true
+          schema:
+            $ref: '#/definitions/Key'
+      responses:
+        '200':
+          description: Resource Group creation OK
+          schema:
+            $ref: '#/definitions/Key'
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
   /resourceGroup:
     get:
       tags:
@@ -463,45 +561,6 @@ paths:
       responses:
         '200':
           description: PoP registration OK
-          schema:
-            $ref: '#/definitions/PoP'
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: Not Found
-          schema:
-            type: string
-  '/pop/{id}':
-    post:
-      tags:
-        - PoP
-      summary: Starts a worker
-      description: Provides the private key for executing the commands needed for starting the adapters inside a worker
-      operationId: registerWorker
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json
-      parameters:
-        - name: id
-          in: path
-          description: ID of PoP
-          required: true
-          type: string
-        - in: formData
-          name: privateKey
-          description: The private key for registering the adapters inside the worker
-          required: true
-          type: file
-          schema:
-            $ref: '#/definitions/PoP'
-      responses:
-        '200':
-          description: Worker Registration OK
           schema:
             $ref: '#/definitions/PoP'
         '400':
@@ -1061,6 +1120,12 @@ definitions:
         type: string
         example: localhost
         description: Information about the interface endpoint. An example is a URL.
+      status:
+        type: string
+        enum:
+          - configure
+          - active
+          - inactive
       interfaceInfo:
         type: array
         example: '[{&quot;key&quot;:&quot;type&quot;,&quot;value&quot;:&quot;docker&quot;}]'
@@ -1072,6 +1137,45 @@ definitions:
         example: testPoPName
         description: Human-readable identifier of this PoP information element
     description: This entity contains information about the Point-of-Presence (PoP)
+  Worker:
+    description: 'A worker object for registering a machine where adapters can be deployed.'
+    type: object
+    required:
+      - ip
+      - user
+      - passphrase
+      - epmIp
+      - keyname
+    properties:
+      id:
+        type: string
+      ip:
+        type: string
+      user:
+        type: string
+      passphrase:
+        type: string
+      password:
+        type: string
+      epmIp:
+        type: string
+      keyname:
+        type: string
+  Key:
+    description: 'A private key for executing commands on a worker.'
+    type: object
+    required:
+      - name
+      - key
+    properties:
+      id:
+        type: string
+        example: 123-abcd
+      name:
+        type: string
+        example: key1
+      key:
+        type: string
   VDU:
     description: 'A Virtual Deployment Unit (VDU) describes the capabilities of virtualized computing (Containers, VMs) and networking resources.'
     type: object

@@ -1,17 +1,13 @@
 package io.elastest.epm.api;
 
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.swagger.annotations.*;
-import java.io.IOException;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @javax.annotation.Generated(
   value = "io.swagger.codegen.languages.SpringCodegen",
@@ -101,35 +97,6 @@ public interface PoPApi {
           @RequestBody
           PoP body)
       throws AdapterException;
-
-  @ApiOperation(
-    value = "Starts a worker",
-    notes =
-        "Provides the private key for executing the commands needed for starting the adapters inside a worker",
-    response = PoP.class,
-    tags = {
-      "PoP",
-    }
-  )
-  @ApiResponses(
-    value = {
-      @ApiResponse(code = 200, message = "Worker Registration OK", response = PoP.class),
-      @ApiResponse(code = 400, message = "Bad Request", response = Void.class),
-      @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
-      @ApiResponse(code = 403, message = "Forbidden", response = Void.class),
-      @ApiResponse(code = 404, message = "Not Found", response = String.class)
-    }
-  )
-  @RequestMapping(
-    value = "/pop/{id}",
-    produces = {"application/json"},
-    consumes = {"multipart/form-data"},
-    method = RequestMethod.POST
-  )
-  ResponseEntity<PoP> registerWorker(
-      @ApiParam(value = "ID of PoP", required = true) @PathVariable("id") String id,
-      @ApiParam(value = "file detail") @RequestPart("privateKey") MultipartFile privateKey)
-      throws AdapterException, NotFoundException, IOException, JSchException, SftpException;
 
   @ApiOperation(
     value = "Unregisters a PoP.",

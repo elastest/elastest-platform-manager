@@ -1,6 +1,8 @@
 package io.elastest.epm.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -35,6 +37,48 @@ public class PoP {
 
   @JsonProperty("interfaceEndpoint")
   private String interfaceEndpoint = null;
+
+  /** Gets or Sets status */
+  public enum StatusEnum {
+    CONFIGURE("configure"),
+
+    ACTIVE("active"),
+
+    INACTIVE("inactive");
+
+    private String value;
+
+    StatusEnum(String value) {
+      this.value = value;
+    }
+
+    @Override
+    @JsonValue
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static StatusEnum fromValue(String text) {
+      for (StatusEnum b : StatusEnum.values()) {
+        if (String.valueOf(b.value).equals(text)) {
+          return b;
+        }
+      }
+      return null;
+    }
+  }
+
+  @JsonProperty("status")
+  private StatusEnum status = null;
+
+  public StatusEnum getStatus() {
+    return status;
+  }
+
+  public void setStatus(StatusEnum status) {
+    this.status = status;
+  }
 
   public PoP id(String id) {
     this.id = id;
@@ -198,6 +242,7 @@ public class PoP {
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    interfaceInfo: ").append(toIndentedString(interfaceInfo)).append("\n");
+    sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    accessInfo: ").append(toIndentedString(accessInfo)).append("\n");
     sb.append("    interfaceEndpoint: ").append(toIndentedString(interfaceEndpoint)).append("\n");
     sb.append("}");
