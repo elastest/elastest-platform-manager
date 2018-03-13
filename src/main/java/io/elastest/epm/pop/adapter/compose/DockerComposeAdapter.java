@@ -204,11 +204,20 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
     OperationHandlerBlockingStub client = getDockerComposeClient(poP);
     Empty empty = Empty.newBuilder().build();
     try {
-      client.checkStatus(empty);
+        Status status = client.checkStatus(empty);
+        switch (status.getStatus()){
+            case CONFIGURE:
+                poP.setStatus(PoP.StatusEnum.CONFIGURE);
+            case ACTIVE:
+                poP.setStatus(PoP.StatusEnum.ACTIVE);
+            case INACTIVE:
+                poP.setStatus(PoP.StatusEnum.INACTIVE);
+            case UNRECOGNIZED:
+                poP.setStatus(PoP.StatusEnum.INACTIVE);
+        }
     } catch (Exception e) {
       poP.setStatus(PoP.StatusEnum.INACTIVE);
     }
-    poP.setStatus(PoP.StatusEnum.ACTIVE);
   }
 
   private boolean existsContainer(String containerId, PoP pop) {

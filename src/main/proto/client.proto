@@ -30,7 +30,12 @@ message Empty {
 }
 
 message Status {
-    string status = 1;
+    enum ServingStatus {
+        CONFIGURE = 0;
+        ACTIVE = 1;
+        INACTIVE = 2;
+    }
+    ServingStatus status = 1;
 }
 
 message Auth {
@@ -95,5 +100,5 @@ service OperationHandler {
 
     rpc UploadFile(RuntimeMessage) returns (Empty) {}
 
-    rpc CheckStatus(Empty) returns (Empty) {}
+    rpc CheckStatus(Empty) returns (Status) {}
 }
