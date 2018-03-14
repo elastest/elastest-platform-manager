@@ -24,6 +24,7 @@ public class WorkersApiController implements WorkersApi {
 
   @Autowired private WorkerRepository workerRepository;
   @Autowired private KeyRepository keyRepository;
+  @Autowired private AdapterLauncher adapterLauncher;
 
   public ResponseEntity<List<Worker>> getAllWorkers() {
     // do some magic!
@@ -47,7 +48,7 @@ public class WorkersApiController implements WorkersApi {
           "To register a worker the PoP must provide the InferaceEndpoint"
               + " and InterfaceInfo containing user, IP of the EPM and passphrase information");
 
-    AdapterLauncher.startAdapters(body, keyRepository.findOneByName(body.getKeyname()));
+    adapterLauncher.startAdapters(body, keyRepository.findOneByName(body.getKeyname()));
     return new ResponseEntity<Worker>(HttpStatus.OK);
   }
 }

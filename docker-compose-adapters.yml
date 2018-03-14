@@ -8,3 +8,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:rw
     ports:
       - 50051:50051
+
+  system-agent:
+      image: elastest/emp-system-agent:latest
+      environment:
+        - KAFKA_ENDPOINT=${KAFKA_ENDPOINT}
+        - KAFKA_KEY_SERIALIZER=StringSerializer
+        - KAFKA_VALUE_SERIALIZER=StringSerializer
+        - SENTINEL_TOPIC=user-1-elastest_core
+        - SENTINEL_SERIES=sys-stats
+        - PERIODICITY=60

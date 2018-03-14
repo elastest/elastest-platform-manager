@@ -63,3 +63,11 @@ else
 fi
 
 sudo docker-compose run -d -p 50051:50051 -v /var/run/docker.sock:/var/run/docker.sock:rw epm-adapter-docker-compose $1 $2
+
+if [ -z "$3" ]
+then
+    echo "Not starting the stats agent"
+else
+    echo "Starting the stats agent"
+    sudo docker-compose run -d -e KAFKA_ENDPOINT=$3 system-agent
+fi

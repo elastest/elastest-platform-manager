@@ -4,14 +4,22 @@ import com.jcraft.jsch.*;
 import io.elastest.epm.model.Key;
 import io.elastest.epm.model.Worker;
 import java.io.*;
+
+import io.elastest.epm.properties.ElastestProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+@Component
 public class AdapterLauncher {
+
+  @Autowired private ElastestProperties elastestProperties;
 
   private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
-  public static void startAdapters(Worker worker, Key key)
+  public void startAdapters(Worker worker, Key key)
       throws JSchException, IOException, SftpException {
 
     final File tempFile = File.createTempFile("private", "");
@@ -42,16 +50,27 @@ public class AdapterLauncher {
     InputStream compose = new FileInputStream("docker-compose-adapters.yml");
     sendFile(session, compose, "docker-compose.yml");
 
-    executeCommand(
-        session,
-        "sudo su root ./adapters_installation.sh " + worker.getEpmIp() + " " + worker.getIp());
+    if(elastestProperties.getEmp().isEnabled()){
+      executeCommand(
+              session,
+              "sudo su root ./adapters_installation.sh " + worker.getEpmIp() + " " + worker.getIp() + " " +
+              elastestProperties.getEmp().getEndPoint()+":"+elastestProperties.getEmp().getPort());
 
-    session.disconnect();
+      session.disconnect();
+    }
+    else {
+      executeCommand(
+              session,
+              "sudo su root ./adapters_installation.sh " + worker.getEpmIp() + " " + worker.getIp());
+
+      session.disconnect();
+    }
+
 
     tempFile.delete();
   }
 
-  private static void executeCommand(Session session, String command)
+  private void executeCommand(Session session, String command)
       throws IOException, JSchException, SftpException {
     ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
     InputStream in = channelExec.getInputStream();
@@ -79,7 +98,7 @@ public class AdapterLauncher {
     }
   }
 
-  private static void sendFile(Session session, InputStream is, String fileName)
+  private void sendFile(Session session, InputStream is, String fileName)
       throws JSchException, SftpException {
 
     Channel uploadChannel = session.openChannel("sftp");
