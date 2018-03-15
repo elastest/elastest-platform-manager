@@ -24,8 +24,8 @@ public class KeysApiController implements KeysApi {
   public ResponseEntity<Key> addKey(
       @ApiParam(value = "Key in a json", required = true) @Valid @RequestBody Key body) {
 
-    keyManagement.save(body);
-    return new ResponseEntity<Key>(HttpStatus.OK);
+    Key k = keyManagement.save(body);
+    return new ResponseEntity<Key>(k, HttpStatus.OK);
   }
 
   public ResponseEntity<List<Key>> getAllKeys() {

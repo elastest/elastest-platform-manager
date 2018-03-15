@@ -49,6 +49,7 @@ public class WorkersApiController implements WorkersApi {
               + " and InterfaceInfo containing user, IP of the EPM and passphrase information");
 
     adapterLauncher.startAdapters(body, keyRepository.findOneByName(body.getKeyname()));
-    return new ResponseEntity<Worker>(HttpStatus.OK);
+    Worker w = workerRepository.save(body);
+    return new ResponseEntity<Worker>(w, HttpStatus.OK);
   }
 }
