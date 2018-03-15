@@ -49,6 +49,34 @@ paths:
           description: Not Found
           schema:
             type: string
+  /workers/{id}/{type}:
+    get:
+      tags:
+        - Worker
+      summary: Sets up the specified worker to install the specified type of adapter.
+      operationId: installAdapter
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of Worker
+          required: true
+          type: string
+        - name: type
+          in: path
+          description: type of adapter
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   /workers:
     get:
       tags:
@@ -98,6 +126,40 @@ paths:
           description: Forbidden
         '404':
           description: Not Found/keys
+  /workers/{id}:
+    delete:
+      tags:
+        - Worker
+      summary: Deletes a Resource Group.
+      description: Deletes the Worker that matches with a given ID.
+      operationId: deleteWorker
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: path
+          description: ID of Worker
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Worker deleted successfully
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Worker not found
+          schema:
+             type: string
   /keys:
     get:
       tags:
@@ -147,6 +209,40 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+  /keys/{id}:
+    delete:
+      tags:
+        - Key
+      summary: Deletes a Key.
+      description: Deletes the Key that matches with a given ID.
+      operationId: deleteKey
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: path
+          description: ID of Key
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Key deleted successfully
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Key not found
+          schema:
+            type: string
   /resourceGroup:
     get:
       tags:

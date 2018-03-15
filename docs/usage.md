@@ -246,6 +246,20 @@ curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -
 The **keyname** is the name specified in the *key.json* when registering the key. The EPM ip should also be specified to enable the 
 newly started adapters on the worker to register to the EPM. 
 
+### Worker setup
+
+Now that the worker is successfully registered in EPM it is available to setup the EPM adapters on the worker. 
+Currently only the setup of the **docker-compose** adapter is fully supported and can be executed by running the following command:
+
+```bash
+curl -i localhost:8180/v1/workers/${WORKER_IP}/docker-compose
+```
+
+Using the private key provided earlier the EPM will do the following:
+1) Install Docker and Docker-Compose if not already available
+2) Pull and start the image of the EPM Docker-Compose Adapter
+3) Register as a PoP the Docker-Compose environment of the worker
+
 ## Json examples
 
 In the following you can find some descriptors how a json for a certain body to be passed has to be defined:
