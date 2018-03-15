@@ -1,11 +1,13 @@
 package io.elastest.epm.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.validation.constraints.*;
 
 /** A worker object for registering a machine where adapters can be deployed. */
@@ -41,6 +43,11 @@ public class Worker {
   public Worker id(String id) {
     this.id = id;
     return this;
+  }
+
+  @PrePersist
+  public void ensureId() {
+    id = IdGenerator.createUUID();
   }
 
   /**
