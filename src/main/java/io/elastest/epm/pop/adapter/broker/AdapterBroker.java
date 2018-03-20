@@ -2,6 +2,7 @@ package io.elastest.epm.pop.adapter.broker;
 
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
+import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.ansible.AnsibleAdapter;
 import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
@@ -21,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
+
+import javax.rmi.CORBA.Util;
 
 @Service
 @Scope
@@ -72,59 +75,31 @@ public class AdapterBroker implements AdapterBrokerInterface {
     }
 
     if (typeSpecified) {
-      switch (type) {
-        case "docker-compose":
-          return dockerComposeAdapter;
-
-        case "ansible":
-          return ansibleAdapter;
-
-        default:
-          return dockerComposeAdapter;
-      }
+      return findByType(type);
     } else return dockerComposeAdapter;
   }
 
   @Override
   public PackageManagementInterface getAdapter(InputStream p) throws IOException, ArchiveException {
 
-    ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
-
-    TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
-    boolean found = false;
-    String type = "docker-compose";
-
-    log.info(entry.getName());
-    log.info(String.valueOf(entry.getSize()));
-    while (entry != null) {
-
-      if (entry.getName().toLowerCase().contains("metadata.yaml")) {
-        found = true;
-
-        byte[] content = new byte[(int) entry.getSize()];
-        t.read(content, 0, content.length);
-        Yaml yaml = new Yaml();
-
-        Map<String, Object> values = yaml.load(new String(content));
-        if (values.containsKey("type")) {
-          type = String.valueOf(values.get("type"));
-        }
-        break;
-      }
-      entry = (TarArchiveEntry) t.getNextEntry();
+    Map<String, Object> values = Utils.extractMetadata(p);
+    String type = "";
+    if (values.containsKey("type")) {
+      type = String.valueOf(values.get("type"));
     }
-
-    t.close();
-
-    if (found) {
-      switch (type) {
-        case "docker-compose":
-          return dockerComposeAdapter;
-        case "ansible":
-          return ansibleAdapter;
-        default:
-          return dockerComposeAdapter;
-      }
+    if (!type.equals("")) {
+      return findByType(type);
     } else return null;
+  }
+
+  private PackageManagementInterface findByType(String type){
+    switch (type) {
+      case "docker-compose":
+        return dockerComposeAdapter;
+      case "ansible":
+        return ansibleAdapter;
+      default:
+        return dockerComposeAdapter;
+    }
   }
 }

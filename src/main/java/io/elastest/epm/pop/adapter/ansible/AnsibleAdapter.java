@@ -68,6 +68,24 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
   }
 
   @Override
+  public ResourceGroup deploy(InputStream data, PoP poP) throws NotFoundException, IOException {
+
+    log.info("NOT IMPLEMENTED YET: WILL LAUNCH PACKAGE ON RANDOM POP.");
+    // TODO: IMPLEMENT PROPERLY + IMPLEMENT PROPER HANDLING OF ANSIBLE POPS
+    PoP ansiblePoP = poPRepository.findPoPForType("ansible");
+    OperationHandlerBlockingStub ansibleClient = getAnsibleClient(ansiblePoP);
+
+    ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
+    FileMessage composePackage = FileMessage.newBuilder().setFile(yamlFile).build();
+    ResourceGroupProto rg = ansibleClient.create(composePackage);
+
+    ResourceGroup resourceGroup = utils.parseRGProto(rg, ansiblePoP);
+
+    resourceGroupRepository.save(resourceGroup);
+    return resourceGroup;
+  }
+
+  @Override
   public void terminate(String packageId) throws NotFoundException {
     ResourceGroup resourceGroup = resourceGroupRepository.findOneByName(packageId);
     PoP composePop = poPRepository.findPoPForType("ansible");

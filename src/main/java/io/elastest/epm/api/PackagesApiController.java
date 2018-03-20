@@ -3,12 +3,15 @@ package io.elastest.epm.api;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.ResourceGroup;
+import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.interfaces.AdapterBrokerInterface;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.ResourceGroupRepository;
 import io.swagger.annotations.*;
 import java.io.IOException;
+import java.util.Map;
+import javax.rmi.CORBA.Util;
 import javax.validation.constraints.*;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.mariadb.jdbc.internal.logging.Logger;
@@ -31,9 +34,7 @@ public class PackagesApiController implements PackagesApi {
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired private AdapterBrokerInterface adapterBroker;
-
   @Autowired private ResourceGroupRepository resourceGroupRepository;
-
   @Autowired private PoPRepository poPRepository;
 
   public ResponseEntity<Void> deletePackage(
@@ -61,8 +62,17 @@ public class PackagesApiController implements PackagesApi {
 
     PackageManagementInterface adapter = adapterBroker.getAdapter(file.getInputStream());
 
+    PoP poP = null;
+    Map<String, Object> values = Utils.extractMetadata(file.getInputStream());
+    if (values.containsKey("pop")) {
+      String popName = String.valueOf(values.get("pop"));
+      poP = poPRepository.findOneByName(popName);
+    }
+
     try {
-      ResourceGroup resourceGroup = adapter.deploy(file.getInputStream());
+      ResourceGroup resourceGroup;
+      if(poP != null) resourceGroup = adapter.deploy(file.getInputStream(), poP);
+      else resourceGroup = adapter.deploy(file.getInputStream());
       return new ResponseEntity<ResourceGroup>(HttpStatus.OK).ok(resourceGroup);
     } catch (IOException exception) {
       return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);

@@ -4,17 +4,20 @@ import io.elastest.epm.model.*;
 import io.elastest.epm.pop.generated.ResourceGroupProto;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.VduRepository;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+
+import java.io.*;
+import java.util.Map;
+
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import org.yaml.snakeyaml.Yaml;
 
 @Component
 public class Utils {
@@ -94,5 +97,26 @@ public class Utils {
     }
 
     return resourceGroup;
+  }
+
+
+  public static Map<String, Object> extractMetadata(InputStream p) throws ArchiveException, IOException {
+    ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
+
+    Map<String, Object> values = null;
+    TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
+    while (entry != null) {
+      if (entry.getName().toLowerCase().contains("metadata.yaml")) {
+        byte[] content = new byte[(int) entry.getSize()];
+        t.read(content, 0, content.length);
+        Yaml yaml = new Yaml();
+
+        values = yaml.load(new String(content));
+      }
+      entry = (TarArchiveEntry) t.getNextEntry();
+    }
+    t.close();
+
+    return values;
   }
 }

@@ -58,35 +58,40 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException {
 
     PoP composePoP = poPRepository.findPoPForType("docker-compose");
-    OperationHandlerBlockingStub composeClient = getDockerComposeClient(composePoP);
+    return deploy(data, composePoP);
+  }
 
-    checkStatus(composePoP);
+  @Override
+  public ResourceGroup deploy(InputStream data, PoP poP) throws NotFoundException, IOException {
+      OperationHandlerBlockingStub composeClient = getDockerComposeClient(poP);
 
-    ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
+      checkStatus(poP);
 
-    String enabled = "False";
-    String address = "";
-    if (dockerProperties.getLogStash().isEnabled()) {
-      enabled = "True";
-      if (dockerProperties.getLogStash().getAddress() != null
-          && !dockerProperties.getLogStash().getAddress().equals(""))
-        address = dockerProperties.getLogStash().getAddress();
-      else address = "tcp://localhost:5000";
-    }
+      ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
 
-    FileMessage composePackage =
-        FileMessage.newBuilder()
-            .setFile(yamlFile)
-            .addAllOptions(new ArrayList<String>())
-            .addOptions(enabled)
-            .addOptions(address)
-            .build();
-    ResourceGroupProto rg = composeClient.create(composePackage);
+      String enabled = "False";
+      String address = "";
+      if (dockerProperties.getLogStash().isEnabled()) {
+          enabled = "True";
+          if (dockerProperties.getLogStash().getAddress() != null
+                  && !dockerProperties.getLogStash().getAddress().equals(""))
+              address = dockerProperties.getLogStash().getAddress();
+          else address = "tcp://localhost:5000";
+      }
 
-    ResourceGroup resourceGroup = utils.parseRGProto(rg, composePoP);
+      FileMessage composePackage =
+              FileMessage.newBuilder()
+                      .setFile(yamlFile)
+                      .addAllOptions(new ArrayList<String>())
+                      .addOptions(enabled)
+                      .addOptions(address)
+                      .build();
+      ResourceGroupProto rg = composeClient.create(composePackage);
 
-    resourceGroupRepository.save(resourceGroup);
-    return resourceGroup;
+      ResourceGroup resourceGroup = utils.parseRGProto(rg, poP);
+
+      resourceGroupRepository.save(resourceGroup);
+      return resourceGroup;
   }
 
   @Override

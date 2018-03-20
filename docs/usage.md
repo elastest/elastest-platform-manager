@@ -164,6 +164,7 @@ The **Metadata.yaml** should look like this:
 ```yaml
 name: package #Here you can specify the name of the package
 type: docker-compose
+pop: pop-name # OPTIONAL: specify the name of the pop for deploying the package
 ```
 
 You can create the **tar** file using the following command
