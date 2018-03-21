@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
 # Check if docker installed and install
-
+preconfigure() {
+    sudo apt-get update
+    sudo apt-get install -y systemd
+    sudo apt-get install -y curl
+}
 
 install_docker () {
 
@@ -43,6 +47,17 @@ install_docker_compose() {
     docker-compose --version
 }
 
+activate_remote_docker() {
+
+    sudo sed -i 's|ExecStart=.*|ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2376 |' /lib/systemd/system/docker.service
+    sudo systemctl unmask docker.service
+    sudo systemctl unmask docker.socket
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker.service
+}
+
+preconfigure
+
 docker --version | grep "Docker version"
 if [ $? -eq 0 ]
 then
@@ -62,7 +77,9 @@ else
     echo "Docker compose already installed"
 fi
 
-sudo docker-compose run -d -p 50051:50051 -v /var/run/docker.sock:/var/run/docker.sock:rw epm-adapter-docker-compose $1 $2
+activate_remote_docker
+
+curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "docker-'$2'"  , "interfaceEndpoint": "tcp://'$2':2376"}' $1:8180/v1/pop
 
 if [ -z "$3" ]
 then

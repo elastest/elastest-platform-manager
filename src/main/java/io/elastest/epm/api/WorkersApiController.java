@@ -59,12 +59,16 @@ public class WorkersApiController implements WorkersApi {
     switch (type){
       default:
         response = "Available adapters setups: docker-compose, docker, ansible";
+        break;
       case "docker":
-        response = "Not implemented yet.";
+        adapterLauncher.startAdapter(worker, keyRepository.findOneByName(worker.getKeyname()), type);
+        break;
       case "ansible":
         response = "Not implemented yet.";
+        break;
       case "docker-compose":
-        adapterLauncher.startAdapters(worker, keyRepository.findOneByName(worker.getKeyname()));
+        adapterLauncher.startAdapter(worker, keyRepository.findOneByName(worker.getKeyname()), type);
+        break;
     }
     return new ResponseEntity<String>(response, HttpStatus.OK);
   }

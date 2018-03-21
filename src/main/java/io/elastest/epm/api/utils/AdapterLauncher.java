@@ -19,7 +19,7 @@ public class AdapterLauncher {
 
   private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
-  public void startAdapters(Worker worker, Key key)
+  public void startAdapter(Worker worker, Key key, String type)
       throws JSchException, IOException, SftpException {
 
     final File tempFile = File.createTempFile("private", "");
@@ -44,28 +44,33 @@ public class AdapterLauncher {
 
     session.connect();
 
-    InputStream installationIs = new FileInputStream("adapters_installation.sh");
-    sendFile(session, installationIs, "adapters_installation.sh");
-
     InputStream compose = new FileInputStream("docker-compose-adapters.yml");
     sendFile(session, compose, "docker-compose.yml");
 
+    String empConfig = "";
     if(elastestProperties.getEmp().isEnabled()){
-      executeCommand(
-              session,
-              "sudo su root ./adapters_installation.sh " + worker.getEpmIp() + " " + worker.getIp() + " " +
-              elastestProperties.getEmp().getEndPoint()+":"+elastestProperties.getEmp().getPort());
-
-      session.disconnect();
-    }
-    else {
-      executeCommand(
-              session,
-              "sudo su root ./adapters_installation.sh " + worker.getEpmIp() + " " + worker.getIp());
-
-      session.disconnect();
+      empConfig = " " + elastestProperties.getEmp().getEndPoint()+":"+elastestProperties.getEmp().getPort();
     }
 
+    InputStream installationIs;
+
+    switch (type){
+      case "docker-compose":
+        installationIs = new FileInputStream("configuration_scripts/install_docker_compose.sh");
+        sendFile(session, installationIs, "docker_compose.sh");
+        executeCommand(
+                session,
+                "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp() + empConfig);
+        break;
+      case "docker":
+        installationIs = new FileInputStream("configuration_scripts/install_docker.sh");
+        sendFile(session, installationIs, "docker.sh");
+        executeCommand(
+                session,
+                "sudo su root ./docker.sh " + worker.getEpmIp() + " " + worker.getIp() + empConfig);
+        break;
+    }
+    session.disconnect();
 
     tempFile.delete();
   }
