@@ -90,6 +90,7 @@ public class WorkersApiController implements WorkersApi {
           "To register a worker the PoP must provide the InferaceEndpoint"
               + " and InterfaceInfo containing user, IP of the EPM and passphrase information");
 
+    adapterLauncher.configureWorker(body, keyRepository.findOneByName(body.getKeyname()));
     Worker w = workerRepository.save(body);
     return new ResponseEntity<Worker>(w, HttpStatus.OK);
   }

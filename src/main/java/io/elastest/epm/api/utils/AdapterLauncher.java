@@ -22,6 +22,52 @@ public class AdapterLauncher {
   public void startAdapter(Worker worker, Key key, String type)
       throws JSchException, IOException, SftpException {
 
+    Session session = createSession(worker, key);
+
+    InputStream compose = new FileInputStream("configuration_scripts/docker-compose-adapters.yml");
+    sendFile(session, compose, "docker-compose.yml");
+
+    InputStream installationIs;
+
+    switch (type){
+      case "docker-compose":
+        installationIs = new FileInputStream("configuration_scripts/install_docker_compose.sh");
+        sendFile(session, installationIs, "docker_compose.sh");
+        executeCommand(
+                session,
+                "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp());
+        break;
+      case "docker":
+        installationIs = new FileInputStream("configuration_scripts/install_docker.sh");
+        sendFile(session, installationIs, "docker.sh");
+        executeCommand(
+                session,
+                "sudo su root ./docker.sh " + worker.getEpmIp() + " " + worker.getIp());
+        break;
+    }
+    session.disconnect();
+  }
+
+  public void configureWorker(Worker worker, Key key) throws IOException, JSchException, SftpException {
+    Session session = createSession(worker, key);
+    InputStream compose = new FileInputStream("configuration_scripts/docker-compose-adapters.yml");
+    sendFile(session, compose, "docker-compose.yml");
+
+    InputStream configureIs = new FileInputStream("configuration_scripts/preconfigure.sh");
+    sendFile(session, configureIs, "preconfigure.sh");
+
+    String empConfig = "";
+    if(elastestProperties.getEmp().isEnabled()) {
+      empConfig = " " + elastestProperties.getEmp().getEndPoint() + ":" + elastestProperties.getEmp().getPort();
+      executeCommand(
+              session,
+              "sudo su root ./preconfigure.sh " + empConfig);
+    }
+    session.disconnect();
+  }
+
+
+  private Session createSession(Worker worker, Key key) throws JSchException, IOException {
     final File tempFile = File.createTempFile("private", "");
     tempFile.deleteOnExit();
     try (FileOutputStream out = new FileOutputStream(tempFile)) {
@@ -43,36 +89,7 @@ public class AdapterLauncher {
     session.setConfig(config);
 
     session.connect();
-
-    InputStream compose = new FileInputStream("docker-compose-adapters.yml");
-    sendFile(session, compose, "docker-compose.yml");
-
-    String empConfig = "";
-    if(elastestProperties.getEmp().isEnabled()){
-      empConfig = " " + elastestProperties.getEmp().getEndPoint()+":"+elastestProperties.getEmp().getPort();
-    }
-
-    InputStream installationIs;
-
-    switch (type){
-      case "docker-compose":
-        installationIs = new FileInputStream("configuration_scripts/install_docker_compose.sh");
-        sendFile(session, installationIs, "docker_compose.sh");
-        executeCommand(
-                session,
-                "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp() + empConfig);
-        break;
-      case "docker":
-        installationIs = new FileInputStream("configuration_scripts/install_docker.sh");
-        sendFile(session, installationIs, "docker.sh");
-        executeCommand(
-                session,
-                "sudo su root ./docker.sh " + worker.getEpmIp() + " " + worker.getIp() + empConfig);
-        break;
-    }
-    session.disconnect();
-
-    tempFile.delete();
+    return session;
   }
 
   private void executeCommand(Session session, String command)

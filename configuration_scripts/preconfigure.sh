@@ -66,9 +66,7 @@ else
     echo "Docker compose already installed"
 fi
 
-sudo docker-compose run -d -p 50051:50051 -v /var/run/docker.sock:/var/run/docker.sock:rw epm-adapter-docker-compose $1 $2
-
-if [ -z "$3" ]
+if [ -z "$1" ]
 then
     echo "Not starting the stats agent"
 else
