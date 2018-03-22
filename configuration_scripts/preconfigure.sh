@@ -71,5 +71,5 @@ then
     echo "Not starting the stats agent"
 else
     echo "Starting the stats agent"
-    sudo docker-compose run -d -e KAFKA_ENDPOINT=$3 system-agent
+    sudo docker-compose run -d -e KAFKA_ENDPOINT=$1 system-agent
 fi
