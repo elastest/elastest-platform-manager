@@ -11,7 +11,6 @@ import io.elastest.epm.repository.ResourceGroupRepository;
 import io.swagger.annotations.*;
 import java.io.IOException;
 import java.util.Map;
-import javax.rmi.CORBA.Util;
 import javax.validation.constraints.*;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.mariadb.jdbc.internal.logging.Logger;
@@ -71,7 +70,7 @@ public class PackagesApiController implements PackagesApi {
 
     try {
       ResourceGroup resourceGroup;
-      if(poP != null) resourceGroup = adapter.deploy(file.getInputStream(), poP);
+      if (poP != null) resourceGroup = adapter.deploy(file.getInputStream(), poP);
       else resourceGroup = adapter.deploy(file.getInputStream());
       return new ResponseEntity<ResourceGroup>(HttpStatus.OK).ok(resourceGroup);
     } catch (IOException exception) {

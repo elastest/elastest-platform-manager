@@ -63,35 +63,35 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
 
   @Override
   public ResourceGroup deploy(InputStream data, PoP poP) throws NotFoundException, IOException {
-      OperationHandlerBlockingStub composeClient = getDockerComposeClient(poP);
+    OperationHandlerBlockingStub composeClient = getDockerComposeClient(poP);
 
-      checkStatus(poP);
+    checkStatus(poP);
 
-      ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
+    ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
 
-      String enabled = "False";
-      String address = "";
-      if (dockerProperties.getLogStash().isEnabled()) {
-          enabled = "True";
-          if (dockerProperties.getLogStash().getAddress() != null
-                  && !dockerProperties.getLogStash().getAddress().equals(""))
-              address = dockerProperties.getLogStash().getAddress();
-          else address = "tcp://localhost:5000";
-      }
+    String enabled = "False";
+    String address = "";
+    if (dockerProperties.getLogStash().isEnabled()) {
+      enabled = "True";
+      if (dockerProperties.getLogStash().getAddress() != null
+          && !dockerProperties.getLogStash().getAddress().equals(""))
+        address = dockerProperties.getLogStash().getAddress();
+      else address = "tcp://localhost:5000";
+    }
 
-      FileMessage composePackage =
-              FileMessage.newBuilder()
-                      .setFile(yamlFile)
-                      .addAllOptions(new ArrayList<String>())
-                      .addOptions(enabled)
-                      .addOptions(address)
-                      .build();
-      ResourceGroupProto rg = composeClient.create(composePackage);
+    FileMessage composePackage =
+        FileMessage.newBuilder()
+            .setFile(yamlFile)
+            .addAllOptions(new ArrayList<String>())
+            .addOptions(enabled)
+            .addOptions(address)
+            .build();
+    ResourceGroupProto rg = composeClient.create(composePackage);
 
-      ResourceGroup resourceGroup = utils.parseRGProto(rg, poP);
+    ResourceGroup resourceGroup = utils.parseRGProto(rg, poP);
 
-      resourceGroupRepository.save(resourceGroup);
-      return resourceGroup;
+    resourceGroupRepository.save(resourceGroup);
+    return resourceGroup;
   }
 
   @Override
@@ -211,17 +211,17 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
     OperationHandlerBlockingStub client = getDockerComposeClient(poP);
     Empty empty = Empty.newBuilder().build();
     try {
-        Status status = client.checkStatus(empty);
-        switch (status.getStatus()){
-            case CONFIGURE:
-                poP.setStatus(PoP.StatusEnum.CONFIGURE);
-            case ACTIVE:
-                poP.setStatus(PoP.StatusEnum.ACTIVE);
-            case INACTIVE:
-                poP.setStatus(PoP.StatusEnum.INACTIVE);
-            case UNRECOGNIZED:
-                poP.setStatus(PoP.StatusEnum.INACTIVE);
-        }
+      Status status = client.checkStatus(empty);
+      switch (status.getStatus()) {
+        case CONFIGURE:
+          poP.setStatus(PoP.StatusEnum.CONFIGURE);
+        case ACTIVE:
+          poP.setStatus(PoP.StatusEnum.ACTIVE);
+        case INACTIVE:
+          poP.setStatus(PoP.StatusEnum.INACTIVE);
+        case UNRECOGNIZED:
+          poP.setStatus(PoP.StatusEnum.INACTIVE);
+      }
     } catch (Exception e) {
       poP.setStatus(PoP.StatusEnum.INACTIVE);
       log.info("PoP: " + poP.getId() + " is INACTIVE");

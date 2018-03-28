@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiParam;
 import java.util.List;
 import javax.validation.Valid;
 import javax.ws.rs.NotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,14 +30,14 @@ public class KeysApiController implements KeysApi {
     return new ResponseEntity<Key>(k, HttpStatus.OK);
   }
 
-  public ResponseEntity<String> deleteKey(@ApiParam(value = "ID of Key",required=true ) @PathVariable("id") String id) {
+  public ResponseEntity<String> deleteKey(
+      @ApiParam(value = "ID of Key", required = true) @PathVariable("id") String id) {
     // do some magic!
-    if(keyManagement.findOne(id) == null)
+    if (keyManagement.findOne(id) == null)
       throw new NotFoundException("Key with id: " + id + " not found.");
     else keyManagement.delete(id);
     return new ResponseEntity<String>(HttpStatus.OK);
   }
-
 
   public ResponseEntity<List<Key>> getAllKeys() {
     // do some magic!

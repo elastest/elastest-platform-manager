@@ -10,7 +10,7 @@ buildscript {
 plugins {
     id "nebula.os-package" version "2.2.6"
     id 'com.github.sherter.google-java-format' version '0.6'
-    id "com.google.protobuf" version "0.8.3"
+    id "com.google.protobuf" version "0.8.4"
 }
 group 'io.elastest.epm'
 
