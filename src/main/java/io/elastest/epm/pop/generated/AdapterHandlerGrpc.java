@@ -1,5 +1,9 @@
 package io.elastest.epm.pop.generated;
 
+import io.elastest.epm.pop.generated.AdapterProto;
+import io.elastest.epm.pop.generated.Empty;
+import io.elastest.epm.pop.generated.ResourceIdentifier;
+
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;
 import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
@@ -29,19 +33,19 @@ public final class AdapterHandlerGrpc {
   // Static method descriptors that strictly reflect the proto.
   @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static final io.grpc.MethodDescriptor<AdapterProto,
-      Empty> METHOD_REGISTER_ADAPTER =
-      io.grpc.MethodDescriptor.<AdapterProto, Empty>newBuilder()
+          ResourceIdentifier> METHOD_REGISTER_ADAPTER =
+      io.grpc.MethodDescriptor.<AdapterProto, ResourceIdentifier>newBuilder()
           .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
           .setFullMethodName(generateFullMethodName(
               "AdapterHandler", "RegisterAdapter"))
           .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
               AdapterProto.getDefaultInstance()))
           .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-              Empty.getDefaultInstance()))
+              ResourceIdentifier.getDefaultInstance()))
           .build();
   @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static final io.grpc.MethodDescriptor<ResourceIdentifier,
-      Empty> METHOD_DELETE_ADAPTER =
+          Empty> METHOD_DELETE_ADAPTER =
       io.grpc.MethodDescriptor.<ResourceIdentifier, Empty>newBuilder()
           .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
           .setFullMethodName(generateFullMethodName(
@@ -82,7 +86,7 @@ public final class AdapterHandlerGrpc {
     /**
      */
     public void registerAdapter(AdapterProto request,
-        io.grpc.stub.StreamObserver<Empty> responseObserver) {
+        io.grpc.stub.StreamObserver<ResourceIdentifier> responseObserver) {
       asyncUnimplementedUnaryCall(METHOD_REGISTER_ADAPTER, responseObserver);
     }
 
@@ -100,7 +104,7 @@ public final class AdapterHandlerGrpc {
             asyncUnaryCall(
               new MethodHandlers<
                 AdapterProto,
-                Empty>(
+                ResourceIdentifier>(
                   this, METHODID_REGISTER_ADAPTER)))
           .addMethod(
             METHOD_DELETE_ADAPTER,
@@ -134,7 +138,7 @@ public final class AdapterHandlerGrpc {
     /**
      */
     public void registerAdapter(AdapterProto request,
-        io.grpc.stub.StreamObserver<Empty> responseObserver) {
+        io.grpc.stub.StreamObserver<ResourceIdentifier> responseObserver) {
       asyncUnaryCall(
           getChannel().newCall(METHOD_REGISTER_ADAPTER, getCallOptions()), request, responseObserver);
     }
@@ -168,7 +172,7 @@ public final class AdapterHandlerGrpc {
 
     /**
      */
-    public Empty registerAdapter(AdapterProto request) {
+    public ResourceIdentifier registerAdapter(AdapterProto request) {
       return blockingUnaryCall(
           getChannel(), METHOD_REGISTER_ADAPTER, getCallOptions(), request);
     }
@@ -201,7 +205,7 @@ public final class AdapterHandlerGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<Empty> registerAdapter(
+    public com.google.common.util.concurrent.ListenableFuture<ResourceIdentifier> registerAdapter(
         AdapterProto request) {
       return futureUnaryCall(
           getChannel().newCall(METHOD_REGISTER_ADAPTER, getCallOptions()), request);
@@ -238,7 +242,7 @@ public final class AdapterHandlerGrpc {
       switch (methodId) {
         case METHODID_REGISTER_ADAPTER:
           serviceImpl.registerAdapter((AdapterProto) request,
-              (io.grpc.stub.StreamObserver<Empty>) responseObserver);
+              (io.grpc.stub.StreamObserver<ResourceIdentifier>) responseObserver);
           break;
         case METHODID_DELETE_ADAPTER:
           serviceImpl.deleteAdapter((ResourceIdentifier) request,

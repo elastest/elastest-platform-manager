@@ -20,17 +20,17 @@ public class AdapterHandler extends AdapterHandlerGrpc.AdapterHandlerImplBase {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void registerAdapter(AdapterProto request, StreamObserver<Empty> responseObserver) {
+    public void registerAdapter(AdapterProto request, StreamObserver<ResourceIdentifier> responseObserver) {
 
-        log.debug("GOT ADAPTER");
-        log.debug(request.toString());
         Adapter adapter = new Adapter();
         adapter.setEndpoint(request.getEndpoint());
         adapter.setType(request.getType());
         adapterRepository.save(adapter);
 
-        Empty reply = Empty.newBuilder().build();
-        responseObserver.onNext(reply);
+        log.debug(String.valueOf(adapter));
+
+        ResourceIdentifier resourceIdentifier = ResourceIdentifier.newBuilder().setResourceId(adapter.getId()).build();
+        responseObserver.onNext(resourceIdentifier);
         responseObserver.onCompleted();
     }
 
@@ -38,6 +38,7 @@ public class AdapterHandler extends AdapterHandlerGrpc.AdapterHandlerImplBase {
     public void deleteAdapter(ResourceIdentifier request, StreamObserver<Empty> responseObserver) {
 
         if(adapterRepository.findOne(request.getResourceId()) != null){
+            log.debug("Removing adapter: " + request.getResourceId());
             adapterRepository.delete(request.getResourceId());
         }
         else{
