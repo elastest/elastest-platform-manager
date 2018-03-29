@@ -5,6 +5,7 @@ import io.elastest.epm.api.utils.AdapterLauncher;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Worker;
 import io.elastest.epm.repository.KeyRepository;
+import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.WorkerRepository;
 import io.swagger.annotations.ApiParam;
 import java.util.List;

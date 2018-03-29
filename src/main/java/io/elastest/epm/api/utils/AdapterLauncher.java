@@ -2,9 +2,13 @@ package io.elastest.epm.api.utils;
 
 import com.jcraft.jsch.*;
 import io.elastest.epm.model.Key;
+import io.elastest.epm.model.KeyValuePair;
+import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.Worker;
 import io.elastest.epm.properties.ElastestProperties;
 import java.io.*;
+
+import io.elastest.epm.repository.PoPRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Component;
 public class AdapterLauncher {
 
   @Autowired private ElastestProperties elastestProperties;
+  @Autowired private PoPRepository poPRepository;
 
   private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
@@ -34,6 +39,11 @@ public class AdapterLauncher {
         executeCommand(
             session,
             "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp());
+        PoP composePop = new PoP();
+        composePop.setInterfaceEndpoint(worker.getIp());
+        composePop.setName("compose-" + worker.getIp());
+        composePop.addInterfaceInfoItem(new KeyValuePair("type", "docker-compose"));
+        poPRepository.save(composePop);
         break;
       case "docker":
         installationIs = new FileInputStream("configuration_scripts/install_docker.sh");
