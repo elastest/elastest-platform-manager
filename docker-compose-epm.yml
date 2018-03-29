@@ -10,6 +10,7 @@ services:
             - 8180
         ports:
             - 8180:8180
+            - 50050:50050
         networks:
             - build-image-network
     epm-adapter-docker-compose:

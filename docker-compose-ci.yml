@@ -82,6 +82,7 @@ services:
             - 8180
         ports:
             - 8180:8180
+            - 50050:50050
         networks:
             - elastest
         links:
