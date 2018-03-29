@@ -1,7 +1,10 @@
 package io.elastest.unit.pop.adapter;
 
 import com.github.dockerjava.api.DockerClient;
+import io.elastest.epm.core.ResourceGroupManagement;
+import io.elastest.epm.core.RuntimeManagement;
 import io.elastest.epm.model.PoP;
+import io.elastest.epm.model.ResourceGroup;
 import io.elastest.epm.model.VDU;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.messages.compute.AllocateComputeRequest;
@@ -30,6 +33,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -48,7 +52,7 @@ public class DockerAdapterTest {
   @InjectMocks
   @Qualifier("test_dockerAdapter")
   DockerAdapter dockerAdapter;
-    
+
     @Autowired
     PoPRepository poPRepository;
 
@@ -59,6 +63,8 @@ public class DockerAdapterTest {
     VduRepository vduRepository;
   //  @Autowired ListImagesCmd listImagesCmd;
 
+    @Autowired ResourceGroupManagement resourceGroupManagement;
+
   @Autowired VDU vdu;
 
   @Autowired PoP pop;
@@ -66,7 +72,9 @@ public class DockerAdapterTest {
   @Before
   public void init() {
     MockitoAnnotations.initMocks(this);
-    pop.setInterfaceEndpoint("tcp://" + pop.getInterfaceEndpoint());
+      ReflectionTestUtils.setField(dockerAdapter, "resourceGroupManagement", resourceGroupManagement);
+
+      pop.setInterfaceEndpoint("tcp://" + pop.getInterfaceEndpoint());
     log.info("Starting DockerAdapterTest");
   }
 

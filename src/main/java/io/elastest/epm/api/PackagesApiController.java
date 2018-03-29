@@ -1,6 +1,7 @@
 package io.elastest.epm.api;
 
 import io.elastest.epm.exception.AllocationException;
+import io.elastest.epm.exception.BadRequestException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.ResourceGroup;
@@ -85,6 +86,8 @@ public class PackagesApiController implements PackagesApi {
         return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
     } catch (AdapterException e) {
         e.printStackTrace();
+        return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
+    } catch (BadRequestException e) {
         return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
     }
   }

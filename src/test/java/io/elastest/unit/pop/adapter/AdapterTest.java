@@ -7,6 +7,7 @@ import com.github.dockerjava.api.command.ListImagesCmd;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
+import io.elastest.epm.core.ResourceGroupManagement;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.NetworkRepository;
@@ -112,5 +113,10 @@ public class AdapterTest {
     return dockerProperties;
   }
 
+
+    @Bean
+    ResourceGroupManagement poPManagement() {
+        return new ResourceGroupManagement();
+    }
 
 }

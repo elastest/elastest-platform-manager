@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import io.elastest.epm.core.NetworkManagement;
 import io.elastest.epm.core.PoPManagement;
+import io.elastest.epm.core.ResourceGroupManagement;
 import io.elastest.epm.core.VduManagement;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.adapter.Utils;
@@ -92,6 +93,11 @@ public class CoreTest {
   NetworkManagement networkManagement() {
     return new NetworkManagement();
   }
+
+    @Bean
+    ResourceGroupManagement resourceGroupManagement() {
+        return new ResourceGroupManagement();
+    }
 
   @Bean
   List<Network> networks() {
