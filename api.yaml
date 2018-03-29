@@ -49,6 +49,25 @@ paths:
           description: Not Found
           schema:
             type: string
+  /adapters:
+    get:
+      tags:
+        - Adapter
+      summary: Returns all registered adapters
+      operationId: getAllAdapters
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Adapter'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   /workers/{id}/{type}:
     get:
       tags:
@@ -77,6 +96,7 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+
   /workers:
     get:
       tags:
@@ -1140,6 +1160,18 @@ paths:
         '404':
           description: VDU not found.
 definitions:
+  Adapter:
+    type: object
+    required:
+      - endpoint
+      - type
+    properties:
+      id:
+        type: string
+      endpoint:
+        type: string
+      type:
+        type: string
   Event:
     type: object
     required:

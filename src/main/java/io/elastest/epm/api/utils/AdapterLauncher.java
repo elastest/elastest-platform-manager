@@ -2,20 +2,23 @@ package io.elastest.epm.api.utils;
 
 import com.jcraft.jsch.*;
 import io.elastest.epm.model.Key;
+import io.elastest.epm.model.KeyValuePair;
+import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.Worker;
+import io.elastest.epm.properties.ElastestProperties;
 import java.io.*;
 
-import io.elastest.epm.properties.ElastestProperties;
+import io.elastest.epm.repository.PoPRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 public class AdapterLauncher {
 
   @Autowired private ElastestProperties elastestProperties;
+  @Autowired private PoPRepository poPRepository;
 
   private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
@@ -29,26 +32,31 @@ public class AdapterLauncher {
 
     InputStream installationIs;
 
-    switch (type){
+    switch (type) {
       case "docker-compose":
         installationIs = new FileInputStream("configuration_scripts/install_docker_compose.sh");
         sendFile(session, installationIs, "docker_compose.sh");
         executeCommand(
-                session,
-                "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp());
+            session,
+            "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp());
+        PoP composePop = new PoP();
+        composePop.setInterfaceEndpoint(worker.getIp());
+        composePop.setName("compose-" + worker.getIp());
+        composePop.addInterfaceInfoItem(new KeyValuePair("type", "docker-compose"));
+        poPRepository.save(composePop);
         break;
       case "docker":
         installationIs = new FileInputStream("configuration_scripts/install_docker.sh");
         sendFile(session, installationIs, "docker.sh");
         executeCommand(
-                session,
-                "sudo su root ./docker.sh " + worker.getEpmIp() + " " + worker.getIp());
+            session, "sudo su root ./docker.sh " + worker.getEpmIp() + " " + worker.getIp());
         break;
     }
     session.disconnect();
   }
 
-  public void configureWorker(Worker worker, Key key) throws IOException, JSchException, SftpException {
+  public void configureWorker(Worker worker, Key key)
+      throws IOException, JSchException, SftpException {
     Session session = createSession(worker, key);
     InputStream compose = new FileInputStream("configuration_scripts/docker-compose-adapters.yml");
     sendFile(session, compose, "docker-compose.yml");
@@ -57,15 +65,16 @@ public class AdapterLauncher {
     sendFile(session, configureIs, "preconfigure.sh");
 
     String empConfig = "";
-    if(elastestProperties.getEmp().isEnabled()) {
-      empConfig = " " + elastestProperties.getEmp().getEndPoint() + ":" + elastestProperties.getEmp().getPort();
-      executeCommand(
-              session,
-              "sudo su root ./preconfigure.sh " + empConfig);
+    if (elastestProperties.getEmp().isEnabled()) {
+      empConfig =
+          " "
+              + elastestProperties.getEmp().getEndPoint()
+              + ":"
+              + elastestProperties.getEmp().getPort();
+      executeCommand(session, "sudo su root ./preconfigure.sh " + empConfig);
     }
     session.disconnect();
   }
-
 
   private Session createSession(Worker worker, Key key) throws JSchException, IOException {
     final File tempFile = File.createTempFile("private", "");

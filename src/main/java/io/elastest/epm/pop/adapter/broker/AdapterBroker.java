@@ -13,17 +13,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.Yaml;
-
-import javax.rmi.CORBA.Util;
 
 @Service
 @Scope
@@ -92,7 +86,7 @@ public class AdapterBroker implements AdapterBrokerInterface {
     } else return null;
   }
 
-  private PackageManagementInterface findByType(String type){
+  private PackageManagementInterface findByType(String type) {
     switch (type) {
       case "docker-compose":
         return dockerComposeAdapter;

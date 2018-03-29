@@ -1,19 +1,15 @@
 package io.elastest.epm.api;
 
 import com.google.common.collect.Lists;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
 import io.elastest.epm.api.utils.AdapterLauncher;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Worker;
 import io.elastest.epm.repository.KeyRepository;
+import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.WorkerRepository;
 import io.swagger.annotations.ApiParam;
-
-import java.io.IOException;
 import java.util.List;
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +28,11 @@ public class WorkersApiController implements WorkersApi {
   @Autowired private KeyRepository keyRepository;
   @Autowired private AdapterLauncher adapterLauncher;
 
-  public ResponseEntity<String> deleteWorker(@ApiParam(value = "ID of Worker",required=true ) @PathVariable("id") String id) throws NotFoundException {
+  public ResponseEntity<String> deleteWorker(
+      @ApiParam(value = "ID of Worker", required = true) @PathVariable("id") String id)
+      throws NotFoundException {
     // do some magic!
-    if(workerRepository.findOne(id) != null)
-      workerRepository.delete(id);
+    if (workerRepository.findOne(id) != null) workerRepository.delete(id);
     else throw new NotFoundException("No worker with id: " + id + " registered.");
     return new ResponseEntity<String>(HttpStatus.OK);
   }
@@ -46,33 +43,36 @@ public class WorkersApiController implements WorkersApi {
     return new ResponseEntity<List<Worker>>(workers, HttpStatus.OK);
   }
 
-  public ResponseEntity<String> installAdapter(@ApiParam(value = "ID of Worker",required=true ) @PathVariable("id") String id,
-                                               @ApiParam(value = "type of adapter",required=true ) @PathVariable("type") String type) throws Exception {
+  public ResponseEntity<String> installAdapter(
+      @ApiParam(value = "ID of Worker", required = true) @PathVariable("id") String id,
+      @ApiParam(value = "type of adapter", required = true) @PathVariable("type") String type)
+      throws Exception {
     // do some magic!
     Worker worker = workerRepository.findOne(id);
-    if(worker == null) throw new NotFoundException("No worker with id: " + id + " registered.");
+    if (worker == null) throw new NotFoundException("No worker with id: " + id + " registered.");
 
     if (keyRepository.findOneByName(worker.getKeyname()) == null)
       throw new NotFoundException("The key was not found!");
 
     String response = "";
-    switch (type){
+    switch (type) {
       default:
         response = "Available adapters setups: docker-compose, docker, ansible";
         break;
       case "docker":
-        adapterLauncher.startAdapter(worker, keyRepository.findOneByName(worker.getKeyname()), type);
+        adapterLauncher.startAdapter(
+            worker, keyRepository.findOneByName(worker.getKeyname()), type);
         break;
       case "ansible":
         response = "Not implemented yet.";
         break;
       case "docker-compose":
-        adapterLauncher.startAdapter(worker, keyRepository.findOneByName(worker.getKeyname()), type);
+        adapterLauncher.startAdapter(
+            worker, keyRepository.findOneByName(worker.getKeyname()), type);
         break;
     }
     return new ResponseEntity<String>(response, HttpStatus.OK);
   }
-
 
   public ResponseEntity<Worker> registerWorker(
       @ApiParam(value = "worker in a json", required = true) @Valid @RequestBody Worker body)

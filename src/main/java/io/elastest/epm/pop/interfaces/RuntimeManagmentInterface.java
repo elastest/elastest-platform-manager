@@ -10,18 +10,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface RuntimeManagmentInterface {
 
-  InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop) throws AdapterException;
+  InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop) throws AdapterException, NotFoundException;
 
   String executeOnInstance(VDU vdu, String command, boolean awaitCompletion, PoP pop)
-      throws AdapterException;
+          throws AdapterException, NotFoundException;
 
   void startInstance(VDU vdu, PoP pop) throws AdapterException, NotFoundException;
 
   void stopInstance(VDU vdu, PoP pop) throws AdapterException, NotFoundException;
 
   void uploadFileToInstance(VDU vdu, String remotePath, String hostPath, PoP pop)
-      throws AdapterException, IOException;
+          throws AdapterException, IOException, NotFoundException;
 
   void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop)
-      throws AdapterException, IOException;
+          throws AdapterException, IOException, NotFoundException;
 }

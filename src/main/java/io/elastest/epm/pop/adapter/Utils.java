@@ -4,10 +4,8 @@ import io.elastest.epm.model.*;
 import io.elastest.epm.pop.generated.ResourceGroupProto;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.VduRepository;
-
 import java.io.*;
 import java.util.Map;
-
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
@@ -99,8 +97,8 @@ public class Utils {
     return resourceGroup;
   }
 
-
-  public static Map<String, Object> extractMetadata(InputStream p) throws ArchiveException, IOException {
+  public static Map<String, Object> extractMetadata(InputStream p)
+      throws ArchiveException, IOException {
     ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
 
     Map<String, Object> values = null;
