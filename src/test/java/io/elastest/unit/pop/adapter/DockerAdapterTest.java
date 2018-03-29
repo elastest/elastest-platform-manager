@@ -7,7 +7,11 @@ import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.messages.compute.AllocateComputeRequest;
 import io.elastest.epm.pop.messages.compute.QueryComputeRequest;
 import io.elastest.epm.pop.model.common.Filter;
+import io.elastest.epm.repository.NetworkRepository;
+import io.elastest.epm.repository.PoPRepository;
+import io.elastest.epm.repository.VduRepository;
 import io.elastest.unit.MockedConfig;
+import io.elastest.unit.core.CoreTest;
 import io.elastest.unit.core.PoPManagementTest;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +34,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
-  classes = {AdapterTest.class, MockedConfig.class},
+  classes = {AdapterTest.class, MockedConfig.class, CoreTest.class},
   loader = AnnotationConfigContextLoader.class
 )
 public class DockerAdapterTest {
@@ -44,7 +48,15 @@ public class DockerAdapterTest {
   @InjectMocks
   @Qualifier("test_dockerAdapter")
   DockerAdapter dockerAdapter;
+    
+    @Autowired
+    PoPRepository poPRepository;
 
+    @Autowired
+    NetworkRepository networkRepository;
+
+    @Autowired
+    VduRepository vduRepository;
   //  @Autowired ListImagesCmd listImagesCmd;
 
   @Autowired VDU vdu;

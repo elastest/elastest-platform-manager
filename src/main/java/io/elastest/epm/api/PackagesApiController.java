@@ -1,9 +1,11 @@
 package io.elastest.epm.api;
 
+import io.elastest.epm.exception.AllocationException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.ResourceGroup;
 import io.elastest.epm.pop.adapter.Utils;
+import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.interfaces.AdapterBrokerInterface;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.repository.PoPRepository;
@@ -78,6 +80,12 @@ public class PackagesApiController implements PackagesApi {
     } catch (NotFoundException e) {
       e.printStackTrace();
       return new ResponseEntity<ResourceGroup>(HttpStatus.NOT_FOUND);
+    } catch (AllocationException e) {
+        e.printStackTrace();
+        return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
+    } catch (AdapterException e) {
+        e.printStackTrace();
+        return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
     }
   }
 }

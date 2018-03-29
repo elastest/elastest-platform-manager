@@ -27,6 +27,7 @@ public class AdapterBroker implements AdapterBrokerInterface {
 
   @Autowired DockerComposeAdapter dockerComposeAdapter;
   @Autowired AnsibleAdapter ansibleAdapter;
+  @Autowired DockerAdapter dockerAdapter;
 
   @Override
   public RuntimeManagmentInterface getAdapter(PoP pop) {
@@ -92,6 +93,8 @@ public class AdapterBroker implements AdapterBrokerInterface {
         return dockerComposeAdapter;
       case "ansible":
         return ansibleAdapter;
+        case "docker":
+            return dockerAdapter;
       default:
         return dockerComposeAdapter;
     }

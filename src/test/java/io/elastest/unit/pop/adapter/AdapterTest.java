@@ -9,6 +9,9 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.properties.DockerProperties;
+import io.elastest.epm.repository.NetworkRepository;
+import io.elastest.epm.repository.PoPRepository;
+import io.elastest.epm.repository.VduRepository;
 import io.elastest.unit.core.CoreTest;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +39,7 @@ public class AdapterTest {
   private final Logger log = LoggerFactory.getLogger(CoreTest.class);
 
   @Autowired private ConfigurableApplicationContext context;
+    VduRepository vduRepository;
 
   //    @Mock private ListImagesCmd listImagesCmd;
 
@@ -107,4 +111,6 @@ public class AdapterTest {
     dockerProperties.setRegistration(registration);
     return dockerProperties;
   }
+
+
 }

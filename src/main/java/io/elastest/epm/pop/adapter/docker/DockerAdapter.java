@@ -13,11 +13,14 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
+import io.elastest.epm.exception.AllocationException;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
+import io.elastest.epm.model.ResourceGroup;
 import io.elastest.epm.model.VDU;
 import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
+import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
 import io.elastest.epm.pop.interfaces.VirtualisedComputeResourcesManagmentInterface;
 import io.elastest.epm.pop.interfaces.VirtualisedNetworkResourceManagementInterface;
@@ -32,21 +35,33 @@ import java.io.*;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import io.elastest.epm.repository.NetworkRepository;
+import io.elastest.epm.repository.PoPRepository;
+import io.elastest.epm.repository.ResourceGroupRepository;
+import io.elastest.epm.repository.VduRepository;
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.rmi.CORBA.Util;
+
 @Service
 public class DockerAdapter
     implements VirtualisedComputeResourcesManagmentInterface,
         VirtualisedNetworkResourceManagementInterface,
-        RuntimeManagmentInterface {
+        RuntimeManagmentInterface, PackageManagementInterface {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired private DockerProperties dockerProperties;
+  @Autowired private PoPRepository poPRepository;
+  @Autowired private NetworkRepository networkRepository;
+  @Autowired private VduRepository vduRepository;
+  @Autowired private ResourceGroupRepository resourceGroupRepository;
 
   private DockerClient getDockerClient(PoP poP) throws AdapterException {
     log.debug("Preparing docker client for: " + poP);
@@ -678,4 +693,132 @@ public class DockerAdapter
     }
     return isRunning;
   }
+
+    @Override
+    public ResourceGroup deploy(InputStream data) throws io.elastest.epm.exception.NotFoundException, IOException, ArchiveException, AdapterException, AllocationException {
+        ResourceGroup rg =  Utils.extractResourceGroup(data);
+        if(rg != null){
+            for(io.elastest.epm.model.Network network : rg.getNetworks()){
+                PoP poP = poPRepository.findOneByName(network.getPoPName());
+                if(poP != null){
+                    AllocateNetworkRequest allocateNetworkRequest = new AllocateNetworkRequest();
+                    allocateNetworkRequest.setNetworkResourceType(NetworkResourceType.NETWORK);
+                    allocateNetworkRequest.setNetworkResourceName(network.getName());
+                    //    allocateNetworkRequest.setNetworkResourceName(network.getName() + "-" + (int) (Math.random() * 1000000));
+                    VirtualNetworkData virtualNetworkData = new VirtualNetworkData();
+                    List<KeyValuePair> metadataNetwork = new ArrayList<>();
+                    //        metadata.add(new KeyValuePair("DOCKER_NETWORK_DRIVER", "bridge"));
+                    virtualNetworkData.setMetadata(metadataNetwork);
+                    List<NetworkSubnetData> networkSubnetDatas = new ArrayList<>();
+                    NetworkSubnetData networkSubnetData = new NetworkSubnetData();
+                    List<KeyValuePair> metadataSubnet = new ArrayList<>();
+                    if (network.getCidr() != null && !network.getCidr().isEmpty())
+                        metadataSubnet.add(new KeyValuePair("CIDR", network.getCidr()));
+                    networkSubnetData.setMetadata(metadataSubnet);
+                    networkSubnetDatas.add(networkSubnetData);
+                    virtualNetworkData.setLayer3Attributes(networkSubnetDatas);
+                    allocateNetworkRequest.setTypeNetworkData(virtualNetworkData);
+                    AllocateNetworkResponse allocateNetworkResponse =
+                            this.allocateVirtualisedNetworkResource(allocateNetworkRequest, poP);
+                    network.setNetworkId(allocateNetworkResponse.getNetworkData().getNetworkResourceId());
+                    for (NetworkSubnet subnet : allocateNetworkResponse.getNetworkData().getSubnet()) {
+                        for (KeyValuePair keyValuePair : subnet.getMetadata()) {
+                            if (keyValuePair.getKey().equals("CIDR")) {
+                                network.setCidr(keyValuePair.getValue());
+                                break;
+                            }
+                        }
+                    }
+                    networkRepository.save(network);
+                }
+                else throw new io.elastest.epm.exception.NotFoundException("no pop found: " + network.getName()) ;
+            }
+
+            for(VDU vdu : rg.getVdus()){
+                log.info("Deploying VDU: " + vdu);
+                log.debug("Check if PoP exists...");
+                PoP poP = poPRepository.findOneByName(vdu.getPoPName());
+                if (poP == null) {
+                    log.error("Not found PoP " + vdu.getPoPName());
+                    throw new io.elastest.epm.exception.NotFoundException("Not found PoP " + vdu.getPoPName());
+                }
+                log.debug("Check if network exists...");
+                io.elastest.epm.model.Network network = networkRepository.findOneByName(vdu.getNetName());
+                if (network == null) {
+                    log.error("Not found network " + vdu.getNetName());
+                    throw new io.elastest.epm.exception.NotFoundException("Not found network " + vdu.getNetName());
+                }
+                vdu.setStatus(VDU.StatusEnum.INITIALIZING);
+                vdu.getEvents().add(createEvent("INITIALIZING"));
+                vdu.setComputeId("null");
+                vdu.setIp("null");
+
+                //Allocating computing resources
+                AllocateComputeRequest allocateComputeRequest = new AllocateComputeRequest();
+                allocateComputeRequest.setComputeName(vdu.getName() + "-" + (int) (Math.random() * 1000000));
+                allocateComputeRequest.setVcImageId(vdu.getImageName());
+                allocateComputeRequest.setMetaData(new ArrayList<KeyValuePair>());
+                for (KeyValuePair keyValuePair : vdu.getMetadata()) {
+                    allocateComputeRequest.getMetaData().add(keyValuePair);
+                }
+                KeyValuePair networkMetadata = new KeyValuePair();
+                networkMetadata.setKey("NETWORK");
+                networkMetadata.setValue(vdu.getNetName());
+                allocateComputeRequest.getMetaData().add(networkMetadata);
+                vdu.setStatus(VDU.StatusEnum.INITIALIZED);
+                vdu.getEvents().add(createEvent("INITIALIZED"));
+                vdu.setStatus(VDU.StatusEnum.DEPLOYING);
+                vdu.getEvents().add(createEvent("DEPLOYED"));
+                AllocateComputeResponse allocateComputeResponse;
+                try {
+                    log.info("Allocating compute resources: " + allocateComputeRequest);
+                    allocateComputeResponse =
+                            this.allocateVirtualisedComputeResource(allocateComputeRequest, poP);
+                    log.info("Allocated compute resources: " + allocateComputeResponse);
+                } catch (AdapterException exc) {
+                    vdu.setStatus(VDU.StatusEnum.ERROR);
+                    vdu.getEvents().add(createEvent("ERROR -> " + exc.getMessage()));
+                    if (exc.getComputeId() != null) vdu.setComputeId(exc.getComputeId());
+                    log.error(exc.getMessage(), exc);
+                    throw new AllocationException(exc.getMessage());
+                }
+
+                vdu.setStatus(VDU.StatusEnum.RUNNING);
+                vdu.getEvents().add(createEvent("RUNNING"));
+                //    vdu.setName(allocateComputeResponse.getComputeData().getComputeName());
+                vdu.setImageName(allocateComputeResponse.getComputeData().getVcImageId());
+                vdu.setComputeId(allocateComputeResponse.getComputeData().getComputeId());
+                for (VirtualNetworkInterface virtualNetworkInterface :
+                        allocateComputeResponse.getComputeData().getVirtualNetworkInterface()) {
+                    for (IpAddress ipAddress : virtualNetworkInterface.getIpAddress()) {
+                        if (ipAddress.getAddress() != null) {
+                            vdu.setIp(ipAddress.getAddress());
+                            break;
+                        }
+                    }
+                }
+                vduRepository.save(vdu);
+            }
+            resourceGroupRepository.save(rg);
+            return rg;
+        }
+        else throw new io.elastest.epm.exception.NotFoundException("Couldnt find a valid RG in the package!");
+    }
+
+    @Override
+    public ResourceGroup deploy(InputStream data, PoP poP) throws io.elastest.epm.exception.NotFoundException, IOException {
+        return null;
+    }
+
+    @Override
+    public void terminate(String packageId) throws io.elastest.epm.exception.NotFoundException {
+
+    }
+
+    private io.elastest.epm.model.Event createEvent(String desc) {
+        io.elastest.epm.model.Event event = new io.elastest.epm.model.Event();
+        event.description(desc);
+        event.setTimestamp(Long.toString(System.currentTimeMillis()));
+        return event;
+    }
 }
