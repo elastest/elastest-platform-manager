@@ -28,10 +28,7 @@ import io.elastest.epm.pop.model.network.NetworkSubnet;
 import io.elastest.epm.pop.model.network.VirtualNetwork;
 import io.elastest.epm.pop.model.network.VirtualNetworkInterface;
 import io.elastest.epm.properties.DockerProperties;
-import io.elastest.epm.repository.NetworkRepository;
-import io.elastest.epm.repository.PoPRepository;
-import io.elastest.epm.repository.ResourceGroupRepository;
-import io.elastest.epm.repository.VduRepository;
+import io.elastest.epm.repository.*;
 import io.elastest.unit.MockedConfig;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,6 +65,7 @@ public class CoreTest {
   @Autowired PoP pop;
   @Autowired VDU vdu;
   @Autowired ResourceGroup resourceGroup;
+  @Autowired Adapter adapter;
 
   @Before
   public void init() {
@@ -157,6 +155,21 @@ public class CoreTest {
     doNothing().when(poPRepository).delete(pop.getId());
 
     return poPRepository;
+  }
+
+  @Bean
+    AdapterRepository adapterRepository() {
+      AdapterRepository adapterRepository = mock(AdapterRepository.class);
+      List<Adapter> adapters = new ArrayList<>();
+      adapters.add(adapter);
+
+
+      when(adapterRepository.save(adapter)).thenReturn(adapter);
+      when(adapterRepository.findAll()).thenReturn(adapters);
+      when(adapterRepository.findOne(pop.getId())).thenReturn(adapter);
+      doNothing().when(adapterRepository).delete(pop.getId());
+
+      return adapterRepository;
   }
 
   @Bean
