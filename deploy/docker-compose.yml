@@ -26,9 +26,9 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock:rw
         expose:
             - 8180
-            - 50050:50050
         ports:
             - 37002:8180
+            - 50050:50050
         networks:
             - elastest
     epm-adapter-docker-compose:
