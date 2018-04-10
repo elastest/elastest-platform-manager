@@ -5,16 +5,19 @@ option java_multiple_files = true;
 message FileMessage {
     bytes file = 1;
     repeated string options = 2;
+    PoP pop = 3;
 }
 
 message ResourceIdentifier {
     string resource_id = 1;
+    PoP pop = 2;
 }
 
 message RuntimeMessage {
     string resource_id = 1;
     repeated string property = 2;
     bytes file = 3;
+    PoP pop = 4;
 }
 
 message StringResponse {
@@ -50,12 +53,12 @@ message AdapterProto {
     string endpoint = 2;
 }
 
-message ResourceGroupProto {
+message PoP {
+    string name = 1;
+    string interfaceEndpoint = 2;
+}
 
-    message PoP {
-        string name = 1;
-        string interfaceEndpoint = 2;
-    }
+message ResourceGroupProto {
 
     message MetadataEntry {
         string key = 1;

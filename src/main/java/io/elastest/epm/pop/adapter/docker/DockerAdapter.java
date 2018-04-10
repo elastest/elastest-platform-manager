@@ -33,15 +33,11 @@ import io.elastest.epm.pop.model.common.OperationalState;
 import io.elastest.epm.pop.model.compute.VirtualCompute;
 import io.elastest.epm.pop.model.network.*;
 import io.elastest.epm.properties.DockerProperties;
+import io.elastest.epm.repository.ResourceGroupRepository;
 import java.io.*;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
-import io.elastest.epm.repository.NetworkRepository;
-import io.elastest.epm.repository.PoPRepository;
-import io.elastest.epm.repository.ResourceGroupRepository;
-import io.elastest.epm.repository.VduRepository;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +45,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.rmi.CORBA.Util;
-
 @Service
 public class DockerAdapter
     implements VirtualisedComputeResourcesManagmentInterface,
         VirtualisedNetworkResourceManagementInterface,
-        RuntimeManagmentInterface, PackageManagementInterface {
+        RuntimeManagmentInterface,
+        PackageManagementInterface {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -694,37 +689,42 @@ public class DockerAdapter
     return isRunning;
   }
 
-    @Override
-    public ResourceGroup deploy(InputStream data) throws io.elastest.epm.exception.NotFoundException, IOException, ArchiveException, AdapterException, AllocationException, io.elastest.epm.exception.BadRequestException {
-        ResourceGroup rg =  Utils.extractResourceGroup(data);
-        if(rg != null){
-            return resourceGroupManagement.deployResourceGroup(rg);
-        }
-        else throw new io.elastest.epm.exception.NotFoundException("Couldnt find a valid RG in the package!");
-    }
+  @Override
+  public ResourceGroup deploy(InputStream data)
+      throws io.elastest.epm.exception.NotFoundException, IOException, ArchiveException,
+          AdapterException, AllocationException, io.elastest.epm.exception.BadRequestException {
+    ResourceGroup rg = Utils.extractResourceGroup(data);
+    if (rg != null) {
+      return resourceGroupManagement.deployResourceGroup(rg);
+    } else
+      throw new io.elastest.epm.exception.NotFoundException(
+          "Couldnt find a valid RG in the package!");
+  }
 
-    @Override
-    public ResourceGroup deploy(InputStream data, PoP poP) throws io.elastest.epm.exception.NotFoundException, IOException, AdapterException, io.elastest.epm.exception.BadRequestException, AllocationException, ArchiveException {
-        // In the docker case the pop is already specified so ignore
-        return deploy(data);
-    }
+  @Override
+  public ResourceGroup deploy(InputStream data, PoP poP)
+      throws io.elastest.epm.exception.NotFoundException, IOException, AdapterException,
+          io.elastest.epm.exception.BadRequestException, AllocationException, ArchiveException {
+    // In the docker case the pop is already specified so ignore
+    return deploy(data);
+  }
 
-    @Override
-    public void terminate(String packageId) throws io.elastest.epm.exception.NotFoundException {
-        try {
-            ResourceGroup rg = resourceGroupRepository.findOneByName(packageId);
-            resourceGroupManagement.terminateResourceGroup(rg.getId());
-        } catch (AdapterException e) {
-            e.printStackTrace();
-        } catch (TerminationException e) {
-            e.printStackTrace();
-        }
+  @Override
+  public void terminate(String packageId) throws io.elastest.epm.exception.NotFoundException {
+    try {
+      ResourceGroup rg = resourceGroupRepository.findOneByName(packageId);
+      resourceGroupManagement.terminateResourceGroup(rg.getId());
+    } catch (AdapterException e) {
+      e.printStackTrace();
+    } catch (TerminationException e) {
+      e.printStackTrace();
     }
+  }
 
-    private io.elastest.epm.model.Event createEvent(String desc) {
-        io.elastest.epm.model.Event event = new io.elastest.epm.model.Event();
-        event.description(desc);
-        event.setTimestamp(Long.toString(System.currentTimeMillis()));
-        return event;
-    }
+  private io.elastest.epm.model.Event createEvent(String desc) {
+    io.elastest.epm.model.Event event = new io.elastest.epm.model.Event();
+    event.description(desc);
+    event.setTimestamp(Long.toString(System.currentTimeMillis()));
+    return event;
+  }
 }

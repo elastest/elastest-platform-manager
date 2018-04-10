@@ -3,7 +3,6 @@ package io.elastest.epm.pop.adapter;
 import com.google.gson.Gson;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.generated.ResourceGroupProto;
-import io.elastest.epm.pop.generated.ResourceIdentifier;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.VduRepository;
 import java.io.*;
@@ -120,21 +119,22 @@ public class Utils {
     return values;
   }
 
-  public static ResourceGroup extractResourceGroup(InputStream p) throws ArchiveException, IOException {
-      ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
+  public static ResourceGroup extractResourceGroup(InputStream p)
+      throws ArchiveException, IOException {
+    ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
 
-      Map<String, Object> values = null;
-      TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
-      while (entry != null) {
-          if (entry.getName().toLowerCase().contains(".json")) {
-              Gson gson = new Gson();
-              byte[] content = new byte[(int) entry.getSize()];
-              t.read(content, 0, content.length);
-              ResourceGroup resourceGroup = gson.fromJson(new String(content), ResourceGroup.class);
-              return resourceGroup;
-          }
+    Map<String, Object> values = null;
+    TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
+    while (entry != null) {
+      if (entry.getName().toLowerCase().contains(".json")) {
+        Gson gson = new Gson();
+        byte[] content = new byte[(int) entry.getSize()];
+        t.read(content, 0, content.length);
+        ResourceGroup resourceGroup = gson.fromJson(new String(content), ResourceGroup.class);
+        return resourceGroup;
       }
+    }
 
-      return null;
+    return null;
   }
 }

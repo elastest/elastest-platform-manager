@@ -80,11 +80,3 @@ fi
 activate_remote_docker
 
 curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "docker-'$2'"  , "interfaceEndpoint": "tcp://'$2':2376"}' $1:8180/v1/pop
-
-if [ -z "$3" ]
-then
-    echo "Not starting the stats agent"
-else
-    echo "Starting the stats agent"
-    sudo docker-compose run -d -e KAFKA_ENDPOINT=$3 system-agent
-fi

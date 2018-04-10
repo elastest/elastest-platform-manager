@@ -93,8 +93,8 @@ public class AdapterBroker implements AdapterBrokerInterface {
         return dockerComposeAdapter;
       case "ansible":
         return ansibleAdapter;
-        case "docker":
-            return dockerAdapter;
+      case "docker":
+        return dockerAdapter;
       default:
         return dockerComposeAdapter;
     }

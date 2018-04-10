@@ -58,15 +58,15 @@ public final class Client {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_AdapterProto_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_PoP_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_PoP_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ResourceGroupProto_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ResourceGroupProto_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_ResourceGroupProto_PoP_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ResourceGroupProto_PoP_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ResourceGroupProto_MetadataEntry_descriptor;
   static final 
@@ -91,47 +91,48 @@ public final class Client {
       descriptor;
   static {
     String[] descriptorData = {
-      "\n\014client.proto\",\n\013FileMessage\022\014\n\004file\030\001 " +
-      "\001(\014\022\017\n\007options\030\002 \003(\t\")\n\022ResourceIdentifi" +
-      "er\022\023\n\013resource_id\030\001 \001(\t\"E\n\016RuntimeMessag" +
-      "e\022\023\n\013resource_id\030\001 \001(\t\022\020\n\010property\030\002 \003(\t" +
-      "\022\014\n\004file\030\003 \001(\014\"\"\n\016StringResponse\022\020\n\010resp" +
-      "onse\030\001 \001(\t\"(\n\020StartStopMessage\022\024\n\014contai" +
-      "ner_id\030\001 \001(\t\"\007\n\005Empty\"i\n\006Status\022%\n\006statu" +
-      "s\030\001 \001(\0162\025.Status.ServingStatus\"8\n\rServin" +
-      "gStatus\022\r\n\tCONFIGURE\020\000\022\n\n\006ACTIVE\020\001\022\014\n\010IN" +
-      "ACTIVE\020\002\"M\n\004Auth\022\020\n\010auth_url\030\001 \001(\t\022\020\n\010us",
-      "ername\030\002 \001(\t\022\020\n\010password\030\003 \001(\t\022\017\n\007projec" +
-      "t\030\004 \001(\t\".\n\014AdapterProto\022\014\n\004type\030\001 \001(\t\022\020\n" +
-      "\010endpoint\030\002 \001(\t\"\346\003\n\022ResourceGroupProto\022\014" +
-      "\n\004name\030\001 \001(\t\022%\n\004pops\030\002 \003(\0132\027.ResourceGro" +
-      "upProto.PoP\022-\n\010networks\030\003 \003(\0132\033.Resource" +
-      "GroupProto.Network\022%\n\004vdus\030\004 \003(\0132\027.Resou" +
-      "rceGroupProto.VDU\032.\n\003PoP\022\014\n\004name\030\001 \001(\t\022\031" +
-      "\n\021interfaceEndpoint\030\002 \001(\t\032+\n\rMetadataEnt" +
-      "ry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\032I\n\007Networ" +
-      "k\022\014\n\004name\030\001 \001(\t\022\017\n\007poPName\030\002 \001(\t\022\014\n\004cidr",
-      "\030\003 \001(\t\022\021\n\tnetworkId\030\004 \001(\t\032\234\001\n\003VDU\022\014\n\004nam" +
-      "e\030\001 \001(\t\022\021\n\timageName\030\002 \001(\t\022\017\n\007netName\030\003 " +
-      "\001(\t\022\017\n\007poPName\030\004 \001(\t\022\021\n\tcomputeId\030\005 \001(\t\022" +
-      "\n\n\002ip\030\006 \001(\t\0223\n\010metadata\030\007 \003(\0132!.Resource" +
-      "GroupProto.MetadataEntry2\202\004\n\020OperationHa" +
-      "ndler\022-\n\006Create\022\014.FileMessage\032\023.Resource" +
-      "GroupProto\"\000\022\'\n\006Remove\022\023.ResourceIdentif" +
-      "ier\032\006.Empty\"\000\022.\n\rStopContainer\022\023.Resourc" +
-      "eIdentifier\032\006.Empty\"\000\022@\n\026CheckIfContaine" +
-      "rExists\022\023.ResourceIdentifier\032\017.StringRes",
-      "ponse\"\000\022A\n\027CheckIfContainerRunning\022\023.Res" +
-      "ourceIdentifier\032\017.StringResponse\"\000\022/\n\016St" +
-      "artContainer\022\023.ResourceIdentifier\032\006.Empt" +
-      "y\"\000\0224\n\016ExecuteCommand\022\017.RuntimeMessage\032\017" +
-      ".StringResponse\"\000\022/\n\014DownloadFile\022\017.Runt" +
-      "imeMessage\032\014.FileMessage\"\000\022\'\n\nUploadFile" +
-      "\022\017.RuntimeMessage\032\006.Empty\"\000\022 \n\013CheckStat" +
-      "us\022\006.Empty\032\007.Status\"\0002l\n\016AdapterHandler\022" +
-      "*\n\017RegisterAdapter\022\r.AdapterProto\032\006.Empt" +
-      "y\"\000\022.\n\rDeleteAdapter\022\023.ResourceIdentifie",
-      "r\032\006.Empty\"\000B\002P\001b\006proto3"
+      "\n\014client.proto\"?\n\013FileMessage\022\014\n\004file\030\001 " +
+      "\001(\014\022\017\n\007options\030\002 \003(\t\022\021\n\003pop\030\003 \001(\0132\004.PoP\"" +
+      "<\n\022ResourceIdentifier\022\023\n\013resource_id\030\001 \001" +
+      "(\t\022\021\n\003pop\030\002 \001(\0132\004.PoP\"X\n\016RuntimeMessage\022" +
+      "\023\n\013resource_id\030\001 \001(\t\022\020\n\010property\030\002 \003(\t\022\014" +
+      "\n\004file\030\003 \001(\014\022\021\n\003pop\030\004 \001(\0132\004.PoP\"\"\n\016Strin" +
+      "gResponse\022\020\n\010response\030\001 \001(\t\"(\n\020StartStop" +
+      "Message\022\024\n\014container_id\030\001 \001(\t\"\007\n\005Empty\"i" +
+      "\n\006Status\022%\n\006status\030\001 \001(\0162\025.Status.Servin" +
+      "gStatus\"8\n\rServingStatus\022\r\n\tCONFIGURE\020\000\022",
+      "\n\n\006ACTIVE\020\001\022\014\n\010INACTIVE\020\002\"M\n\004Auth\022\020\n\010aut" +
+      "h_url\030\001 \001(\t\022\020\n\010username\030\002 \001(\t\022\020\n\010passwor" +
+      "d\030\003 \001(\t\022\017\n\007project\030\004 \001(\t\".\n\014AdapterProto" +
+      "\022\014\n\004type\030\001 \001(\t\022\020\n\010endpoint\030\002 \001(\t\".\n\003PoP\022" +
+      "\014\n\004name\030\001 \001(\t\022\031\n\021interfaceEndpoint\030\002 \001(\t" +
+      "\"\243\003\n\022ResourceGroupProto\022\014\n\004name\030\001 \001(\t\022\022\n" +
+      "\004pops\030\002 \003(\0132\004.PoP\022-\n\010networks\030\003 \003(\0132\033.Re" +
+      "sourceGroupProto.Network\022%\n\004vdus\030\004 \003(\0132\027" +
+      ".ResourceGroupProto.VDU\032+\n\rMetadataEntry" +
+      "\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\032I\n\007Network\022",
+      "\014\n\004name\030\001 \001(\t\022\017\n\007poPName\030\002 \001(\t\022\014\n\004cidr\030\003" +
+      " \001(\t\022\021\n\tnetworkId\030\004 \001(\t\032\234\001\n\003VDU\022\014\n\004name\030" +
+      "\001 \001(\t\022\021\n\timageName\030\002 \001(\t\022\017\n\007netName\030\003 \001(" +
+      "\t\022\017\n\007poPName\030\004 \001(\t\022\021\n\tcomputeId\030\005 \001(\t\022\n\n" +
+      "\002ip\030\006 \001(\t\0223\n\010metadata\030\007 \003(\0132!.ResourceGr" +
+      "oupProto.MetadataEntry2\202\004\n\020OperationHand" +
+      "ler\022-\n\006Create\022\014.FileMessage\032\023.ResourceGr" +
+      "oupProto\"\000\022\'\n\006Remove\022\023.ResourceIdentifie" +
+      "r\032\006.Empty\"\000\022.\n\rStopContainer\022\023.ResourceI" +
+      "dentifier\032\006.Empty\"\000\022@\n\026CheckIfContainerE",
+      "xists\022\023.ResourceIdentifier\032\017.StringRespo" +
+      "nse\"\000\022A\n\027CheckIfContainerRunning\022\023.Resou" +
+      "rceIdentifier\032\017.StringResponse\"\000\022/\n\016Star" +
+      "tContainer\022\023.ResourceIdentifier\032\006.Empty\"" +
+      "\000\0224\n\016ExecuteCommand\022\017.RuntimeMessage\032\017.S" +
+      "tringResponse\"\000\022/\n\014DownloadFile\022\017.Runtim" +
+      "eMessage\032\014.FileMessage\"\000\022\'\n\nUploadFile\022\017" +
+      ".RuntimeMessage\032\006.Empty\"\000\022 \n\013CheckStatus" +
+      "\022\006.Empty\032\007.Status\"\0002y\n\016AdapterHandler\0227\n" +
+      "\017RegisterAdapter\022\r.AdapterProto\032\023.Resour",
+      "ceIdentifier\"\000\022.\n\rDeleteAdapter\022\023.Resour" +
+      "ceIdentifier\032\006.Empty\"\000B\002P\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -150,19 +151,19 @@ public final class Client {
     internal_static_FileMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_FileMessage_descriptor,
-        new String[] { "File", "Options", });
+        new String[] { "File", "Options", "Pop", });
     internal_static_ResourceIdentifier_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_ResourceIdentifier_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ResourceIdentifier_descriptor,
-        new String[] { "ResourceId", });
+        new String[] { "ResourceId", "Pop", });
     internal_static_RuntimeMessage_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_RuntimeMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RuntimeMessage_descriptor,
-        new String[] { "ResourceId", "Property", "File", });
+        new String[] { "ResourceId", "Property", "File", "Pop", });
     internal_static_StringResponse_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_StringResponse_fieldAccessorTable = new
@@ -199,32 +200,32 @@ public final class Client {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AdapterProto_descriptor,
         new String[] { "Type", "Endpoint", });
-    internal_static_ResourceGroupProto_descriptor =
+    internal_static_PoP_descriptor =
       getDescriptor().getMessageTypes().get(9);
+    internal_static_PoP_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_PoP_descriptor,
+        new String[] { "Name", "InterfaceEndpoint", });
+    internal_static_ResourceGroupProto_descriptor =
+      getDescriptor().getMessageTypes().get(10);
     internal_static_ResourceGroupProto_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ResourceGroupProto_descriptor,
         new String[] { "Name", "Pops", "Networks", "Vdus", });
-    internal_static_ResourceGroupProto_PoP_descriptor =
-      internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(0);
-    internal_static_ResourceGroupProto_PoP_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_ResourceGroupProto_PoP_descriptor,
-        new String[] { "Name", "InterfaceEndpoint", });
     internal_static_ResourceGroupProto_MetadataEntry_descriptor =
-      internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(1);
+      internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(0);
     internal_static_ResourceGroupProto_MetadataEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ResourceGroupProto_MetadataEntry_descriptor,
         new String[] { "Key", "Value", });
     internal_static_ResourceGroupProto_Network_descriptor =
-      internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(2);
+      internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(1);
     internal_static_ResourceGroupProto_Network_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ResourceGroupProto_Network_descriptor,
         new String[] { "Name", "PoPName", "Cidr", "NetworkId", });
     internal_static_ResourceGroupProto_VDU_descriptor =
-      internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(3);
+      internal_static_ResourceGroupProto_descriptor.getNestedTypes().get(2);
     internal_static_ResourceGroupProto_VDU_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ResourceGroupProto_VDU_descriptor,
