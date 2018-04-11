@@ -71,5 +71,5 @@ then
     echo "Not starting the stats agent"
 else
     echo "Starting the stats agent"
-    sudo docker-compose run -d -e KAFKA_ENDPOINT=$1 -e SENTINEL_TOPIC=$2 -e SENTINEL_SERIES=$3 system-agent
+    sudo docker run -d -h $4 -e KAFKA_ENDPOINT=$1 -e SENTINEL_TOPIC=$2 -e SENTINEL_SERIES=$3 -e KAFKA_KEY_SERIALIZER=StringSerializer -e KAFKA_VALUE_SERIALIZER=StringSerializer -e PERIODICITY=60 elastest/emp-system-agent:latest
 fi
