@@ -50,7 +50,7 @@ public class AdapterBroker implements AdapterBrokerInterface {
         case "ansible":
           return ansibleAdapter;
         case "docker":
-          return new DockerAdapter();
+          return dockerAdapter;
 
         default:
           return new DockerAdapter();
