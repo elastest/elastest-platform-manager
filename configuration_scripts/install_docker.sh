@@ -79,4 +79,4 @@ fi
 
 activate_remote_docker
 
-curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "docker-'$2'"  , "interfaceEndpoint": "tcp://'$2':2376"}' $1:8180/v1/pop
+curl -i -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "docker-'$2'"  , "interfaceEndpoint": "tcp://'$2':2376", "interfaceInfo":[{"key":"type", "value":"docker"}]}' $1:8180/v1/pop

@@ -34,8 +34,6 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
 
   @Autowired private PoPRepository poPRepository;
 
-  @Autowired private AdapterRepository adapterRepository;
-
   @Autowired private NetworkRepository networkRepository;
 
   @Autowired private VduRepository vduRepository;
@@ -47,15 +45,7 @@ public class DockerComposeAdapter implements PackageManagementInterface, Runtime
   @Autowired private Utils utils;
 
   private OperationHandlerBlockingStub getDockerComposeClient(PoP poP) throws NotFoundException {
-
-    Adapter adapter =
-        adapterRepository.findAdapterForTypeAndIp("docker-compose", poP.getInterfaceEndpoint());
-    String ip = adapter.getEndpoint().split(":")[0];
-    int port = Integer.parseInt(adapter.getEndpoint().split(":")[1]);
-    ManagedChannelBuilder<?> channelBuilder =
-        ManagedChannelBuilder.forAddress(ip, port).usePlaintext(true);
-    ManagedChannel channel = channelBuilder.build();
-    return OperationHandlerGrpc.newBlockingStub(channel);
+      return utils.getAdapterClient(utils.getAdapterSpecific(poP, "docker-compose"));
   }
 
   @Override

@@ -254,8 +254,8 @@ public class DockerAdapter
     log.info("Pull image " + vcImageId);
     DockerClient dockerClient = getDockerClient(poP);
     try {
-      PullImageCmd pullImageCmd = dockerClient.pullImageCmd(vcImageId);
-      pullImageCmd.exec(new PullImageResultCallback()).awaitSuccess();
+        dockerClient.pullImageCmd(vcImageId)
+                .exec(new PullImageResultCallback()).awaitSuccess();
     } catch (Exception e) {
       log.error("Not Found image " + vcImageId + " -> " + e.getMessage());
       throw new AdapterException("Not found image " + vcImageId + " -> " + e.getMessage());
