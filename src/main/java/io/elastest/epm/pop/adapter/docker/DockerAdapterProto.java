@@ -13,6 +13,7 @@ import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.generated.*;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
+import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.ResourceGroupRepository;
@@ -45,6 +46,8 @@ public class DockerAdapterProto implements PackageManagementInterface, RuntimeMa
     @Autowired private ResourceGroupRepository resourceGroupRepository;
     @Autowired private NetworkRepository networkRepository;
     @Autowired private VduRepository vduRepository;
+    @Autowired private DockerProperties dockerProperties;
+
 
     private OperationHandlerGrpc.OperationHandlerBlockingStub getDockerAdapterClient(PoP poP) throws NotFoundException {
         return utils.getAdapterClient(utils.getAdapter( "docker"));
@@ -65,13 +68,23 @@ public class DockerAdapterProto implements PackageManagementInterface, RuntimeMa
         io.elastest.epm.pop.generated.PoP popDeployment = io.elastest.epm.pop.generated.PoP
                 .newBuilder().setInterfaceEndpoint(poP.getInterfaceEndpoint()).build();
 
+        String enabled = "False";
+        String address = "";
+        if (dockerProperties.getLogStash().isEnabled()) {
+            enabled = "True";
+            if (dockerProperties.getLogStash().getAddress() != null
+                    && !dockerProperties.getLogStash().getAddress().equals(""))
+                address = dockerProperties.getLogStash().getAddress();
+            else address = "tcp://localhost:5000";
+        }
+
         FileMessage composePackage =
                 FileMessage.newBuilder()
                         .setFile(p)
                         .setPop(popDeployment)
                         .addAllOptions(new ArrayList<String>())
-                        //.addOptions(enabled)
-                        //.addOptions(address)
+                        .addOptions(enabled)
+                        .addOptions(address)
                         .build();
         ResourceGroupProto rg = dockerClient.create(composePackage);
 
