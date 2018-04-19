@@ -11,10 +11,11 @@ services:
 
   system-agent:
       image: elastest/emp-system-agent:latest
+      hostname: ${WORKER_NAME}
       environment:
         - KAFKA_ENDPOINT=${KAFKA_ENDPOINT}
         - KAFKA_KEY_SERIALIZER=StringSerializer
         - KAFKA_VALUE_SERIALIZER=StringSerializer
-        - SENTINEL_TOPIC=user-1-elastest_core
-        - SENTINEL_SERIES=sys-stats
+        - SENTINEL_TOPIC=${SENTINEL_TOPIC}
+        - SENTINEL_SERIES=${SENTINEL_SERIES}
         - PERIODICITY=60

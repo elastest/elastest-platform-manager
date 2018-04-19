@@ -6,6 +6,7 @@ import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.ansible.AnsibleAdapter;
 import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
+import io.elastest.epm.pop.adapter.docker.DockerAdapterProto;
 import io.elastest.epm.pop.interfaces.AdapterBrokerInterface;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
@@ -27,7 +28,7 @@ public class AdapterBroker implements AdapterBrokerInterface {
 
   @Autowired DockerComposeAdapter dockerComposeAdapter;
   @Autowired AnsibleAdapter ansibleAdapter;
-  @Autowired DockerAdapter dockerAdapter;
+  @Autowired DockerAdapterProto dockerAdapter;
 
   @Override
   public RuntimeManagmentInterface getAdapter(PoP pop) {
@@ -49,7 +50,7 @@ public class AdapterBroker implements AdapterBrokerInterface {
         case "ansible":
           return ansibleAdapter;
         case "docker":
-          return new DockerAdapter();
+          return dockerAdapter;
 
         default:
           return new DockerAdapter();
@@ -93,8 +94,8 @@ public class AdapterBroker implements AdapterBrokerInterface {
         return dockerComposeAdapter;
       case "ansible":
         return ansibleAdapter;
-        case "docker":
-            return dockerAdapter;
+      case "docker":
+        return dockerAdapter;
       default:
         return dockerComposeAdapter;
     }

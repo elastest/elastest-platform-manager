@@ -1,13 +1,18 @@
 package io.elastest.epm.pop.adapter;
 
 import com.google.gson.Gson;
+import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
+import io.elastest.epm.pop.generated.OperationHandlerGrpc;
 import io.elastest.epm.pop.generated.ResourceGroupProto;
-import io.elastest.epm.pop.generated.ResourceIdentifier;
+import io.elastest.epm.repository.AdapterRepository;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.VduRepository;
 import java.io.*;
 import java.util.Map;
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
@@ -22,14 +27,20 @@ import org.yaml.snakeyaml.Yaml;
 @Component
 public class Utils {
 
-  public static File convert(MultipartFile file) throws IOException {
-    File convFile = new File(file.getOriginalFilename());
-    convFile.createNewFile();
-    FileOutputStream fos = new FileOutputStream(convFile);
-    fos.write(file.getBytes());
-    fos.close();
-    return convFile;
-  }
+    @Autowired private AdapterRepository adapterRepository;
+
+    @Autowired private NetworkRepository networkRepository;
+
+    @Autowired private VduRepository vduRepository;
+
+    public static File convert(MultipartFile file) throws IOException {
+        File convFile = new File(file.getOriginalFilename());
+        convFile.createNewFile();
+        FileOutputStream fos = new FileOutputStream(convFile);
+        fos.write(file.getBytes());
+        fos.close();
+        return convFile;
+    }
 
   public static File compressFileToTar(File file) throws IOException {
     File temp = File.createTempFile("archive", ".tar");
@@ -59,10 +70,6 @@ public class Utils {
     fileOutputStream.close();
     return temp;
   }
-
-  @Autowired private NetworkRepository networkRepository;
-
-  @Autowired private VduRepository vduRepository;
 
   public ResourceGroup parseRGProto(ResourceGroupProto rg, PoP pop) {
     ResourceGroup resourceGroup = new ResourceGroup();
@@ -120,21 +127,39 @@ public class Utils {
     return values;
   }
 
-  public static ResourceGroup extractResourceGroup(InputStream p) throws ArchiveException, IOException {
-      ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
+  public static ResourceGroup extractResourceGroup(InputStream p)
+      throws ArchiveException, IOException {
+    ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
 
-      Map<String, Object> values = null;
-      TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
-      while (entry != null) {
-          if (entry.getName().toLowerCase().contains(".json")) {
-              Gson gson = new Gson();
-              byte[] content = new byte[(int) entry.getSize()];
-              t.read(content, 0, content.length);
-              ResourceGroup resourceGroup = gson.fromJson(new String(content), ResourceGroup.class);
-              return resourceGroup;
-          }
+    Map<String, Object> values = null;
+    TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
+    while (entry != null) {
+      if (entry.getName().toLowerCase().contains(".json")) {
+        Gson gson = new Gson();
+        byte[] content = new byte[(int) entry.getSize()];
+        t.read(content, 0, content.length);
+        ResourceGroup resourceGroup = gson.fromJson(new String(content), ResourceGroup.class);
+        return resourceGroup;
       }
+    }
 
-      return null;
+    return null;
+  }
+
+  public Adapter getAdapter(String type){
+      return adapterRepository.findFirstByType(type);
+  }
+
+  public Adapter getAdapterSpecific(PoP poP, String type) throws NotFoundException {
+      return adapterRepository.findAdapterForTypeAndIp(type, poP.getInterfaceEndpoint());
+  }
+
+  public OperationHandlerGrpc.OperationHandlerBlockingStub getAdapterClient(Adapter adapter) throws NotFoundException {
+      String ip = adapter.getEndpoint().split(":")[0];
+      int port = Integer.parseInt(adapter.getEndpoint().split(":")[1]);
+      ManagedChannelBuilder<?> channelBuilder =
+              ManagedChannelBuilder.forAddress(ip, port).usePlaintext(true);
+      ManagedChannel channel = channelBuilder.build();
+      return OperationHandlerGrpc.newBlockingStub(channel);
   }
 }

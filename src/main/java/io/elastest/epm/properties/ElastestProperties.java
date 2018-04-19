@@ -29,6 +29,10 @@ public class ElastestProperties {
 
     private String port;
 
+    private String topic = "";
+
+    private String seriesName = "";
+
     public boolean isEnabled() {
       return enabled;
     }
@@ -39,7 +43,8 @@ public class ElastestProperties {
 
     @Override
     public String toString() {
-      return "EMP{" + "enabled=" + enabled + ", address='" + endpoint + ":" + port + '\'' + '}';
+      return "EMP{" + "enabled=" + enabled + ", address='" + endpoint + ":" + port + ", topic=" + topic + ", seriesName="
+              + seriesName + '\'' + '}';
     }
 
     public String getEndPoint() {
@@ -57,5 +62,21 @@ public class ElastestProperties {
     public void setPort(String port) {
       this.port = port;
     }
+
+      public String getTopic() {
+          return topic;
+      }
+
+      public void setTopic(String topic) {
+          this.topic = topic;
+      }
+
+      public String getSeriesName() {
+          return seriesName;
+      }
+
+      public void setSeriesName(String seriesName) {
+          this.seriesName = seriesName;
+      }
   }
 }

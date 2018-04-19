@@ -3,6 +3,7 @@ package io.elastest.epm.pop.adapter.ansible;
 import com.google.protobuf.ByteString;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
+import io.elastest.epm.model.PoP;
 import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.generated.*;
