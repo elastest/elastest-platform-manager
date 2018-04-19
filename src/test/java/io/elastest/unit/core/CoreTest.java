@@ -13,6 +13,7 @@ import io.elastest.epm.pop.adapter.ansible.AnsibleAdapter;
 import io.elastest.epm.pop.adapter.broker.AdapterBroker;
 import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
+import io.elastest.epm.pop.adapter.docker.DockerAdapterProto;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.messages.compute.AllocateComputeRequest;
 import io.elastest.epm.pop.messages.compute.AllocateComputeResponse;
@@ -236,6 +237,14 @@ public class CoreTest {
 
     return composeAdapter;
   }
+
+  @Bean
+  @Qualifier("mocket_dockerProtoAdapter")
+  DockerAdapterProto dockerProtoAdapter() throws AdapterException {
+        DockerAdapterProto adapterProto = mock(DockerAdapterProto.class);
+
+        return adapterProto;
+    }
 
   @Bean
   @Qualifier("mocked_ansibleAdapter")
