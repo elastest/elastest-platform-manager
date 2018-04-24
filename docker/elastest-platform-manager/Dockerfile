@@ -13,6 +13,8 @@ LABEL version=$VERSION
 
 COPY epm.jar .
 
+ADD configuration_scripts/ configuration_scripts
+
 EXPOSE 8180
 
 ENTRYPOINT java -jar epm.jar
