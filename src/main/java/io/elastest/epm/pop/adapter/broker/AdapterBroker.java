@@ -97,7 +97,7 @@ public class AdapterBroker implements AdapterBrokerInterface {
       case "docker":
         return dockerAdapter;
       default:
-        return dockerComposeAdapter;
+        return null;
     }
   }
 }

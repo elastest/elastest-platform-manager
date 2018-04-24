@@ -64,6 +64,13 @@ public class PackagesApiController implements PackagesApi {
 
     PackageManagementInterface adapter = adapterBroker.getAdapter(file.getInputStream());
 
+    if(adapter == null){
+        log.error("No type specified in package metadata or type not supported. " +
+                "Please either add 'type:<package type>' in metadata or specify on of the following types: docker," +
+                " docker-compose, ansible.");
+        return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
+    }
+
     PoP poP = null;
     Map<String, Object> values = Utils.extractMetadata(file.getInputStream());
     if (values.containsKey("pop")) {
