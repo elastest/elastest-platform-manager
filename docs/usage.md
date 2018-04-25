@@ -13,7 +13,7 @@ component so can be started right away.
 ## Adapters
 
 The EPM works together with different adapters, so that it is able to communicate and execute on a number of different 
-Virtual Environments. More information about the adapters and how to start them can be found [here](adapters).
+Virtual Environments. More information about the adapters and how to start them can be found [here][adapters].
 
 ## Workers
 
@@ -57,4 +57,4 @@ In the following you can find a valid TOSCA template:
 [adapters]: adapters.md
 [workers]: usage/workers.md
 [package]: usage/package.md
-[package]: usage/runtime.md
+[runtime]: usage/runtime.md
