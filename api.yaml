@@ -689,6 +689,7 @@ paths:
           description: Not Found
           schema:
             type: string
+  /pop/{id}:
     get:
       tags:
         - PoP
