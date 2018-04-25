@@ -35,7 +35,7 @@ Repository: The repository persists information of managed VDUs and networks, an
 
 ### Features
 
-The version 0.8.0 of the EPM offers the following features:
+The current version of the EPM offers the following features:
 
 * Supports the following Virtualized Infrastructures:
     * Docker (managing Containers, Networks and Images)
