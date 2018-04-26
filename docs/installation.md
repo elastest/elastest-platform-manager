@@ -25,15 +25,19 @@ In order to run the EPM the following requirements must be fullfilled:
 
     ```bash
     docker pull elastest/epm && \
-    docker pull elastest/epm-adapter-docker-compose
+    docker pull elastest/epm-adapter-docker-compose && \
+    docker pull elastest/epm-adapter-docker && \
+    docker pull elastest/epm-adapter-ansible
     ```
 
 2. There are two options for deploying them - run the images seperately or deploy them using a compose file:
     1. Running the images seperately:
     
         ```bash
-        docker run -p 8180:8180 -v /var/run/docker.sock:/var/run/docker.sock elastest/epm && \
-        docker run -p 50051:50051 -v /var/run/docker.sock:/var/run/docker.sock elastest/epm-adapter-docker-compose
+        docker run -p 8180:8180 -d -v /var/run/docker.sock:/var/run/docker.sock elastest/epm && \
+        docker run -p 50051:50051 -d -v /var/run/docker.sock:/var/run/docker.sock elastest/epm-adapter-docker-compose && \
+        docker run -p 50053:50053 -d -v /var/run/docker.sock:/var/run/docker.sock elastest/epm-adapter-docker && \
+        docker run -p 50052:50052 -d elastest/epm-adapter-ansible
         ```
         **Note** In this case you have to register the Docker Compose Adapter to the EPM before being able to use it.
     2. Running both components using Docker Compose (Recommended)
