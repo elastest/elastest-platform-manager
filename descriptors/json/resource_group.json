@@ -27,11 +27,5 @@
       "name":"testNetwork1234",
       "poPName":"docker-local"
     }
-  ],
-  "pops": [
-    {
-      "name": "docker-local",
-      "interfaceEndpoint": "unix:///var/run/docker.sock"
-    }
   ]
 }

@@ -55,13 +55,14 @@ public class DockerAdapterProto implements PackageManagementInterface, RuntimeMa
 
     @Override
     public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException, ArchiveException, AdapterException, AllocationException, BadRequestException {
-        PoP composePoP = poPRepository.findPoPForType("docker");
-        return deploy(data, composePoP);
+        PoP poP = poPRepository.findPoPForType("docker");
+        return deploy(data, poP);
     }
 
     @Override
     public ResourceGroup deploy(InputStream data, PoP poP) throws NotFoundException, IOException, AdapterException, BadRequestException, AllocationException, ArchiveException {
 
+        log.debug("Deploying package on pop: " + poP.toString());
         OperationHandlerGrpc.OperationHandlerBlockingStub dockerClient = getDockerAdapterClient(poP);
         ByteString p = ByteString.copyFrom(IOUtils.toByteArray(data));
 

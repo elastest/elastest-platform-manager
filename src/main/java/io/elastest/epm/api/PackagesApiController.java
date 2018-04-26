@@ -42,6 +42,9 @@ public class PackagesApiController implements PackagesApi {
   public ResponseEntity<Void> deletePackage(
       @ApiParam(value = "ID of Package", required = true) @PathVariable("id") String id) {
     ResourceGroup resourceGroup = resourceGroupRepository.findOne(id);
+    if(resourceGroup == null){
+        return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+    }
 
     PoP pop = poPRepository.findOneByName(resourceGroup.getVdus().get(0).getPoPName());
     PackageManagementInterface adapter = adapterBroker.getPackageManagementPerPop(pop);
