@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.mariadb.jdbc.internal.logging.Logger;
@@ -44,19 +46,16 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
 
   @Autowired private Utils utils;
 
-  private OperationHandlerBlockingStub getAnsibleClient(PoP poP) {
+  private OperationHandlerBlockingStub getAnsibleClient() throws NotFoundException {
 
-    ManagedChannelBuilder<?> channelBuilder =
-        ManagedChannelBuilder.forAddress(poP.getInterfaceEndpoint(), 50052).usePlaintext(true);
-    ManagedChannel channel = channelBuilder.build();
-    return OperationHandlerGrpc.newBlockingStub(channel);
+      return utils.getAdapterClient(utils.getAdapter( "ansible"));
   }
 
   @Override
   public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException {
 
-    PoP ansiblePoP = poPRepository.findPoPForType("ansible");
-    OperationHandlerBlockingStub ansibleClient = getAnsibleClient(ansiblePoP);
+    PoP ansiblePoP = poPRepository.findOneByName("ansible-dummy");
+    OperationHandlerBlockingStub ansibleClient = getAnsibleClient();
 
     ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
     FileMessage composePackage = FileMessage.newBuilder().setFile(yamlFile).build();
@@ -71,26 +70,24 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
   @Override
   public ResourceGroup deploy(InputStream data, PoP poP) throws NotFoundException, IOException {
 
-    log.info("NOT IMPLEMENTED YET: WILL LAUNCH PACKAGE ON RANDOM POP.");
-    // TODO: IMPLEMENT PROPERLY + IMPLEMENT PROPER HANDLING OF ANSIBLE POPS
-    PoP ansiblePoP = poPRepository.findPoPForType("ansible");
-    OperationHandlerBlockingStub ansibleClient = getAnsibleClient(ansiblePoP);
-
-    ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
-    FileMessage composePackage = FileMessage.newBuilder().setFile(yamlFile).build();
-    ResourceGroupProto rg = ansibleClient.create(composePackage);
-
-    ResourceGroup resourceGroup = utils.parseRGProto(rg, ansiblePoP);
-
-    resourceGroupRepository.save(resourceGroup);
-    return resourceGroup;
+      OperationHandlerBlockingStub ansibleClient = getAnsibleClient();
+      ByteString yamlFile = ByteString.copyFrom(IOUtils.toByteArray(data));
+      List<String> options = extractOptions(poP);
+      if (options == null) {
+          throw new NotFoundException("Couldnt find all required credentials in the interface info of the pop: auth_url, project_name, username, password!");
+      }
+      FileMessage composePackage = FileMessage.newBuilder()
+              .setFile(yamlFile).addAllOptions(options).build();
+      ResourceGroupProto rg = ansibleClient.create(composePackage);
+      ResourceGroup resourceGroup = utils.parseRGProto(rg, poP);
+      resourceGroupRepository.save(resourceGroup);
+      return resourceGroup;
   }
 
   @Override
   public void terminate(String packageId) throws NotFoundException {
     ResourceGroup resourceGroup = resourceGroupRepository.findOneByName(packageId);
-    PoP composePop = poPRepository.findPoPForType("ansible");
-    OperationHandlerBlockingStub ansibleClient = getAnsibleClient(composePop);
+    OperationHandlerBlockingStub ansibleClient = getAnsibleClient();
 
     ResourceIdentifier identifier =
         ResourceIdentifier.newBuilder()
@@ -105,8 +102,8 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
 
   @Override
   public InputStream downloadFileFromInstance(VDU vdu, String filepath, PoP pop)
-      throws AdapterException {
-    OperationHandlerBlockingStub client = getAnsibleClient(pop);
+          throws AdapterException, NotFoundException {
+    OperationHandlerBlockingStub client = getAnsibleClient();
     log.debug("Downloading file");
     RuntimeMessage dockerRuntimeMessage =
         RuntimeMessage.newBuilder()
@@ -122,8 +119,8 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
 
   @Override
   public String executeOnInstance(VDU vdu, String command, boolean awaitCompletion, PoP pop)
-      throws AdapterException {
-    OperationHandlerBlockingStub client = getAnsibleClient(pop);
+          throws AdapterException, NotFoundException {
+    OperationHandlerBlockingStub client = getAnsibleClient();
 
     RuntimeMessage dockerRuntimeMessage =
         RuntimeMessage.newBuilder()
@@ -139,8 +136,7 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
 
   @Override
   public void startInstance(VDU vdu, PoP pop) throws AdapterException, NotFoundException {
-    PoP composePop = poPRepository.findPoPForType("ansible");
-    OperationHandlerBlockingStub composeClient = getAnsibleClient(composePop);
+    OperationHandlerBlockingStub composeClient = getAnsibleClient();
     ResourceIdentifier identifier =
         ResourceIdentifier.newBuilder().setResourceId(vdu.getName()).build();
     composeClient.startContainer(identifier);
@@ -148,8 +144,8 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
 
   @Override
   public void stopInstance(VDU vdu, PoP pop) throws AdapterException, NotFoundException {
-    PoP composePop = poPRepository.findPoPForType("ansible");
-    OperationHandlerBlockingStub composeClient = getAnsibleClient(composePop);
+    PoP ansiblePop = poPRepository.findPoPForType("ansible");
+    OperationHandlerBlockingStub composeClient = getAnsibleClient();
     ResourceIdentifier identifier =
         ResourceIdentifier.newBuilder().setResourceId(vdu.getName()).build();
     composeClient.stopContainer(identifier);
@@ -157,8 +153,8 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
 
   @Override
   public void uploadFileToInstance(VDU vdu, String remotePath, String hostPath, PoP pop)
-      throws AdapterException, IOException {
-    OperationHandlerBlockingStub client = getAnsibleClient(pop);
+          throws AdapterException, IOException, NotFoundException {
+    OperationHandlerBlockingStub client = getAnsibleClient();
 
     RuntimeMessage dockerRuntimeMessage =
         RuntimeMessage.newBuilder()
@@ -175,10 +171,10 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
 
   @Override
   public void uploadFileToInstance(VDU vdu, String remotePath, MultipartFile file, PoP pop)
-      throws AdapterException, IOException {
+          throws AdapterException, IOException, NotFoundException {
     File output = Utils.convert(file);
     output.deleteOnExit();
-    OperationHandlerBlockingStub client = getAnsibleClient(pop);
+    OperationHandlerBlockingStub client = getAnsibleClient();
     if (!file.getOriginalFilename().endsWith(".tar")) {
       output = Utils.compressFileToTar(output);
     }
@@ -195,4 +191,40 @@ public class AnsibleAdapter implements PackageManagementInterface, RuntimeManagm
     client.uploadFile(dockerRuntimeMessage);
     log.debug(String.valueOf("File deletion: " + output.delete()));
   }
+
+  private List<String> extractOptions(PoP ansiblePop){
+      String authURL = "";
+      String username = "";
+      String password = "";
+      String project = "";
+
+      for (KeyValuePair kvp : ansiblePop.getInterfaceInfo()){
+          switch (kvp.getKey()){
+              case "auth_url":
+                  authURL = kvp.getValue();
+                  break;
+              case "username":
+                  username = kvp.getValue();
+                  break;
+              case "password":
+                  password = kvp.getValue();
+                  break;
+              case "project_name":
+                  project = kvp.getValue();
+                  break;
+              default:
+                  break;
+          }
+      }
+
+      if (!authURL.equals("") && !username.equals("") && !password.equals("") && !project.equals("")) {
+          List<String> output = new ArrayList<>();
+          output.add(authURL);
+          output.add(project);
+          output.add(username);
+          output.add(password);
+          return output;
+      }
+      else return null;
+    }
 }

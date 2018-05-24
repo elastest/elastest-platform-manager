@@ -1,11 +1,14 @@
 package io.elastest.epm.api;
 
 import io.elastest.epm.model.Adapter;
+import io.elastest.epm.model.KeyValuePair;
+import io.elastest.epm.model.PoP;
 import io.elastest.epm.pop.generated.AdapterHandlerGrpc;
 import io.elastest.epm.pop.generated.AdapterProto;
 import io.elastest.epm.pop.generated.Empty;
 import io.elastest.epm.pop.generated.ResourceIdentifier;
 import io.elastest.epm.repository.AdapterRepository;
+import io.elastest.epm.repository.PoPRepository;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,8 @@ public class AdapterHandler extends AdapterHandlerGrpc.AdapterHandlerImplBase {
 
     @Autowired
     private AdapterRepository adapterRepository;
+    @Autowired
+    private PoPRepository poPRepository;
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -25,6 +30,13 @@ public class AdapterHandler extends AdapterHandlerGrpc.AdapterHandlerImplBase {
         Adapter adapter = new Adapter();
         adapter.setEndpoint(request.getEndpoint());
         adapter.setType(request.getType());
+        if (adapter.getType().equals("ansible") && poPRepository.findOneByName("ansible-dummy") == null){
+            PoP ansibleDummyPop = new PoP();
+            ansibleDummyPop.setName("ansible-dummy");
+            ansibleDummyPop.addInterfaceInfoItem(new KeyValuePair("type","ansible"));
+            ansibleDummyPop.setInterfaceEndpoint("dummy");
+            poPRepository.save(ansibleDummyPop);
+        }
         adapterRepository.save(adapter);
 
         log.debug(String.valueOf(adapter));

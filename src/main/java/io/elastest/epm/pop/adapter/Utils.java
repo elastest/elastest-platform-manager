@@ -156,7 +156,7 @@ public class Utils {
 
   public OperationHandlerGrpc.OperationHandlerBlockingStub getAdapterClient(Adapter adapter) throws NotFoundException {
       if(adapter == null) {
-          throw new NotFoundException("No docker adapter registered! Please start the docker adapter and provide the " +
+          throw new NotFoundException("No * adapter registered! Please start the docker adapter and provide the " +
                   "needed information to be able to deploy docker packages.");
       }
       String ip = adapter.getEndpoint().split(":")[0];
