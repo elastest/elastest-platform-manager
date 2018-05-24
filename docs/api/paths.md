@@ -2,6 +2,138 @@
 <a name="paths"></a>
 ## Paths
 
+<a name="getalladapters"></a>
+### Returns all registered adapters
+```
+GET /adapters
+```
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|< [Adapter](#adapter) > array|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+
+
+#### Produces
+
+* `application/json`
+
+
+#### Tags
+
+* Adapter
+
+
+<a name="addkey"></a>
+### Uploads a key to the EPM.
+```
+POST /keys
+```
+
+
+#### Description
+This uploads a key to the EPM, so it can be later used when registering workers.
+
+
+#### Parameters
+
+|Type|Name|Description|Schema|
+|---|---|---|---|
+|**Body**|**body**  <br>*required*|Key in a json|[Key](#key)|
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Resource Group creation OK|[Key](#key)|
+|**201**|Created|No Content|
+|**400**|Bad Request|No Content|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+|**404**|Not Found|No Content|
+
+
+#### Consumes
+
+* `application/json`
+
+
+#### Tags
+
+* Key
+
+
+<a name="getallkeys"></a>
+### Returns all available Keys
+```
+GET /keys
+```
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|< [Key](#key) > array|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+
+
+#### Produces
+
+* `application/json`
+
+
+#### Tags
+
+* Key
+
+
+<a name="deletekey"></a>
+### Deletes a Key.
+```
+DELETE /keys/{id}
+```
+
+
+#### Description
+Deletes the Key that matches with a given ID.
+
+
+#### Parameters
+
+|Type|Name|Description|Schema|
+|---|---|---|---|
+|**Path**|**id**  <br>*required*|ID of Key|string|
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Key deleted successfully|string|
+|**204**|No Content|No Content|
+|**400**|Bad Request|string|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+|**404**|Key not found|string|
+
+
+#### Produces
+
+* `*/*`
+
+
+#### Tags
+
+* Key
+
+
 <a name="createnetwork"></a>
 ### Creates a new network.
 ```
@@ -1179,6 +1311,146 @@ Updates an already deployed VDU.
 #### Tags
 
 * VDU
+
+
+<a name="registerworker"></a>
+### Registers the worker and saves the information.
+```
+POST /workers
+```
+
+
+#### Description
+This registers a worker with the information provided.
+
+
+#### Parameters
+
+|Type|Name|Description|Schema|
+|---|---|---|---|
+|**Body**|**body**  <br>*required*|worker in a json|[Worker](#worker)|
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Worker registered OK|[Worker](#worker)|
+|**201**|Created|No Content|
+|**400**|Bad Request|No Content|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+|**404**|Not Found/keys|No Content|
+
+
+#### Consumes
+
+* `application/json`
+
+
+#### Tags
+
+* Worker
+
+
+<a name="getallworkers"></a>
+### Returns all registered workers
+```
+GET /workers
+```
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|< [Worker](#worker) > array|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+
+
+#### Produces
+
+* `application/json`
+
+
+#### Tags
+
+* Worker
+
+
+<a name="deleteworker"></a>
+### Deletes a Resource Group.
+```
+DELETE /workers/{id}
+```
+
+
+#### Description
+Deletes the Worker that matches with a given ID.
+
+
+#### Parameters
+
+|Type|Name|Description|Schema|
+|---|---|---|---|
+|**Path**|**id**  <br>*required*|ID of Worker|string|
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Worker deleted successfully|string|
+|**204**|No Content|No Content|
+|**400**|Bad Request|string|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+|**404**|Worker not found|string|
+
+
+#### Produces
+
+* `*/*`
+
+
+#### Tags
+
+* Worker
+
+
+<a name="installadapter"></a>
+### Sets up the specified worker to install the specified type of adapter.
+```
+GET /workers/{id}/{type}
+```
+
+
+#### Parameters
+
+|Type|Name|Description|Schema|
+|---|---|---|---|
+|**Path**|**id**  <br>*required*|ID of Worker|string|
+|**Path**|**type**  <br>*required*|type of adapter|string|
+
+
+#### Responses
+
+|HTTP Code|Description|Schema|
+|---|---|---|
+|**200**|Successful operation|string|
+|**401**|Unauthorized|No Content|
+|**403**|Forbidden|No Content|
+
+
+#### Produces
+
+* `application/json`
+
+
+#### Tags
+
+* Worker
 
 
 

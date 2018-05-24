@@ -2,6 +2,16 @@
 <a name="definitions"></a>
 ## Definitions
 
+<a name="adapter"></a>
+### Adapter
+
+|Name|Schema|
+|---|---|
+|**endpoint**  <br>*required*|string|
+|**id**  <br>*optional*|string|
+|**type**  <br>*required*|string|
+
+
 <a name="event"></a>
 ### Event
 An event contains certain life cycle information of the VDU at a specific time.
@@ -12,6 +22,18 @@ An event contains certain life cycle information of the VDU at a specific time.
 |**description**  <br>*required*|**Example** : `"testEvent1"`|string|
 |**id**  <br>*optional*|**Example** : `"1234-abcd"`|string|
 |**timestamp**  <br>*required*||string (string)|
+
+
+<a name="key"></a>
+### Key
+A private key for executing commands on a worker.
+
+
+|Name|Description|Schema|
+|---|---|---|
+|**id**  <br>*optional*|**Example** : `"123-abcd"`|string|
+|**key**  <br>*required*||string|
+|**name**  <br>*required*|**Example** : `"key1"`|string|
 
 
 <a name="keyvaluepair"></a>
@@ -52,6 +74,7 @@ This entity contains information about the Point-of-Presence (PoP)
 |**interfaceEndpoint**  <br>*required*|Information about the interface endpoint. An example is a URL.  <br>**Example** : `"localhost"`|string|
 |**interfaceInfo**  <br>*required*|Information about the interface(s) to the PoP, including PoP provider type, API version, and protocol type.  <br>**Example** : `"[{&quot;key&quot;:&quot;type&quot;,&quot;value&quot;:&quot;docker&quot;}]"`|< [KeyValuePair](#keyvaluepair) > array|
 |**name**  <br>*required*|Human-readable identifier of this PoP information element  <br>**Example** : `"testPoPName"`|string|
+|**status**  <br>*optional*||enum (configure, active, inactive)|
 
 
 <a name="resourcegroup"></a>
@@ -85,6 +108,22 @@ A Virtual Deployment Unit (VDU) describes the capabilities of virtualized comput
 |**netName**  <br>*required*|**Example** : `"testNetworkName"`|string|
 |**poPName**  <br>*required*||string|
 |**status**  <br>*optional*||enum (initializing, initialized, deploying, deployed, running, undeploying, undeployed, error)|
+
+
+<a name="worker"></a>
+### Worker
+A worker object for registering a machine where adapters can be deployed.
+
+
+|Name|Schema|
+|---|---|
+|**epmIp**  <br>*required*|string|
+|**id**  <br>*optional*|string|
+|**ip**  <br>*required*|string|
+|**keyname**  <br>*required*|string|
+|**passphrase**  <br>*required*|string|
+|**password**  <br>*optional*|string|
+|**user**  <br>*required*|string|
 
 
 
