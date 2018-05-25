@@ -1169,10 +1169,15 @@ definitions:
     properties:
       id:
         type: string
+        description: Identifier for the Adapter.
       endpoint:
         type: string
+        description: The endpoint where the Adapter is reachable.
+        example: localhost:50052
       type:
         type: string
+        description: The type of virtualization technology, that the adapter is designed to connect to.
+        example: docker-compose
   Event:
     type: object
     required:
@@ -1188,6 +1193,7 @@ definitions:
       timestamp:
         type: string
         format: string
+        description: The recorded time of the Event.
     description: An event contains certain life cycle information of the VDU at a specific time.
   KeyValuePair:
     type: object
@@ -1219,14 +1225,18 @@ definitions:
       id:
         type: string
         example: 1234-abcd
+        description: The identifier of the Network in the EPM.
       name:
         type: string
         example: testNetwork1
+        description: The name of the network, this should correspond to the name of the network in the virtualization technology.
       networkId:
         type: string
         example: 1234-abcd
+        description: The id of the Network in the virtualization technology.
       poPName:
         type: string
+        description: The PoP where the Network was created.
     description: This entity defines the network connectivity and details where the VDUs are connected to.
   PoP:
     type: object
@@ -1243,7 +1253,6 @@ definitions:
           $ref: '#/definitions/KeyValuePair'
       id:
         type: string
-        example: 1234-abcd
         description: Identifier of the PoP
       interfaceEndpoint:
         type: string
@@ -1278,18 +1287,27 @@ definitions:
     properties:
       id:
         type: string
+        description: Identifier for the Adapter.
       ip:
         type: string
+        description: The IP where the Worker is reachable. The EPM will try to ssh in to the Worker at this IP.
       user:
         type: string
+        description: This is the user, which the EPM will use when trying to ssh in to the Worker.
+        example: ubuntu
       passphrase:
         type: string
+        description: This is the Passphrase of the Key provided for connecting to the Worker.
       password:
         type: string
+        description: This is the password of the user, which can be left blank if no password is needed.
       epmIp:
         type: string
+        description: This is the IP where the EPM is reachable for the Worker. This is needed because the Worker has to be able to reach the EPM for registering adapters.
       keyname:
         type: string
+        description: The name of the Key, which the EPM will use for ssh in to the Worker. This refers to the name provided when uploading the Key to the EPM.
+        example: key1
   Key:
     description: 'A private key for executing commands on a worker.'
     type: object
@@ -1299,12 +1317,14 @@ definitions:
     properties:
       id:
         type: string
-        example: 123-abcd
+        description: The identifier of the Key
       name:
         type: string
         example: key1
+        description: The name of the key. This will be used for referencing the Key in a Worker.
       key:
         type: string
+        description: This is the key itself as String.
   VDU:
     description: 'A Virtual Deployment Unit (VDU) describes the capabilities of virtualized computing (Containers, VMs) and networking resources.'
     type: object
@@ -1318,32 +1338,39 @@ definitions:
     properties:
       computeId:
         type: string
-        example: 1234-abcd
+        description: The identifier of the deployed VDU in the virtualization technology.
       events:
         type: array
         items:
           $ref: '#/definitions/Event'
+        description: A list of events recorded for this VDU.
       id:
         type: string
-        example: 1234-abcd
+        description: The identifier of the VDU in the EPM.
       imageName:
         type: string
         example: testImage1
+        description: The name of the image used for the VDU.
       ip:
         type: string
         example: 172.0.0.1
+        description: The IP assigned to the VDU.
       metadata:
         type: array
         items:
           $ref: '#/definitions/KeyValuePair'
+        description: More detailed information about the VDU in a Key-Value pair format.
       name:
         type: string
         example: testVdu1
+        description: The name of the VDU.
       netName:
         type: string
         example: testNetworkName
+        description: The name of the network to which the VDU is associated with.
       poPName:
         type: string
+        description: The name of the PoP where the VDU is deployed.
       status:
         type: string
         enum:
@@ -1364,19 +1391,18 @@ definitions:
     properties:
       id:
         type: string
-        example: 1234-abcd
+        description: The identifier of the Resource Group in the EPM.
       name:
         type: string
         example: testResourceGroupName1
+        description: The name of the Resource Group.
       vdus:
         type: array
+        description: The VDUs of which this Resource Group consists of.
         items:
           $ref: '#/definitions/VDU'
       networks:
         type: array
+        descriptions: The Networks in the Resource Group.
         items:
           $ref: '#/definitions/Network'
-      pops:
-        type: array
-        items:
-          $ref: '#/definitions/PoP'
