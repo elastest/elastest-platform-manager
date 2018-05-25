@@ -74,7 +74,7 @@ This entity contains information about the Point-of-Presence (PoP)
 |**interfaceEndpoint**  <br>*required*|Information about the interface endpoint. An example is a URL.  <br>**Example** : `"localhost"`|string|
 |**interfaceInfo**  <br>*required*|Information about the interface(s) to the PoP, including PoP provider type, API version, and protocol type.  <br>**Example** : `"[{&quot;key&quot;:&quot;type&quot;,&quot;value&quot;:&quot;docker&quot;}]"`|< [KeyValuePair](#keyvaluepair) > array|
 |**name**  <br>*required*|Human-readable identifier of this PoP information element  <br>**Example** : `"testPoPName"`|string|
-|**status**  <br>*optional*||enum (configure, active, inactive)|
+|**status**  <br>*optional*|Representing the status of a PoP (INACTIVE, CONFIGURE, ACTIVE)|enum (configure, active, inactive)|
 
 
 <a name="resourcegroup"></a>
@@ -86,7 +86,7 @@ A Resource Group defines a bundle of VDUs and virtual networks which belongs tog
 |---|---|---|
 |**id**  <br>*optional*|The identifier of the Resource Group in the EPM.|string|
 |**name**  <br>*required*|The name of the Resource Group.  <br>**Example** : `"testResourceGroupName1"`|string|
-|**networks**  <br>*optional*||< [Network](#network) > array|
+|**networks**  <br>*optional*|The Networks in the Resource Group.|< [Network](#network) > array|
 |**vdus**  <br>*required*|The VDUs of which this Resource Group consists of.|< [VDU](#vdu) > array|
 
 
@@ -106,7 +106,7 @@ A Virtual Deployment Unit (VDU) describes the capabilities of virtualized comput
 |**name**  <br>*required*|The name of the VDU.  <br>**Example** : `"testVdu1"`|string|
 |**netName**  <br>*required*|The name of the network to which the VDU is associated with.  <br>**Example** : `"testNetworkName"`|string|
 |**poPName**  <br>*required*|The name of the PoP where the VDU is deployed.|string|
-|**status**  <br>*optional*||enum (initializing, initialized, deploying, deployed, running, undeploying, undeployed, error)|
+|**status**  <br>*optional*|The status of the virtualized compute resource.|enum (initializing, initialized, deploying, deployed, running, undeploying, undeployed, error)|
 
 
 <a name="worker"></a>
