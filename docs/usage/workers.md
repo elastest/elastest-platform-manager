@@ -11,7 +11,7 @@ Before registering your worker you need to provide the EPM with the private key,
 Since the same key might be used in more than one workers the EPM stores the Keys, before using them. 
 
 Providing the private key directly in the command line is not very practical therefore it makes sense to create a *json* file
-with the following structure:
+with the following structure (depending on your private key):
 
 ```json
 // Example file key.json
@@ -24,7 +24,16 @@ with the following structure:
        <KEY>\n
        -----END RSA PRIVATE KEY-----"
 }
+```
+or
 
+```json
+{
+"name":"mykey", 
+"key":"-----BEGIN RSA PRIVATE KEY-----\n
+       <KEY>\n
+       -----END RSA PRIVATE KEY-----"
+}
 ```
 
 After that you can register your key in the following way:
