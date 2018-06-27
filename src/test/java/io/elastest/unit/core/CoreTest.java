@@ -95,10 +95,10 @@ public class CoreTest {
     return new NetworkManagement();
   }
 
-    @Bean
-    ResourceGroupManagement resourceGroupManagement() {
-        return new ResourceGroupManagement();
-    }
+  @Bean
+  ResourceGroupManagement resourceGroupManagement() {
+    return new ResourceGroupManagement();
+  }
 
   @Bean
   List<Network> networks() {
@@ -153,9 +153,7 @@ public class CoreTest {
 
     List<PoP> pops = new ArrayList<>();
     pops.add(pop);
-
     when(poPRepository.findOneByName(pop.getName())).thenReturn(pop);
-    when(poPRepository.findOneByName("not_existing_pop")).thenReturn(null);
     when(poPRepository.save(pop)).thenReturn(pop);
     when(poPRepository.findAll()).thenReturn(pops);
     when(poPRepository.findOne(pop.getId())).thenReturn(pop);
@@ -165,18 +163,23 @@ public class CoreTest {
   }
 
   @Bean
-    AdapterRepository adapterRepository() {
-      AdapterRepository adapterRepository = mock(AdapterRepository.class);
-      List<Adapter> adapters = new ArrayList<>();
-      adapters.add(adapter);
+  AdapterRepository adapterRepository() {
+    AdapterRepository adapterRepository = mock(AdapterRepository.class);
+    List<Adapter> adapters = new ArrayList<>();
+    adapters.add(adapter);
 
+    when(adapterRepository.save(adapter)).thenReturn(adapter);
+    when(adapterRepository.findAll()).thenReturn(adapters);
+    when(adapterRepository.findOne(pop.getId())).thenReturn(adapter);
+    doNothing().when(adapterRepository).delete(pop.getId());
 
-      when(adapterRepository.save(adapter)).thenReturn(adapter);
-      when(adapterRepository.findAll()).thenReturn(adapters);
-      when(adapterRepository.findOne(pop.getId())).thenReturn(adapter);
-      doNothing().when(adapterRepository).delete(pop.getId());
+    return adapterRepository;
+  }
 
-      return adapterRepository;
+  @Bean
+  AdapterRepositoryImpl adapterRepositoryImpl() {
+    AdapterRepositoryImpl adapterRepositoryImpl = new AdapterRepositoryImpl();
+    return adapterRepositoryImpl;
   }
 
   @Bean
@@ -241,10 +244,10 @@ public class CoreTest {
   @Bean
   @Qualifier("mocket_dockerProtoAdapter")
   DockerAdapterProto dockerProtoAdapter() throws AdapterException {
-        DockerAdapterProto adapterProto = mock(DockerAdapterProto.class);
+    DockerAdapterProto adapterProto = mock(DockerAdapterProto.class);
 
-        return adapterProto;
-    }
+    return adapterProto;
+  }
 
   @Bean
   @Qualifier("mocked_ansibleAdapter")
@@ -269,13 +272,13 @@ public class CoreTest {
     virtualNetworks.add(virtualNetwork());
     queryNetworkResponse.setQueryResult(virtualNetworks);
     when(dockerAdapter.queryVirtualisedNetworkResource(
-            any(QueryNetworkRequest.class), any(PoP.class)))
+        any(QueryNetworkRequest.class), any(PoP.class)))
         .thenReturn(queryNetworkResponse);
 
     AllocateNetworkResponse allocateNetworkResponse = new AllocateNetworkResponse();
     allocateNetworkResponse.setNetworkData(virtualNetwork());
     when(dockerAdapter.allocateVirtualisedNetworkResource(
-            any(AllocateNetworkRequest.class), any(PoP.class)))
+        any(AllocateNetworkRequest.class), any(PoP.class)))
         .thenReturn(allocateNetworkResponse);
 
     VirtualCompute virtualCompute = new VirtualCompute();
@@ -299,13 +302,13 @@ public class CoreTest {
 
     allocateComputeResponse.setComputeData(virtualCompute);
     when(dockerAdapter.allocateVirtualisedComputeResource(
-            any(AllocateComputeRequest.class), any(PoP.class)))
+        any(AllocateComputeRequest.class), any(PoP.class)))
         .thenReturn(allocateComputeResponse);
 
     UpdateComputeResponse updateComputeResponse = new UpdateComputeResponse();
     updateComputeResponse.setComputeData(virtualCompute);
     when(dockerAdapter.updateVirtualisedComputeResource(
-            any(UpdateComputeRequest.class), any(PoP.class)))
+        any(UpdateComputeRequest.class), any(PoP.class)))
         .thenReturn(updateComputeResponse);
 
     return dockerAdapter;

@@ -12,10 +12,7 @@ import io.elastest.epm.repository.PoPRepository;
 import io.elastest.unit.MockedConfig;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
@@ -31,8 +28,8 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
-  classes = {CoreTest.class, MockedConfig.class},
-  loader = AnnotationConfigContextLoader.class
+    classes = {CoreTest.class, MockedConfig.class},
+    loader = AnnotationConfigContextLoader.class
 )
 public class PoPManagementTest {
 
