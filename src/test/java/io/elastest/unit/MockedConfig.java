@@ -3,8 +3,10 @@ package io.elastest.unit;
 import io.elastest.epm.model.*;
 import io.elastest.unit.core.CoreTest;
 import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
@@ -31,19 +33,28 @@ public class MockedConfig {
   }
 
   @Bean
+  @Qualifier("normal_PoP")
   PoP pop() {
     PoP pop = new PoP();
     pop.setId("mocked_id");
     pop.setName("mocked_pop_name");
     pop.setInterfaceEndpoint("mocked_url");
+    List<KeyValuePair> interfaceInfo = new ArrayList<>();
+    KeyValuePair type = new KeyValuePair();
+    type.setKey("type");
+    type.setValue("mocked_type");
+    interfaceInfo.add(type);
+    pop.setInterfaceInfo(interfaceInfo);
     return pop;
   }
 
   @Bean
   Adapter adapter() {
-      Adapter adapter = new Adapter();
-      adapter.setEndpoint("mocked_adapter_url");
-      return adapter;
+    Adapter adapter = new Adapter();
+    adapter.setType("mocked_type");
+    adapter.setEndpoint("mocked_adapter_url");
+    log.info("Adapter: " + adapter);
+    return adapter;
   }
 
   @Bean
@@ -67,5 +78,24 @@ public class MockedConfig {
     resourceGroup.getNetworks().add(network());
     resourceGroup.getVdus().add(vdu());
     return resourceGroup;
+  }
+
+  @Bean
+  Worker worker() {
+    Worker worker = new Worker();
+    worker.setEpmIp("mocked_epm_id");
+    worker.setIp("mocked_ip");
+    worker.setKeyname("mocked_keyname");
+    log.info("Worker: " + worker);
+    return worker;
+  }
+
+  @Bean
+  Key key() {
+    Key key = new Key();
+    key.setKey("mock_key");
+    key.setName("mock_name");
+    log.info("Key: " + key);
+    return key;
   }
 }

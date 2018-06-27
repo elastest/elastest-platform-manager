@@ -35,8 +35,8 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
-  classes = {CoreTest.class, MockedConfig.class},
-  loader = AnnotationConfigContextLoader.class
+    classes = {CoreTest.class, MockedConfig.class},
+    loader = AnnotationConfigContextLoader.class
 )
 public class VduManagementTest {
 
@@ -93,7 +93,7 @@ public class VduManagementTest {
   public void deployVduAllocationException() throws Exception {
     log.info("Test: deployVduWithAllocationException");
     when(dockerAdapter.allocateVirtualisedComputeResource(
-            any(AllocateComputeRequest.class), any(PoP.class)))
+        any(AllocateComputeRequest.class), any(PoP.class)))
         .thenThrow(new AdapterException("mocked_exception"));
     exception.expect(AllocationException.class);
     VDU newVdu = vduManagement.deployVdu(vdu);

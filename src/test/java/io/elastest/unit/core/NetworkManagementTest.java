@@ -63,7 +63,6 @@ public class NetworkManagementTest {
   }
 
   @Test
-  @Ignore
   public void createNetworkWhereNetworkAlreadyExists() throws Exception {
     log.info("Test: createNetwork with existing network");
     exception.expect(BadRequestException.class);

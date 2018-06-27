@@ -38,8 +38,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
-  classes = {CoreTest.class, MockedConfig.class},
-  loader = AnnotationConfigContextLoader.class
+    classes = {CoreTest.class, MockedConfig.class},
+    loader = AnnotationConfigContextLoader.class
 )
 public class ResourceGroupManagementTest {
 
@@ -94,7 +94,7 @@ public class ResourceGroupManagementTest {
   @Test
   public void testTerminateResourceGroup()
       throws AdapterException, BadRequestException, AllocationException, NotFoundException,
-          TerminationException {
+      TerminationException {
     log.info("Test: terminateResourceGroup");
     resourceGroupManagement.terminateResourceGroup(resourceGroup.getId());
   }
