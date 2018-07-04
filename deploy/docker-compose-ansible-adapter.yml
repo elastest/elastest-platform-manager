@@ -5,7 +5,7 @@ services:
         image: elastest/epm-adapter-ansible
         entrypoint: python -m run --register-adapter elastest-epm elastest-epm-adapter-ansible
         depends_on:
-            - elastest-platform-manager
+            - epm
         expose:
             - 50052
         ports:
