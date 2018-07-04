@@ -3,6 +3,7 @@ package io.elastest.epm.pop.adapter;
 import com.google.gson.Gson;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
+import io.elastest.epm.pop.generated.MetadataEntry;
 import io.elastest.epm.pop.generated.OperationHandlerGrpc;
 import io.elastest.epm.pop.generated.ResourceGroupProto;
 import io.elastest.epm.repository.AdapterRepository;
@@ -75,7 +76,7 @@ public class Utils {
     ResourceGroup resourceGroup = new ResourceGroup();
     resourceGroup.setName(rg.getName());
 
-    for (ResourceGroupProto.Network networkCompose : rg.getNetworksList()) {
+    for (io.elastest.epm.pop.generated.Network networkCompose : rg.getNetworksList()) {
       Network network = new Network();
       network.setName(networkCompose.getName());
       network.setCidr(networkCompose.getCidr());
@@ -85,7 +86,7 @@ public class Utils {
       resourceGroup.addNetworksItem(network);
     }
 
-    for (ResourceGroupProto.VDU vduCompose : rg.getVdusList()) {
+    for (io.elastest.epm.pop.generated.VDU vduCompose : rg.getVdusList()) {
 
       VDU vdu = new VDU();
       vdu.setName(vduCompose.getName());
@@ -94,7 +95,7 @@ public class Utils {
       vdu.setNetName(vduCompose.getNetName());
       vdu.setPoPName(pop.getName());
       vdu.setIp(vduCompose.getIp());
-      for (ResourceGroupProto.MetadataEntry metadataEntryCompose : vduCompose.getMetadataList()) {
+      for (MetadataEntry metadataEntryCompose : vduCompose.getMetadataList()) {
         KeyValuePair kvp =
             new KeyValuePair(metadataEntryCompose.getKey(), metadataEntryCompose.getValue());
         vdu.addMetadataItem(kvp);
@@ -150,8 +151,8 @@ public class Utils {
       return adapterRepository.findFirstByType(type);
   }
 
-  public Adapter getAdapterSpecific(PoP poP, String type) throws NotFoundException {
-      return adapterRepository.findAdapterForTypeAndIp(type, poP.getInterfaceEndpoint());
+  public Adapter getAdapterSpecific(PoP poP) throws NotFoundException {
+      return adapterRepository.findAdapterForTypeAndIp(extractTypeFromPoP(poP), poP.getInterfaceEndpoint());
   }
 
   public OperationHandlerGrpc.OperationHandlerBlockingStub getAdapterClient(Adapter adapter) throws NotFoundException {
@@ -165,5 +166,16 @@ public class Utils {
               ManagedChannelBuilder.forAddress(ip, port).usePlaintext(true);
       ManagedChannel channel = channelBuilder.build();
       return OperationHandlerGrpc.newBlockingStub(channel);
+  }
+
+  public String extractTypeFromPoP(PoP poP){
+      String type = null;
+      for (KeyValuePair kvp : poP.getInterfaceInfo()) {
+          if (kvp.getKey().equals("type")) {
+              type = kvp.getValue();
+              break;
+          }
+      }
+      return type;
   }
 }

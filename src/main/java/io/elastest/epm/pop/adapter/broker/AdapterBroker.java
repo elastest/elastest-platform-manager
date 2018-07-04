@@ -2,11 +2,9 @@ package io.elastest.epm.pop.adapter.broker;
 
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
+import io.elastest.epm.pop.adapter.GenericAdapter;
 import io.elastest.epm.pop.adapter.Utils;
-import io.elastest.epm.pop.adapter.ansible.AnsibleAdapter;
-import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
-import io.elastest.epm.pop.adapter.docker.DockerAdapterProto;
 import io.elastest.epm.pop.interfaces.AdapterBrokerInterface;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
@@ -26,9 +24,8 @@ public class AdapterBroker implements AdapterBrokerInterface {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired DockerComposeAdapter dockerComposeAdapter;
-  @Autowired AnsibleAdapter ansibleAdapter;
-  @Autowired DockerAdapterProto dockerAdapter;
+  @Autowired
+    GenericAdapter genericAdapter;
 
   @Override
   public RuntimeManagmentInterface getAdapter(PoP pop) {
@@ -45,12 +42,12 @@ public class AdapterBroker implements AdapterBrokerInterface {
     if (typeSpecified) {
       switch (type) {
         case "docker-compose":
-          return dockerComposeAdapter;
+          return genericAdapter;
 
         case "ansible":
-          return ansibleAdapter;
+          return genericAdapter;
         case "docker":
-          return dockerAdapter;
+          return genericAdapter;
 
         default:
           return new DockerAdapter();
@@ -72,7 +69,7 @@ public class AdapterBroker implements AdapterBrokerInterface {
 
     if (typeSpecified) {
       return findByType(type);
-    } else return dockerComposeAdapter;
+    } else return genericAdapter;
   }
 
   @Override
@@ -91,11 +88,11 @@ public class AdapterBroker implements AdapterBrokerInterface {
   private PackageManagementInterface findByType(String type) {
     switch (type) {
       case "docker-compose":
-        return dockerComposeAdapter;
+        return genericAdapter;
       case "ansible":
-        return ansibleAdapter;
+        return genericAdapter;
       case "docker":
-        return dockerAdapter;
+        return genericAdapter;
       default:
         return null;
     }
