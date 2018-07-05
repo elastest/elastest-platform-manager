@@ -146,7 +146,11 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
     public void startInstance(VDU vdu, PoP pop) throws AdapterException, NotFoundException {
         OperationHandlerGrpc.OperationHandlerBlockingStub client = getClient(pop);
         ResourceIdentifier resourceIdentifier =
-                ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
+                ResourceIdentifier.newBuilder()
+                        .setResourceId(vdu.getComputeId())
+                        .setPop(parsePoP(pop))
+                        .setVdu(parseVDU(vdu))
+                        .build();
         client.start(resourceIdentifier);
     }
 
@@ -154,7 +158,9 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
     public void stopInstance(VDU vdu, PoP pop) throws AdapterException, NotFoundException {
         OperationHandlerGrpc.OperationHandlerBlockingStub client = getClient(pop);
         ResourceIdentifier resourceIdentifier =
-                ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId()).build();
+                ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId())
+                        .setPop(parsePoP(pop))
+                        .setVdu(parseVDU(vdu)).build();
         client.start(resourceIdentifier);
     }
 

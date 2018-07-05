@@ -62,6 +62,20 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
 
               break;
             }
+          case 26:
+            {
+              VDU.Builder subBuilder = null;
+              if (vdu_ != null) {
+                subBuilder = vdu_.toBuilder();
+              }
+              vdu_ = input.readMessage(VDU.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(vdu_);
+                vdu_ = subBuilder.buildPartial();
+              }
+
+              break;
+            }
         }
       }
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -126,6 +140,21 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     return getPop();
   }
 
+  public static final int VDU_FIELD_NUMBER = 3;
+  private VDU vdu_;
+  /** <code>optional .VDU vdu = 3;</code> */
+  public boolean hasVdu() {
+    return vdu_ != null;
+  }
+  /** <code>optional .VDU vdu = 3;</code> */
+  public VDU getVdu() {
+    return vdu_ == null ? VDU.getDefaultInstance() : vdu_;
+  }
+  /** <code>optional .VDU vdu = 3;</code> */
+  public VDUOrBuilder getVduOrBuilder() {
+    return getVdu();
+  }
+
   private byte memoizedIsInitialized = -1;
 
   public final boolean isInitialized() {
@@ -144,6 +173,9 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     if (pop_ != null) {
       output.writeMessage(2, getPop());
     }
+    if (vdu_ != null) {
+      output.writeMessage(3, getVdu());
+    }
   }
 
   public int getSerializedSize() {
@@ -156,6 +188,9 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     }
     if (pop_ != null) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(2, getPop());
+    }
+    if (vdu_ != null) {
+      size += com.google.protobuf.CodedOutputStream.computeMessageSize(3, getVdu());
     }
     memoizedSize = size;
     return size;
@@ -179,6 +214,10 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     if (hasPop()) {
       result = result && getPop().equals(other.getPop());
     }
+    result = result && (hasVdu() == other.hasVdu());
+    if (hasVdu()) {
+      result = result && getVdu().equals(other.getVdu());
+    }
     return result;
   }
 
@@ -194,6 +233,10 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
     if (hasPop()) {
       hash = (37 * hash) + POP_FIELD_NUMBER;
       hash = (53 * hash) + getPop().hashCode();
+    }
+    if (hasVdu()) {
+      hash = (37 * hash) + VDU_FIELD_NUMBER;
+      hash = (53 * hash) + getVdu().hashCode();
     }
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
@@ -320,6 +363,12 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
         pop_ = null;
         popBuilder_ = null;
       }
+      if (vduBuilder_ == null) {
+        vdu_ = null;
+      } else {
+        vdu_ = null;
+        vduBuilder_ = null;
+      }
       return this;
     }
 
@@ -346,6 +395,11 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
         result.pop_ = pop_;
       } else {
         result.pop_ = popBuilder_.build();
+      }
+      if (vduBuilder_ == null) {
+        result.vdu_ = vdu_;
+      } else {
+        result.vdu_ = vduBuilder_.build();
       }
       onBuilt();
       return result;
@@ -394,6 +448,9 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
       }
       if (other.hasPop()) {
         mergePop(other.getPop());
+      }
+      if (other.hasVdu()) {
+        mergeVdu(other.getVdu());
       }
       onChanged();
       return this;
@@ -565,6 +622,98 @@ public final class ResourceIdentifier extends com.google.protobuf.GeneratedMessa
         pop_ = null;
       }
       return popBuilder_;
+    }
+
+    private VDU vdu_ = null;
+    private com.google.protobuf.SingleFieldBuilderV3<VDU, VDU.Builder, VDUOrBuilder> vduBuilder_;
+    /** <code>optional .VDU vdu = 3;</code> */
+    public boolean hasVdu() {
+      return vduBuilder_ != null || vdu_ != null;
+    }
+    /** <code>optional .VDU vdu = 3;</code> */
+    public VDU getVdu() {
+      if (vduBuilder_ == null) {
+        return vdu_ == null ? VDU.getDefaultInstance() : vdu_;
+      } else {
+        return vduBuilder_.getMessage();
+      }
+    }
+    /** <code>optional .VDU vdu = 3;</code> */
+    public Builder setVdu(VDU value) {
+      if (vduBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        vdu_ = value;
+        onChanged();
+      } else {
+        vduBuilder_.setMessage(value);
+      }
+
+      return this;
+    }
+    /** <code>optional .VDU vdu = 3;</code> */
+    public Builder setVdu(VDU.Builder builderForValue) {
+      if (vduBuilder_ == null) {
+        vdu_ = builderForValue.build();
+        onChanged();
+      } else {
+        vduBuilder_.setMessage(builderForValue.build());
+      }
+
+      return this;
+    }
+    /** <code>optional .VDU vdu = 3;</code> */
+    public Builder mergeVdu(VDU value) {
+      if (vduBuilder_ == null) {
+        if (vdu_ != null) {
+          vdu_ = VDU.newBuilder(vdu_).mergeFrom(value).buildPartial();
+        } else {
+          vdu_ = value;
+        }
+        onChanged();
+      } else {
+        vduBuilder_.mergeFrom(value);
+      }
+
+      return this;
+    }
+    /** <code>optional .VDU vdu = 3;</code> */
+    public Builder clearVdu() {
+      if (vduBuilder_ == null) {
+        vdu_ = null;
+        onChanged();
+      } else {
+        vdu_ = null;
+        vduBuilder_ = null;
+      }
+
+      return this;
+    }
+    /** <code>optional .VDU vdu = 3;</code> */
+    public VDU.Builder getVduBuilder() {
+
+      onChanged();
+      return getVduFieldBuilder().getBuilder();
+    }
+    /** <code>optional .VDU vdu = 3;</code> */
+    public VDUOrBuilder getVduOrBuilder() {
+      if (vduBuilder_ != null) {
+        return vduBuilder_.getMessageOrBuilder();
+      } else {
+        return vdu_ == null ? VDU.getDefaultInstance() : vdu_;
+      }
+    }
+    /** <code>optional .VDU vdu = 3;</code> */
+    private com.google.protobuf.SingleFieldBuilderV3<VDU, VDU.Builder, VDUOrBuilder>
+        getVduFieldBuilder() {
+      if (vduBuilder_ == null) {
+        vduBuilder_ =
+            new com.google.protobuf.SingleFieldBuilderV3<VDU, VDU.Builder, VDUOrBuilder>(
+                getVdu(), getParentForChildren(), isClean());
+        vdu_ = null;
+      }
+      return vduBuilder_;
     }
 
     public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {

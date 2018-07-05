@@ -18,6 +18,7 @@ message TerminateMessage {
 message ResourceIdentifier {
     string resource_id = 1;
     PoP pop = 2;
+    VDU vdu = 3;
 }
 
 message RuntimeMessage {

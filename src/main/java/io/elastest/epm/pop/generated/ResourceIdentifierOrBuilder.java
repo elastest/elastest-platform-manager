@@ -17,4 +17,11 @@ public interface ResourceIdentifierOrBuilder
   PoP getPop();
   /** <code>optional .PoP pop = 2;</code> */
   PoPOrBuilder getPopOrBuilder();
+
+  /** <code>optional .VDU vdu = 3;</code> */
+  boolean hasVdu();
+  /** <code>optional .VDU vdu = 3;</code> */
+  VDU getVdu();
+  /** <code>optional .VDU vdu = 3;</code> */
+  VDUOrBuilder getVduOrBuilder();
 }
