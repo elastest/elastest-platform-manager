@@ -20,6 +20,7 @@ import io.elastest.epm.tosca.templates.service.Metadata;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.aspectj.weaver.ast.Not;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Map;
 
 @Component
 public class GenericAdapter implements PackageManagementInterface, RuntimeManagmentInterface {
@@ -62,7 +64,17 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
 
     @Override
     public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException, ArchiveException, AdapterException, AllocationException, BadRequestException {
-        return null;
+        Map<String, Object> values = Utils.extractMetadata(data);
+        String type = "";
+        if (values.containsKey("type")) {
+            type = String.valueOf(values.get("type"));
+        }
+        if (type.equals("")) throw new NotFoundException("No type found in the metadata of the package. As a minimum you need to specify either the type or the pop.");
+
+        PoP poP = poPRepository.findPoPForType(type);
+        if (poP != null) return deploy(data, poP);
+        else throw new NotFoundException("No pop of type: " + type + " was found! Please start an adapter of type: " + type + " " +
+                "or make sure the adapter was able to reach the EPM so that it registers itself.");
     }
 
     @Override
