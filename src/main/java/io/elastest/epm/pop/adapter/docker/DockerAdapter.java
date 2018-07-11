@@ -691,11 +691,18 @@ public class DockerAdapter
 
   @Override
   public ResourceGroup deploy(InputStream data)
-      throws io.elastest.epm.exception.NotFoundException, IOException, ArchiveException,
-          AdapterException, AllocationException, io.elastest.epm.exception.BadRequestException {
+          throws io.elastest.epm.exception.NotFoundException, IOException, ArchiveException,
+          AdapterException, AllocationException {
     ResourceGroup rg = Utils.extractResourceGroup(data);
     if (rg != null) {
-      return resourceGroupManagement.deployResourceGroup(rg);
+        try {
+            return resourceGroupManagement.deployResourceGroup(rg);
+
+        }
+        catch (io.elastest.epm.exception.BadRequestException b) {
+            log.debug("Could not process Resource group");
+            return null;
+        }
     } else
       throw new io.elastest.epm.exception.NotFoundException(
           "Couldnt find a valid RG in the package!");

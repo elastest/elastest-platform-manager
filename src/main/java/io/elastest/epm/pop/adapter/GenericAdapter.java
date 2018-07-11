@@ -62,8 +62,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         return utils.getAdapterClient(utils.getAdapterSpecific(poP));
     }
 
-    @Override
-    public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException, ArchiveException, AdapterException, AllocationException, BadRequestException {
+    @Override public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException, ArchiveException, AdapterException, AllocationException {
         Map<String, Object> values = Utils.extractMetadata(data);
         String type = "";
         if (values.containsKey("type")) {
@@ -78,18 +77,19 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
     }
 
     @Override
-    public ResourceGroup deploy(InputStream data, PoP poP) throws NotFoundException, IOException, AdapterException, BadRequestException, AllocationException, ArchiveException {
+    public ResourceGroup deploy(InputStream data, PoP poP) throws NotFoundException, IOException, AdapterException, AllocationException, ArchiveException {
         log.debug("Deploying package on pop: " + poP.toString());
         OperationHandlerGrpc.OperationHandlerBlockingStub dockerClient = getClient(poP);
         ByteString p = ByteString.copyFrom(IOUtils.toByteArray(data));
-
-        FileMessage composePackage =
+        log.debug("Creating message");
+        FileMessage fileMessage =
                 FileMessage.newBuilder()
                         .setFile(p)
                         .setPop(parsePoP(poP))
                         .addAllMetadata(parseLaunchOptions())
                         .build();
-        ResourceGroupProto rg = dockerClient.create(composePackage);
+        log.debug("Sending message");
+        ResourceGroupProto rg = dockerClient.create(fileMessage);
         ResourceGroup resourceGroup = utils.parseRGProto(rg, poP);
         resourceGroupRepository.save(resourceGroup);
         return resourceGroup;
@@ -161,7 +161,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
                 ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId())
                         .setPop(parsePoP(pop))
                         .setVdu(parseVDU(vdu)).build();
-        client.start(resourceIdentifier);
+        client.stop(resourceIdentifier);
     }
 
     @Override

@@ -14,7 +14,7 @@ public interface PackageManagementInterface {
 
   ResourceGroup deploy(InputStream data)
       throws NotFoundException, IOException, ArchiveException, AdapterException,
-          AllocationException, BadRequestException;
+          AllocationException;
 
   ResourceGroup deploy(InputStream data, PoP poP)
       throws NotFoundException, IOException, AdapterException, BadRequestException,
