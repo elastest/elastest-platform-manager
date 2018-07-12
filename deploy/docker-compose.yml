@@ -1,6 +1,6 @@
 version: '3'
 services:
-    epm:
+    elastest-platform-manager:
         container_name: elastest-epm
         image: elastest/epm
         environment:
@@ -23,11 +23,11 @@ services:
             - ET_EMP_INFLUXDB_HOST=emp-influxdb
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
         volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:rw
+            - /var/run/docker.sock:/var/run/docker.sock:ro
         expose:
             - 8180
         ports:
-            - 37002:8180
+            - 8180:8180
             - 50050:50050
         networks:
             - elastest
@@ -36,13 +36,40 @@ services:
         image: elastest/epm-adapter-docker-compose
         entrypoint: python run.py --register-adapter
         depends_on:
-            - epm
+            - elastest-platform-manager
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:rw
         ports:
             - 50051:50051
         networks:
             - elastest
+    epm-adapter-ansible:
+        container_name: elastest-epm-adapter-ansible
+        image: elastest/epm-adapter-ansible
+        entrypoint: python -m run --register-adapter elastest-epm elastest-epm-adapter-ansible
+        depends_on:
+            - elastest-platform-manager
+        expose:
+            - 50052
+        ports:
+            - 50052:50052
+        networks:
+            - elastest
+    epm-adapter-docker:
+        container_name: elastest-epm-adapter-docker
+        image: elastest/epm-adapter-docker
+        entrypoint: java -jar epm-adapter-docker.jar --register-adapter
+        depends_on:
+            - elastest-platform-manager
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:rw
+        expose:
+            - 50053
+        ports:
+            - 50053:50053
+        networks:
+            - elastest
+
 networks:
     elastest:
         driver: bridge
