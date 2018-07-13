@@ -152,7 +152,10 @@ public class Utils {
   }
 
   public Adapter getAdapterSpecific(PoP poP) throws NotFoundException {
+      String type = extractTypeFromPoP(poP);
+      if (type.equals("docker-compose"))
       return adapterRepository.findAdapterForTypeAndIp(extractTypeFromPoP(poP), poP.getInterfaceEndpoint());
+      else return adapterRepository.findFirstByType(type);
   }
 
   public OperationHandlerGrpc.OperationHandlerBlockingStub getAdapterClient(Adapter adapter) throws NotFoundException {
