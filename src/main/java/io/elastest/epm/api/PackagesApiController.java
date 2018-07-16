@@ -5,6 +5,7 @@ import io.elastest.epm.exception.BadRequestException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.ResourceGroup;
+import io.elastest.epm.pop.adapter.GenericAdapter;
 import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.interfaces.AdapterBrokerInterface;
@@ -36,6 +37,7 @@ public class PackagesApiController implements PackagesApi {
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired private AdapterBrokerInterface adapterBroker;
+  @Autowired private GenericAdapter adapter;
   @Autowired private ResourceGroupRepository resourceGroupRepository;
   @Autowired private PoPRepository poPRepository;
 
@@ -65,26 +67,11 @@ public class PackagesApiController implements PackagesApi {
     log.debug("Received package");
     log.debug("Name: " + file.getOriginalFilename());
 
-    PackageManagementInterface adapter = adapterBroker.getAdapter(file.getInputStream());
-
-    if(adapter == null){
-        log.error("No type specified in package metadata or type not supported. " +
-                "Please either add 'type:<package type>' in metadata or specify on of the following types: docker," +
-                " docker-compose, ansible.");
-        return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
-    }
-
-    PoP poP = null;
-    Map<String, Object> values = Utils.extractMetadata(file.getInputStream());
-    if (values.containsKey("pop")) {
-      String popName = String.valueOf(values.get("pop"));
-      poP = poPRepository.findOneByName(popName);
-    }
+    //PackageManagementInterface adapter = adapterBroker.getAdapter(file.getInputStream());
 
     try {
       ResourceGroup resourceGroup;
-      if (poP != null) resourceGroup = adapter.deploy(file.getInputStream(), poP);
-      else resourceGroup = adapter.deploy(file.getInputStream());
+      resourceGroup = adapter.deploy(file.getInputStream());
       return new ResponseEntity<ResourceGroup>(HttpStatus.OK).ok(resourceGroup);
     } catch (IOException exception) {
       return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
@@ -96,8 +83,6 @@ public class PackagesApiController implements PackagesApi {
         return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
     } catch (AdapterException e) {
         e.printStackTrace();
-        return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
-    } catch (BadRequestException e) {
         return new ResponseEntity<ResourceGroup>(HttpStatus.BAD_REQUEST);
     }
   }
