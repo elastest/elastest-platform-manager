@@ -36,7 +36,6 @@ public class PackagesApiController implements PackagesApi {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired private AdapterBrokerInterface adapterBroker;
   @Autowired private GenericAdapter adapter;
   @Autowired private ResourceGroupRepository resourceGroupRepository;
   @Autowired private PoPRepository poPRepository;
@@ -47,9 +46,6 @@ public class PackagesApiController implements PackagesApi {
     if(resourceGroup == null){
         return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
     }
-
-    PoP pop = poPRepository.findOneByName(resourceGroup.getVdus().get(0).getPoPName());
-    PackageManagementInterface adapter = adapterBroker.getPackageManagementPerPop(pop);
 
     if (resourceGroup != null) {
       try {
@@ -66,8 +62,6 @@ public class PackagesApiController implements PackagesApi {
       throws IOException, ArchiveException {
     log.debug("Received package");
     log.debug("Name: " + file.getOriginalFilename());
-
-    //PackageManagementInterface adapter = adapterBroker.getAdapter(file.getInputStream());
 
     try {
       ResourceGroup resourceGroup;

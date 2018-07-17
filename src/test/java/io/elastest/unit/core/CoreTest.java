@@ -10,7 +10,6 @@ import io.elastest.epm.core.VduManagement;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.adapter.GenericAdapter;
 import io.elastest.epm.pop.adapter.Utils;
-import io.elastest.epm.pop.adapter.broker.AdapterBroker;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.messages.compute.AllocateComputeRequest;
@@ -218,17 +217,6 @@ public class CoreTest {
 
     virtualNetwork.setSubnet(subnets);
     return virtualNetwork;
-  }
-
-  @Bean
-  @Qualifier("mocked_adapterBroker")
-  AdapterBroker adapterBroker() throws AdapterException, IOException, ArchiveException {
-    AdapterBroker adapterBroker = mock(AdapterBroker.class);
-    when(adapterBroker.getAdapter(any(PoP.class))).thenReturn(dockerAdapter());
-    when(adapterBroker.getPackageManagementPerPop(any(PoP.class)))
-        .thenReturn(genericAdapter());
-    when(adapterBroker.getAdapter(any(InputStream.class))).thenReturn(genericAdapter());
-    return adapterBroker;
   }
 
   @Bean

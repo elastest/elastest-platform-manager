@@ -5,7 +5,7 @@ import io.elastest.epm.exception.BadRequestException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.VDU;
-import io.elastest.epm.pop.adapter.broker.AdapterBroker;
+import io.elastest.epm.pop.adapter.GenericAdapter;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.repository.VduRepository;
@@ -53,12 +53,8 @@ public class RuntimeManagementTest {
   @Autowired VduRepository vduRepository;
 
   @Autowired
-  @Qualifier("mocked_adapterBroker")
-  AdapterBroker adapterBroker;
-
-  @Autowired
-  @Qualifier("mocked_dockerAdapter")
-  DockerAdapter dockerAdapter;
+  @Qualifier("mocked_genericAdapter")
+  GenericAdapter genericAdapter;
 
   @InjectMocks RuntimeManagement runtimeManagement;
 

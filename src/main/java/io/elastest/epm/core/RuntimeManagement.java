@@ -5,6 +5,7 @@ import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Event;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.VDU;
+import io.elastest.epm.pop.adapter.GenericAdapter;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.interfaces.AdapterBrokerInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
@@ -28,7 +29,8 @@ public class RuntimeManagement {
 
   @Autowired private PoPManagement poPManagement;
 
-  @Autowired private AdapterBrokerInterface adapterBroker;
+  @Autowired private GenericAdapter adapter;
+
 
   public InputStream downloadFileFromInstance(String vduId, String filepath)
       throws AdapterException, NotFoundException {
@@ -38,7 +40,6 @@ public class RuntimeManagement {
     vdu.getEvents().add(createEvent("Downloading file: " + filepath));
     vdu = vduRepository.save(vdu);
 
-    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
     InputStream inputStream = adapter.downloadFileFromInstance(vdu, filepath, pop);
     vdu.getEvents().add(createEvent("Downloaded file: " + filepath));
     vduRepository.save(vdu);
@@ -53,7 +54,6 @@ public class RuntimeManagement {
     vdu = vduRepository.save(vdu);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
 
-    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
     String output = adapter.executeOnInstance(vdu, command, awaitCompletion, pop);
     vdu.getEvents().add(createEvent("Executed command: " + command));
     log.debug("Output: " + output);
@@ -67,7 +67,6 @@ public class RuntimeManagement {
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     vdu.getEvents().add(createEvent("Starting"));
     vdu = vduRepository.save(vdu);
-    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
     adapter.startInstance(vdu, pop);
     vdu.setStatus(VDU.StatusEnum.RUNNING);
     vdu.getEvents().add(createEvent("Started"));
@@ -80,7 +79,6 @@ public class RuntimeManagement {
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
     vdu.getEvents().add(createEvent("Stopping"));
     vdu = vduRepository.save(vdu);
-    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
     adapter.stopInstance(vdu, pop);
     vdu.setStatus(VDU.StatusEnum.DEPLOYED);
     vdu.getEvents().add(createEvent("Stopped"));
@@ -99,7 +97,6 @@ public class RuntimeManagement {
     vdu = vduRepository.save(vdu);
     PoP pop = poPManagement.getPoPByName(vdu.getPoPName());
 
-    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
     adapter.uploadFileToInstance(vdu, remotePath, file, pop);
     vdu.getEvents()
         .add(createEvent("Uploaded file " + file.getOriginalFilename() + " to " + remotePath));
@@ -116,7 +113,6 @@ public class RuntimeManagement {
     if (hostPath == null) {
       throw new BadRequestException("hostPath must be provided.");
     }
-    RuntimeManagmentInterface adapter = adapterBroker.getAdapter(pop);
     adapter.uploadFileToInstance(vdu, remotePath, hostPath, pop);
     vdu.getEvents().add(createEvent("Uploaded file from " + hostPath + " to " + remotePath));
     vduRepository.save(vdu);
