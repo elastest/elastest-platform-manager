@@ -20,6 +20,7 @@ import io.elastest.epm.tosca.templates.service.Metadata;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.aspectj.weaver.ast.Not;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,15 +64,35 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
     }
 
     @Override public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException, ArchiveException, AdapterException, AllocationException {
-        Map<String, Object> values = Utils.extractMetadata(data);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = data.read(buffer)) > -1 ) {
+            baos.write(buffer, 0, len);
+        }
+        baos.flush();
+        InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
+        InputStream is2 = new ByteArrayInputStream(baos.toByteArray());
+
+        Map<String, Object> values = Utils.extractMetadata(is1);
         String type = "";
         if (values.containsKey("type")) {
             type = String.valueOf(values.get("type"));
         }
         if (type.equals("")) throw new NotFoundException("No type found in the metadata of the package. As a minimum you need to specify either the type or the pop.");
 
-        PoP poP = poPRepository.findPoPForType(type);
-        if (poP != null) return deploy(data, poP);
+        PoP poP;
+        if (values.containsKey("pop")){
+            log.debug("Pop specified: " + String.valueOf(values.get("pop")));
+            poP = poPRepository.findOneByName(String.valueOf(values.get("pop")));
+        }
+        else {
+            poP = poPRepository.findPoPForType(type);
+        }
+
+        if (poP != null) return deploy(is2, poP);
         else throw new NotFoundException("No pop of type: " + type + " was found! Please start an adapter of type: " + type + " " +
                 "or make sure the adapter was able to reach the EPM so that it registers itself.");
     }
@@ -79,7 +100,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
     @Override
     public ResourceGroup deploy(InputStream data, PoP poP) throws NotFoundException, IOException, AdapterException, AllocationException, ArchiveException {
         log.debug("Deploying package on pop: " + poP.toString());
-        OperationHandlerGrpc.OperationHandlerBlockingStub dockerClient = getClient(poP);
+        OperationHandlerGrpc.OperationHandlerBlockingStub client = getClient(poP);
         ByteString p = ByteString.copyFrom(IOUtils.toByteArray(data));
         log.debug("Creating message");
         FileMessage fileMessage =
@@ -89,7 +110,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
                         .addAllMetadata(parseLaunchOptions())
                         .build();
         log.debug("Sending message");
-        ResourceGroupProto rg = dockerClient.create(fileMessage);
+        ResourceGroupProto rg = client.create(fileMessage);
         ResourceGroup resourceGroup = utils.parseRGProto(rg, poP);
         resourceGroupRepository.save(resourceGroup);
         return resourceGroup;
@@ -235,5 +256,4 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         out.add(MetadataEntry.newBuilder().setKey("address").setValue(address).build());
         return out;
     }
-
 }

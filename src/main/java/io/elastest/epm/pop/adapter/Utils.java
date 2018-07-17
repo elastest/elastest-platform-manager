@@ -120,6 +120,7 @@ public class Utils {
         Yaml yaml = new Yaml();
 
         values = yaml.load(new String(content));
+        break;
       }
       entry = (TarArchiveEntry) t.getNextEntry();
     }
