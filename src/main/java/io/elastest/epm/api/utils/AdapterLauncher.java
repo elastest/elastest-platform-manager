@@ -1,13 +1,17 @@
 package io.elastest.epm.api.utils;
 
 import com.jcraft.jsch.*;
+import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Key;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.Worker;
 import io.elastest.epm.properties.ElastestProperties;
+import io.elastest.epm.repository.KeyRepository;
 import io.elastest.epm.repository.PoPRepository;
 import java.io.*;
+
+import io.elastest.epm.repository.WorkerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +22,33 @@ public class AdapterLauncher {
 
   @Autowired private ElastestProperties elastestProperties;
   @Autowired private PoPRepository poPRepository;
+    @Autowired private WorkerRepository workerRepository;
+    @Autowired private KeyRepository keyRepository;
 
   private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
+
+  public String startAdapter(String workerId, String type) throws NotFoundException, JSchException, SftpException, IOException {
+      Worker worker = workerRepository.findOne(workerId);
+      if (worker == null) throw new NotFoundException("No worker with id: " + workerId + " registered.");
+
+      if (keyRepository.findOneByName(worker.getKeyname()) == null)
+          throw new NotFoundException("The key was not found!");
+
+      switch (type) {
+          default:
+              return "Available adapters setups: docker-compose, docker, ansible";
+          case "docker":
+              startAdapter(
+                      worker, keyRepository.findOneByName(worker.getKeyname()), type);
+              return "Adapter started.";
+          case "ansible":
+              return "Not implemented yet.";
+          case "docker-compose":
+              startAdapter(
+                      worker, keyRepository.findOneByName(worker.getKeyname()), type);
+              return "Adapter started.";
+      }
+  }
 
   public void startAdapter(Worker worker, Key key, String type)
       throws JSchException, IOException, SftpException {
@@ -54,8 +83,20 @@ public class AdapterLauncher {
     session.disconnect();
   }
 
-  public void configureWorker(Worker worker, Key key)
-      throws IOException, JSchException, SftpException {
+  public Worker configureWorker(Worker worker, Key key)
+          throws Exception {
+
+      if (workerRepository.findOneByIp(worker.getIp()) != null)
+          throw new Exception("There is already a worker registered at the ip: " + worker.getIp());
+
+      if (keyRepository.findOneByName(worker.getKeyname()) == null)
+          throw new NotFoundException("The key was not found!");
+
+      if (worker.getUser().equals("") || worker.getEpmIp().equals("") || worker.getIp().equals(null))
+          throw new NotFoundException(
+                  "To register a worker the PoP must provide the InferaceEndpoint"
+                          + " and InterfaceInfo containing user, IP of the EPM and passphrase information");
+
     Session session = createSession(worker, key);
     InputStream compose = new FileInputStream("configuration_scripts/docker-compose-adapters.yml");
     sendFile(session, compose, "docker-compose.yml");
@@ -77,6 +118,7 @@ public class AdapterLauncher {
       executeCommand(session, "sudo su root ./preconfigure.sh " + empConfig);
     }
     session.disconnect();
+      return workerRepository.save(worker);
   }
 
   private Session createSession(Worker worker, Key key) throws JSchException, IOException {

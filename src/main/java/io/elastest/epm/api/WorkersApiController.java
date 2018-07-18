@@ -48,50 +48,15 @@ public class WorkersApiController implements WorkersApi {
       @ApiParam(value = "type of adapter", required = true) @PathVariable("type") String type)
       throws Exception {
     // do some magic!
-    Worker worker = workerRepository.findOne(id);
-    if (worker == null) throw new NotFoundException("No worker with id: " + id + " registered.");
-
-    if (keyRepository.findOneByName(worker.getKeyname()) == null)
-      throw new NotFoundException("The key was not found!");
-
-    String response = "";
-    switch (type) {
-      default:
-        response = "Available adapters setups: docker-compose, docker, ansible";
-        break;
-      case "docker":
-        adapterLauncher.startAdapter(
-            worker, keyRepository.findOneByName(worker.getKeyname()), type);
-        break;
-      case "ansible":
-        response = "Not implemented yet.";
-        break;
-      case "docker-compose":
-        adapterLauncher.startAdapter(
-            worker, keyRepository.findOneByName(worker.getKeyname()), type);
-        break;
-    }
+    String response = adapterLauncher.startAdapter(id, type);
     return new ResponseEntity<String>(response, HttpStatus.OK);
   }
 
   public ResponseEntity<Worker> registerWorker(
       @ApiParam(value = "worker in a json", required = true) @Valid @RequestBody Worker body)
       throws Exception {
-    // do some magic!
 
-    if (workerRepository.findOneByIp(body.getIp()) != null)
-      throw new Exception("There is already a worker registered at the ip: " + body.getIp());
-
-    if (keyRepository.findOneByName(body.getKeyname()) == null)
-      throw new NotFoundException("The key was not found!");
-
-    if (body.getUser().equals("") || body.getEpmIp().equals("") || body.getIp().equals(null))
-      throw new NotFoundException(
-          "To register a worker the PoP must provide the InferaceEndpoint"
-              + " and InterfaceInfo containing user, IP of the EPM and passphrase information");
-
-    adapterLauncher.configureWorker(body, keyRepository.findOneByName(body.getKeyname()));
-    Worker w = workerRepository.save(body);
+    Worker w = adapterLauncher.configureWorker(body, keyRepository.findOneByName(body.getKeyname()));
     return new ResponseEntity<Worker>(w, HttpStatus.OK);
   }
 }
