@@ -2,6 +2,7 @@ package io.elastest.epm.api;
 
 import com.google.common.collect.Lists;
 import io.elastest.epm.api.utils.AdapterLauncher;
+import io.elastest.epm.api.utils.WorkerLauncher;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Worker;
 import io.elastest.epm.repository.KeyRepository;
@@ -32,6 +33,8 @@ public class WorkersApiController implements WorkersApi {
     private KeyRepository keyRepository;
     @Autowired
     private AdapterLauncher adapterLauncher;
+    @Autowired
+    private WorkerLauncher workerLauncher;
 
     public ResponseEntity<String> deleteWorker(
             @ApiParam(value = "ID of Worker", required = true) @PathVariable("id") String id)
@@ -61,7 +64,7 @@ public class WorkersApiController implements WorkersApi {
             @ApiParam(value = "worker in a json", required = true) @Valid @RequestBody Worker body)
             throws Exception {
 
-        Worker w = adapterLauncher.configureWorker(body, keyRepository.findOneByName(body.getKeyname()));
+        Worker w = workerLauncher.configureWorker(body, keyRepository.findOneByName(body.getKeyname()));
         return new ResponseEntity<Worker>(w, HttpStatus.OK);
     }
 }
