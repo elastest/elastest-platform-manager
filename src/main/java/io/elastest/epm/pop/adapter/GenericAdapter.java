@@ -63,13 +63,14 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         return utils.getAdapterClient(utils.getAdapterSpecific(poP));
     }
 
-    @Override public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException, ArchiveException, AdapterException, AllocationException {
+    @Override
+    public ResourceGroup deploy(InputStream data) throws NotFoundException, IOException, ArchiveException, AdapterException, AllocationException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         byte[] buffer = new byte[1024];
         int len;
-        while ((len = data.read(buffer)) > -1 ) {
+        while ((len = data.read(buffer)) > -1) {
             baos.write(buffer, 0, len);
         }
         baos.flush();
@@ -81,20 +82,21 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         if (values.containsKey("type")) {
             type = String.valueOf(values.get("type"));
         }
-        if (type.equals("")) throw new NotFoundException("No type found in the metadata of the package. As a minimum you need to specify either the type or the pop.");
+        if (type.equals(""))
+            throw new NotFoundException("No type found in the metadata of the package. As a minimum you need to specify either the type or the pop.");
 
         PoP poP;
-        if (values.containsKey("pop")){
+        if (values.containsKey("pop")) {
             log.debug("Pop specified: " + String.valueOf(values.get("pop")));
             poP = poPRepository.findOneByName(String.valueOf(values.get("pop")));
-        }
-        else {
+        } else {
             poP = poPRepository.findPoPForType(type);
         }
 
         if (poP != null) return deploy(is2, poP);
-        else throw new NotFoundException("No pop of type: " + type + " was found! Please start an adapter of type: " + type + " " +
-                "or make sure the adapter was able to reach the EPM so that it registers itself.");
+        else
+            throw new NotFoundException("No pop of type: " + type + " was found! Please start an adapter of type: " + type + " " +
+                    "or make sure the adapter was able to reach the EPM so that it registers itself.");
     }
 
     @Override

@@ -30,10 +30,10 @@ public class AdapterHandler extends AdapterHandlerGrpc.AdapterHandlerImplBase {
         Adapter adapter = new Adapter();
         adapter.setEndpoint(request.getEndpoint());
         adapter.setType(request.getType());
-        if (adapter.getType().equals("ansible") && poPRepository.findOneByName("ansible-dummy") == null){
+        if (adapter.getType().equals("ansible") && poPRepository.findOneByName("ansible-dummy") == null) {
             PoP ansibleDummyPop = new PoP();
             ansibleDummyPop.setName("ansible-dummy");
-            ansibleDummyPop.addInterfaceInfoItem(new KeyValuePair("type","ansible"));
+            ansibleDummyPop.addInterfaceInfoItem(new KeyValuePair("type", "ansible"));
             ansibleDummyPop.setInterfaceEndpoint("dummy");
             poPRepository.save(ansibleDummyPop);
         }
@@ -49,11 +49,10 @@ public class AdapterHandler extends AdapterHandlerGrpc.AdapterHandlerImplBase {
     @Override
     public void deleteAdapter(ResourceIdentifier request, StreamObserver<Empty> responseObserver) {
 
-        if(adapterRepository.findOne(request.getResourceId()) != null){
+        if (adapterRepository.findOne(request.getResourceId()) != null) {
             log.debug("Removing adapter: " + request.getResourceId());
             adapterRepository.delete(request.getResourceId());
-        }
-        else{
+        } else {
             log.debug("Adapter with id: " + request.getResourceId() + " not found.");
         }
 

@@ -19,48 +19,48 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-  private Logger log = LoggerFactory.getLogger(this.getClass());
+    private Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @ExceptionHandler({
-    AllocationException.class,
-    TerminationException.class,
-    BadRequestException.class
-  })
-  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-  protected ResponseEntity<Object> handleBadRequestException(Exception e, WebRequest request) {
+    @ExceptionHandler({
+            AllocationException.class,
+            TerminationException.class,
+            BadRequestException.class
+    })
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<Object> handleBadRequestException(Exception e, WebRequest request) {
 
-    log.error("Exception was thrown -> Return message: " + e.getMessage(), e);
+        log.error("Exception was thrown -> Return message: " + e.getMessage(), e);
 
-    ApiException exc = new ApiException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
+        ApiException exc = new ApiException(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-    return handleExceptionInternal(e, exc, headers, HttpStatus.BAD_REQUEST, request);
-  }
+        return handleExceptionInternal(e, exc, headers, HttpStatus.BAD_REQUEST, request);
+    }
 
-  @ExceptionHandler({NotFoundException.class})
-  @ResponseStatus(value = HttpStatus.NOT_FOUND)
-  protected ResponseEntity<Object> handleNotFoundException(Exception e, WebRequest request) {
+    @ExceptionHandler({NotFoundException.class})
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    protected ResponseEntity<Object> handleNotFoundException(Exception e, WebRequest request) {
 
-    log.error("Exception was thrown -> Return message: " + e.getMessage(), e);
+        log.error("Exception was thrown -> Return message: " + e.getMessage(), e);
 
-    ApiException exc = new ApiException(HttpStatus.NOT_FOUND.value(), e.getMessage());
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
+        ApiException exc = new ApiException(HttpStatus.NOT_FOUND.value(), e.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-    return handleExceptionInternal(e, exc, headers, HttpStatus.NOT_FOUND, request);
-  }
+        return handleExceptionInternal(e, exc, headers, HttpStatus.NOT_FOUND, request);
+    }
 
-  @ExceptionHandler({Exception.class})
-  @ResponseStatus(value = HttpStatus.NOT_FOUND)
-  protected ResponseEntity<Object> handleOtherException(Exception e, WebRequest request) {
+    @ExceptionHandler({Exception.class})
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    protected ResponseEntity<Object> handleOtherException(Exception e, WebRequest request) {
 
-    log.error("Exception was thrown -> Return message: " + e.getMessage(), e);
+        log.error("Exception was thrown -> Return message: " + e.getMessage(), e);
 
-    ApiException exc = new ApiException(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
+        ApiException exc = new ApiException(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-    return handleExceptionInternal(e, exc, headers, HttpStatus.NOT_FOUND, request);
-  }
+        return handleExceptionInternal(e, exc, headers, HttpStatus.NOT_FOUND, request);
+    }
 }

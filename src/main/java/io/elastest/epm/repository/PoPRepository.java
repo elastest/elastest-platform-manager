@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface PoPRepository extends CrudRepository<PoP, String>, PoPRepositoryCustom {
 
-  PoP findOneByName(String name);
+    PoP findOneByName(String name);
 }

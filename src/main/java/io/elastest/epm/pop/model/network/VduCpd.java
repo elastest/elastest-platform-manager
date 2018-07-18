@@ -7,50 +7,50 @@ import javax.persistence.Entity;
 @Entity
 public class VduCpd extends Cpd {
 
-  /*Reference of the internal VLD which this internal CPD connects to.*/
-  private String intVirtualLinkDesc;
+    /*Reference of the internal VLD which this internal CPD connects to.*/
+    private String intVirtualLinkDesc;
 
-  /*Bitrate requirement on this CP.*/
-  private long bitrateRequirement;
+    /*Bitrate requirement on this CP.*/
+    private long bitrateRequirement;
 
-  /*Specifies requirements on a virtual network interface realising the CPs instantiated from this CPD.*/
-  private Set<VirtualNetworkInterfaceRequirements> virtualNetworkInterfaceRequirements;
+    /*Specifies requirements on a virtual network interface realising the CPs instantiated from this CPD.*/
+    private Set<VirtualNetworkInterfaceRequirements> virtualNetworkInterfaceRequirements;
 
-  public String getIntVirtualLinkDesc() {
-    return intVirtualLinkDesc;
-  }
+    public String getIntVirtualLinkDesc() {
+        return intVirtualLinkDesc;
+    }
 
-  public void setIntVirtualLinkDesc(String intVirtualLinkDesc) {
-    this.intVirtualLinkDesc = intVirtualLinkDesc;
-  }
+    public void setIntVirtualLinkDesc(String intVirtualLinkDesc) {
+        this.intVirtualLinkDesc = intVirtualLinkDesc;
+    }
 
-  public long getBitrateRequirement() {
-    return bitrateRequirement;
-  }
+    public long getBitrateRequirement() {
+        return bitrateRequirement;
+    }
 
-  public void setBitrateRequirement(long bitrateRequirement) {
-    this.bitrateRequirement = bitrateRequirement;
-  }
+    public void setBitrateRequirement(long bitrateRequirement) {
+        this.bitrateRequirement = bitrateRequirement;
+    }
 
-  public Set<VirtualNetworkInterfaceRequirements> getVirtualNetworkInterfaceRequirements() {
-    return virtualNetworkInterfaceRequirements;
-  }
+    public Set<VirtualNetworkInterfaceRequirements> getVirtualNetworkInterfaceRequirements() {
+        return virtualNetworkInterfaceRequirements;
+    }
 
-  public void setVirtualNetworkInterfaceRequirements(
-      Set<VirtualNetworkInterfaceRequirements> virtualNetworkInterfaceRequirements) {
-    this.virtualNetworkInterfaceRequirements = virtualNetworkInterfaceRequirements;
-  }
+    public void setVirtualNetworkInterfaceRequirements(
+            Set<VirtualNetworkInterfaceRequirements> virtualNetworkInterfaceRequirements) {
+        this.virtualNetworkInterfaceRequirements = virtualNetworkInterfaceRequirements;
+    }
 
-  @Override
-  public String toString() {
-    return "VduCpd{"
-        + "intVirtualLinkDesc='"
-        + intVirtualLinkDesc
-        + '\''
-        + ", bitrateRequirement="
-        + bitrateRequirement
-        + ", virtualNetworkInterfaceRequirements="
-        + virtualNetworkInterfaceRequirements
-        + '}';
-  }
+    @Override
+    public String toString() {
+        return "VduCpd{"
+                + "intVirtualLinkDesc='"
+                + intVirtualLinkDesc
+                + '\''
+                + ", bitrateRequirement="
+                + bitrateRequirement
+                + ", virtualNetworkInterfaceRequirements="
+                + virtualNetworkInterfaceRequirements
+                + '}';
+    }
 }

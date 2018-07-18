@@ -6,8 +6,10 @@ package io.elastest.epm.api;
 
 import io.elastest.epm.model.ResourceGroup;
 import io.swagger.annotations.*;
+
 import java.io.IOException;
 import javax.validation.constraints.*;
+
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,59 +19,59 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 @javax.annotation.Generated(
-  value = "io.swagger.codegen.languages.SpringCodegen",
-  date = "2017-10-16T13:31:33.426+02:00"
+        value = "io.swagger.codegen.languages.SpringCodegen",
+        date = "2017-10-16T13:31:33.426+02:00"
 )
 @Api(value = "packages", description = "the packages API")
 public interface PackagesApi {
 
-  @ApiOperation(
-    value = "Deletes a package.",
-    notes = "Deletes the package that matches with a given ID.",
-    response = Void.class,
-    tags = {
-      "Package",
-    }
-  )
-  @ApiResponses(
-    value = {
-      @ApiResponse(code = 200, message = "Package deleted successfully", response = Void.class),
-      @ApiResponse(code = 204, message = "No Content", response = Void.class),
-      @ApiResponse(code = 400, message = "Bad Request", response = String.class),
-      @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
-      @ApiResponse(code = 403, message = "Forbidden", response = Void.class),
-      @ApiResponse(code = 404, message = "Package not found", response = String.class)
-    }
-  )
-  @RequestMapping(value = "/packages/{id}", method = RequestMethod.DELETE)
-  ResponseEntity<Void> deletePackage(
-      @ApiParam(value = "ID of Package", required = true) @PathVariable("id") String id);
+    @ApiOperation(
+            value = "Deletes a package.",
+            notes = "Deletes the package that matches with a given ID.",
+            response = Void.class,
+            tags = {
+                    "Package",
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(code = 200, message = "Package deleted successfully", response = Void.class),
+                    @ApiResponse(code = 204, message = "No Content", response = Void.class),
+                    @ApiResponse(code = 400, message = "Bad Request", response = String.class),
+                    @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
+                    @ApiResponse(code = 403, message = "Forbidden", response = Void.class),
+                    @ApiResponse(code = 404, message = "Package not found", response = String.class)
+            }
+    )
+    @RequestMapping(value = "/packages/{id}", method = RequestMethod.DELETE)
+    ResponseEntity<Void> deletePackage(
+            @ApiParam(value = "ID of Package", required = true) @PathVariable("id") String id);
 
-  @ApiOperation(
-    value = "Receives a package.",
-    notes = "Receives a package so that it can be forwarded to the correct environment.",
-    response = ResourceGroup.class,
-    tags = {
-      "Package",
-    }
-  )
-  @ApiResponses(
-    value = {
-      @ApiResponse(code = 200, message = "Package received OK", response = ResourceGroup.class),
-      @ApiResponse(code = 201, message = "Created", response = Void.class),
-      @ApiResponse(code = 400, message = "Bad Request", response = String.class),
-      @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
-      @ApiResponse(code = 403, message = "Forbidden", response = Void.class),
-      @ApiResponse(code = 404, message = "Not Found", response = String.class)
-    }
-  )
-  @RequestMapping(
-    value = "/packages",
-    produces = {"application/json"},
-    consumes = {"multipart/form-data"},
-    method = RequestMethod.POST
-  )
-  ResponseEntity<ResourceGroup> receivePackage(
-      @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
-      throws IOException, ArchiveException;
+    @ApiOperation(
+            value = "Receives a package.",
+            notes = "Receives a package so that it can be forwarded to the correct environment.",
+            response = ResourceGroup.class,
+            tags = {
+                    "Package",
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(code = 200, message = "Package received OK", response = ResourceGroup.class),
+                    @ApiResponse(code = 201, message = "Created", response = Void.class),
+                    @ApiResponse(code = 400, message = "Bad Request", response = String.class),
+                    @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
+                    @ApiResponse(code = 403, message = "Forbidden", response = Void.class),
+                    @ApiResponse(code = 404, message = "Not Found", response = String.class)
+            }
+    )
+    @RequestMapping(
+            value = "/packages",
+            produces = {"application/json"},
+            consumes = {"multipart/form-data"},
+            method = RequestMethod.POST
+    )
+    ResponseEntity<ResourceGroup> receivePackage(
+            @ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
+            throws IOException, ArchiveException;
 }

@@ -9,11 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class PoPRepositoryImpl implements PoPRepositoryCustom {
 
-  @Autowired private PlacementManager placementManager;
+    @Autowired
+    private PlacementManager placementManager;
 
-  @Override
-  @Transactional
-  public PoP findPoPForType(String type) throws NotFoundException {
-      return placementManager.choosePoPByType(type);
-  }
+    @Override
+    @Transactional
+    public PoP findPoPForType(String type) throws NotFoundException {
+        return placementManager.choosePoPByType(type);
+    }
 }

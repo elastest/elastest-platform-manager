@@ -17,7 +17,7 @@ public class AdapterRepositoryImpl implements AdapterRepositoryCustom {
         Adapter output = null;
         Iterable<Adapter> adapters = adapterRepository.findAll();
         for (Adapter adapter : adapters) {
-            if (adapter.getType().equals(type) && adapter.getEndpoint().contains(ip)){
+            if (adapter.getType().equals(type) && adapter.getEndpoint().contains(ip)) {
                 output = adapter;
                 break;
             }
