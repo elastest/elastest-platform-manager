@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PlacementManager {
 
-    @Autowired private PoPRepository poPRepository;
+    @Autowired
+    private PoPRepository poPRepository;
 
     public PoP choosePoPByType(String type) throws NotFoundException {
         /*

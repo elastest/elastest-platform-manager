@@ -5,5 +5,5 @@ import io.elastest.epm.model.PoP;
 
 public interface PoPRepositoryCustom {
 
-  PoP findPoPForType(String type) throws NotFoundException;
+    PoP findPoPForType(String type) throws NotFoundException;
 }

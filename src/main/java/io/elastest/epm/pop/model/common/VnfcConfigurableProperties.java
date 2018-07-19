@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 @Entity
 public class VnfcConfigurableProperties extends NfvEntity {
 
-  /*It provides VNFC configurable properties.*/
-  //TODO type not specified
-  private Set<String> additionalVnfcConfigurableProperty;
+    /*It provides VNFC configurable properties.*/
+    //TODO type not specified
+    private Set<String> additionalVnfcConfigurableProperty;
 }

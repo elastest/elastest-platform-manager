@@ -13,13 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 @javax.annotation.Generated(
-  value = "io.swagger.codegen.languages.SpringCodegen",
-  date = "2018-03-22T14:35:13.589+01:00"
+        value = "io.swagger.codegen.languages.SpringCodegen",
+        date = "2018-03-22T14:35:13.589+01:00"
 )
 @Controller
 public class AdaptersApiController implements AdaptersApi {
 
-    @Autowired private AdapterRepository adapterRepository;
+    @Autowired
+    private AdapterRepository adapterRepository;
 
     public ResponseEntity<List<Adapter>> getAllAdapters() {
         // do some magic!

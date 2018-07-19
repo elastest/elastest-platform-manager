@@ -18,12 +18,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableJpaRepositories(value = "io.elastest.epm.repository")
 public class Application implements CommandLineRunner {
 
-    @Autowired private AdapterManagement adapterManagement;
+    @Autowired
+    private AdapterManagement adapterManagement;
 
     @Override
     public void run(String... arg0) throws Exception {
         if (arg0.length > 0 && arg0[0].equals("exitcode")) {
-        throw new ExitException();
+            throw new ExitException();
         }
         adapterManagement.init();
     }
@@ -37,7 +38,7 @@ public class Application implements CommandLineRunner {
 
         @Override
         public int getExitCode() {
-      return 10;
-    }
+            return 10;
+        }
     }
 }

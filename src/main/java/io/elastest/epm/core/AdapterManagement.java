@@ -13,7 +13,8 @@ import java.io.IOException;
 @Controller
 public class AdapterManagement {
 
-    @Autowired private AdapterHandler adapterHandler;
+    @Autowired
+    private AdapterHandler adapterHandler;
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
     private Server server;

@@ -8,12 +8,9 @@ import io.elastest.epm.core.PoPManagement;
 import io.elastest.epm.core.ResourceGroupManagement;
 import io.elastest.epm.core.VduManagement;
 import io.elastest.epm.model.*;
+import io.elastest.epm.pop.adapter.GenericAdapter;
 import io.elastest.epm.pop.adapter.Utils;
-import io.elastest.epm.pop.adapter.ansible.AnsibleAdapter;
-import io.elastest.epm.pop.adapter.broker.AdapterBroker;
-import io.elastest.epm.pop.adapter.compose.DockerComposeAdapter;
 import io.elastest.epm.pop.adapter.docker.DockerAdapter;
-import io.elastest.epm.pop.adapter.docker.DockerAdapterProto;
 import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.messages.compute.AllocateComputeRequest;
 import io.elastest.epm.pop.messages.compute.AllocateComputeResponse;
@@ -223,38 +220,11 @@ public class CoreTest {
   }
 
   @Bean
-  @Qualifier("mocked_adapterBroker")
-  AdapterBroker adapterBroker() throws AdapterException, IOException, ArchiveException {
-    AdapterBroker adapterBroker = mock(AdapterBroker.class);
-    when(adapterBroker.getAdapter(any(PoP.class))).thenReturn(dockerAdapter());
-    when(adapterBroker.getPackageManagementPerPop(any(PoP.class)))
-        .thenReturn(dockerComposeAdapter());
-    when(adapterBroker.getAdapter(any(InputStream.class))).thenReturn(dockerComposeAdapter());
-    return adapterBroker;
-  }
+  @Qualifier("mocked_genericAdapter")
+  GenericAdapter genericAdapter() throws AdapterException {
+    GenericAdapter genericAdapter = mock(GenericAdapter.class);
 
-  @Bean
-  @Qualifier("mocked_composeAdapter")
-  DockerComposeAdapter dockerComposeAdapter() throws AdapterException {
-    DockerComposeAdapter composeAdapter = mock(DockerComposeAdapter.class);
-
-    return composeAdapter;
-  }
-
-  @Bean
-  @Qualifier("mocket_dockerProtoAdapter")
-  DockerAdapterProto dockerProtoAdapter() throws AdapterException {
-    DockerAdapterProto adapterProto = mock(DockerAdapterProto.class);
-
-    return adapterProto;
-  }
-
-  @Bean
-  @Qualifier("mocked_ansibleAdapter")
-  AnsibleAdapter ansibleAdapter() throws AdapterException {
-    AnsibleAdapter ansibleAdapter = mock(AnsibleAdapter.class);
-
-    return ansibleAdapter;
+    return genericAdapter;
   }
 
   @Bean

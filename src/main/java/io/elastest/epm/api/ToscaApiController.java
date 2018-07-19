@@ -12,22 +12,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @javax.annotation.Generated(
-  value = "io.swagger.codegen.languages.SpringCodegen",
-  date = "2017-08-03T17:51:47.319+02:00"
+        value = "io.swagger.codegen.languages.SpringCodegen",
+        date = "2017-08-03T17:51:47.319+02:00"
 )
 @Controller
 public class ToscaApiController implements ToscaApi {
 
-  @Autowired private ToscaParser toscaParser;
+    @Autowired
+    private ToscaParser toscaParser;
 
-  private final Logger log = LoggerFactory.getLogger(ToscaApiController.class);
+    private final Logger log = LoggerFactory.getLogger(ToscaApiController.class);
 
-  public ResponseEntity<ResourceGroup> deployToscaTemplate(
-      @ApiParam(value = "TOSCA formatted template", required = true) @RequestBody
-          String serviceTemplate)
-      throws Exception {
-    log.debug(serviceTemplate);
-    ResourceGroup resourceGroup = toscaParser.templateToModel(serviceTemplate);
-    return new ResponseEntity<ResourceGroup>(resourceGroup, HttpStatus.OK);
-  }
+    public ResponseEntity<ResourceGroup> deployToscaTemplate(
+            @ApiParam(value = "TOSCA formatted template", required = true) @RequestBody
+                    String serviceTemplate)
+            throws Exception {
+        log.debug(serviceTemplate);
+        ResourceGroup resourceGroup = toscaParser.templateToModel(serviceTemplate);
+        return new ResponseEntity<ResourceGroup>(resourceGroup, HttpStatus.OK);
+    }
 }

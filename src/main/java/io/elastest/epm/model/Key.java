@@ -16,131 +16,134 @@ import com.google.gson.annotations.SerializedName;
 import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 
-/** A private key for executing commands on a worker. */
+/**
+ * A private key for executing commands on a worker.
+ */
 @ApiModel(description = "A private key for executing commands on a worker.")
 @javax.annotation.Generated(
-  value = "io.swagger.codegen.languages.JavaClientCodegen",
-  date = "2018-03-07T16:08:58.303+01:00"
+        value = "io.swagger.codegen.languages.JavaClientCodegen",
+        date = "2018-03-07T16:08:58.303+01:00"
 )
 @Entity
 public class Key {
-  @SerializedName("id")
-  @Id
-  private String id = null;
+    @SerializedName("id")
+    @Id
+    private String id = null;
 
-  @SerializedName("name")
-  private String name = null;
+    @SerializedName("name")
+    private String name = null;
 
-  @SerializedName("key")
-  @Column(length = 5000)
-  private String key = null;
+    @SerializedName("key")
+    @Column(length = 5000)
+    private String key = null;
 
-  public Key id(String id) {
-    this.id = id;
-    return this;
-  }
-
-  @PrePersist
-  public void ensureId() {
-    id = IdGenerator.createUUID();
-  }
-
-  /**
-   * Get id
-   *
-   * @return id
-   */
-  @ApiModelProperty(example = "123-abcd", value = "")
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public Key name(String name) {
-    this.name = name;
-    return this;
-  }
-
-  /**
-   * Get name
-   *
-   * @return name
-   */
-  @ApiModelProperty(example = "key1", required = true, value = "")
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public Key key(String key) {
-    this.key = key;
-    return this;
-  }
-
-  /**
-   * Get key
-   *
-   * @return key
-   */
-  @ApiModelProperty(required = true, value = "")
-  public String getKey() {
-    return key;
-  }
-
-  public void setKey(String key) {
-    this.key = key;
-  }
-
-  @Override
-  public boolean equals(java.lang.Object o) {
-    if (this == o) {
-      return true;
+    public Key id(String id) {
+        this.id = id;
+        return this;
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+
+    @PrePersist
+    public void ensureId() {
+        id = IdGenerator.createUUID();
     }
-    Key key = (Key) o;
-    return Objects.equals(this.id, key.id)
-        && Objects.equals(this.name, key.name)
-        && Objects.equals(this.key, key.key);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, key);
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Key {\n");
-
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
-    sb.append("    key: ").append(toIndentedString(key)).append("\n");
-    sb.append("}");
-    return sb.toString();
-  }
-
-  /**
-   * Convert the given object to string with each line indented by 4 spaces (except the first line).
-   */
-  private String toIndentedString(java.lang.Object o) {
-    if (o == null) {
-      return "null";
+    /**
+     * Get id
+     *
+     * @return id
+     */
+    @ApiModelProperty(example = "123-abcd", value = "")
+    public String getId() {
+        return id;
     }
-    return o.toString().replace("\n", "\n    ");
-  }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Key name(String name) {
+        this.name = name;
+        return this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return name
+     */
+    @ApiModelProperty(example = "key1", required = true, value = "")
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Key key(String key) {
+        this.key = key;
+        return this;
+    }
+
+    /**
+     * Get key
+     *
+     * @return key
+     */
+    @ApiModelProperty(required = true, value = "")
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    @Override
+    public boolean equals(java.lang.Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Key key = (Key) o;
+        return Objects.equals(this.id, key.id)
+                && Objects.equals(this.name, key.name)
+                && Objects.equals(this.key, key.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, key);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class Key {\n");
+
+        sb.append("    id: ").append(toIndentedString(id)).append("\n");
+        sb.append("    name: ").append(toIndentedString(name)).append("\n");
+        sb.append("    key: ").append(toIndentedString(key)).append("\n");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convert the given object to string with each line indented by 4 spaces (except the first line).
+     */
+    private String toIndentedString(java.lang.Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 }
