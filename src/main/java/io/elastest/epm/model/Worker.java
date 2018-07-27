@@ -1,24 +1,24 @@
 package io.elastest.epm.model;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
  * A worker object for registering a machine where adapters can be deployed.
  */
 @ApiModel(description = "A worker object for registering a machine where adapters can be deployed.")
-@javax.annotation.Generated(
-        value = "io.swagger.codegen.languages.SpringCodegen",
-        date = "2018-03-07T18:07:29.807+01:00"
-)
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-07-27T13:38:02.648+02:00")
 @Entity
 public class Worker {
     @JsonProperty("id")
@@ -43,22 +43,27 @@ public class Worker {
     @JsonProperty("keyname")
     private String keyname = null;
 
-    public Worker id(String id) {
-        this.id = id;
-        return this;
-    }
+    @JsonProperty("port")
+    private Integer port = null;
 
     @PrePersist
     public void ensureId() {
         id = IdGenerator.createUUID();
     }
 
+    public Worker id(String id) {
+        this.id = id;
+        return this;
+    }
+
     /**
-     * Get id
+     * Identifier for the Adapter.
      *
      * @return id
-     */
-    @ApiModelProperty(value = "")
+     **/
+    @ApiModelProperty(value = "Identifier for the Adapter.")
+
+
     public String getId() {
         return id;
     }
@@ -73,12 +78,14 @@ public class Worker {
     }
 
     /**
-     * Get ip
+     * The IP where the Worker is reachable. The EPM will try to ssh in to the Worker at this IP.
      *
      * @return ip
-     */
-    @ApiModelProperty(required = true, value = "")
+     **/
+    @ApiModelProperty(required = true, value = "The IP where the Worker is reachable. The EPM will try to ssh in to the Worker at this IP.")
     @NotNull
+
+
     public String getIp() {
         return ip;
     }
@@ -93,12 +100,14 @@ public class Worker {
     }
 
     /**
-     * Get user
+     * This is the user, which the EPM will use when trying to ssh in to the Worker.
      *
      * @return user
-     */
-    @ApiModelProperty(required = true, value = "")
+     **/
+    @ApiModelProperty(example = "ubuntu", required = true, value = "This is the user, which the EPM will use when trying to ssh in to the Worker.")
     @NotNull
+
+
     public String getUser() {
         return user;
     }
@@ -113,12 +122,14 @@ public class Worker {
     }
 
     /**
-     * Get passphrase
+     * This is the Passphrase of the Key provided for connecting to the Worker.
      *
      * @return passphrase
-     */
-    @ApiModelProperty(required = true, value = "")
+     **/
+    @ApiModelProperty(required = true, value = "This is the Passphrase of the Key provided for connecting to the Worker.")
     @NotNull
+
+
     public String getPassphrase() {
         return passphrase;
     }
@@ -133,11 +144,13 @@ public class Worker {
     }
 
     /**
-     * Get password
+     * This is the password of the user, which can be left blank if no password is needed.
      *
      * @return password
-     */
-    @ApiModelProperty(value = "")
+     **/
+    @ApiModelProperty(value = "This is the password of the user, which can be left blank if no password is needed.")
+
+
     public String getPassword() {
         return password;
     }
@@ -152,12 +165,14 @@ public class Worker {
     }
 
     /**
-     * Get epmIp
+     * This is the IP where the EPM is reachable for the Worker. This is needed because the Worker has to be able to reach the EPM for registering adapters.
      *
      * @return epmIp
-     */
-    @ApiModelProperty(required = true, value = "")
+     **/
+    @ApiModelProperty(required = true, value = "This is the IP where the EPM is reachable for the Worker. This is needed because the Worker has to be able to reach the EPM for registering adapters.")
     @NotNull
+
+
     public String getEpmIp() {
         return epmIp;
     }
@@ -172,12 +187,14 @@ public class Worker {
     }
 
     /**
-     * Get keyname
+     * The name of the Key, which the EPM will use for ssh in to the Worker. This refers to the name provided when uploading the Key to the EPM.
      *
      * @return keyname
-     */
-    @ApiModelProperty(required = true, value = "")
+     **/
+    @ApiModelProperty(example = "key1", required = true, value = "The name of the Key, which the EPM will use for ssh in to the Worker. This refers to the name provided when uploading the Key to the EPM.")
     @NotNull
+
+
     public String getKeyname() {
         return keyname;
     }
@@ -185,6 +202,28 @@ public class Worker {
     public void setKeyname(String keyname) {
         this.keyname = keyname;
     }
+
+    public Worker port(Integer port) {
+        this.port = port;
+        return this;
+    }
+
+    /**
+     * The ssh port of the worker, where the EPM can reach it.
+     *
+     * @return port
+     **/
+    @ApiModelProperty(value = "The ssh port of the worker, where the EPM can reach it.")
+
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
 
     @Override
     public boolean equals(java.lang.Object o) {
@@ -195,18 +234,19 @@ public class Worker {
             return false;
         }
         Worker worker = (Worker) o;
-        return Objects.equals(this.id, worker.id)
-                && Objects.equals(this.ip, worker.ip)
-                && Objects.equals(this.user, worker.user)
-                && Objects.equals(this.passphrase, worker.passphrase)
-                && Objects.equals(this.password, worker.password)
-                && Objects.equals(this.epmIp, worker.epmIp)
-                && Objects.equals(this.keyname, worker.keyname);
+        return Objects.equals(this.id, worker.id) &&
+                Objects.equals(this.ip, worker.ip) &&
+                Objects.equals(this.user, worker.user) &&
+                Objects.equals(this.passphrase, worker.passphrase) &&
+                Objects.equals(this.password, worker.password) &&
+                Objects.equals(this.epmIp, worker.epmIp) &&
+                Objects.equals(this.keyname, worker.keyname) &&
+                Objects.equals(this.port, worker.port);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, ip, user, passphrase, password, epmIp, keyname);
+        return Objects.hash(id, ip, user, passphrase, password, epmIp, keyname, port);
     }
 
     @Override
@@ -221,12 +261,14 @@ public class Worker {
         sb.append("    password: ").append(toIndentedString(password)).append("\n");
         sb.append("    epmIp: ").append(toIndentedString(epmIp)).append("\n");
         sb.append("    keyname: ").append(toIndentedString(keyname)).append("\n");
+        sb.append("    port: ").append(toIndentedString(port)).append("\n");
         sb.append("}");
         return sb.toString();
     }
 
     /**
-     * Convert the given object to string with each line indented by 4 spaces (except the first line).
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
      */
     private String toIndentedString(java.lang.Object o) {
         if (o == null) {
@@ -235,3 +277,4 @@ public class Worker {
         return o.toString().replace("\n", "\n    ");
     }
 }
+

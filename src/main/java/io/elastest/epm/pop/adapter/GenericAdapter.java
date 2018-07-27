@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import io.elastest.epm.exception.AllocationException;
 import io.elastest.epm.exception.BadRequestException;
 import io.elastest.epm.exception.NotFoundException;
+import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.ResourceGroup;
 import io.elastest.epm.model.VDU;
@@ -232,6 +233,12 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
     }
 
     private io.elastest.epm.pop.generated.VDU parseVDU(VDU vdu) {
+
+        ArrayList<MetadataEntry> metadataEntries = new ArrayList<>();
+        for(KeyValuePair kvp : vdu.getMetadata()) {
+            metadataEntries.add(MetadataEntry.newBuilder().setKey(kvp.getKey()).setValue(kvp.getValue()).build());
+        }
+
         return io.elastest.epm.pop.generated.VDU.newBuilder()
                 .setName(vdu.getName())
                 .setImageName(vdu.getName())
@@ -239,6 +246,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
                 .setIp(vdu.getIp())
                 .setNetName(vdu.getName())
                 .setPoPName(vdu.getPoPName())
+                .addAllMetadata(metadataEntries)
                 .build();
     }
 

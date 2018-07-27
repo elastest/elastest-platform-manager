@@ -73,7 +73,10 @@ public class SSHHelper {
 
         jsch.addIdentity(tempFile.getAbsolutePath(), worker.getPassphrase().getBytes());
 
-        Session session = jsch.getSession(worker.getUser(), worker.getIp(), 22);
+        Session session;
+        if (worker.getPort() == null)
+            session = jsch.getSession(worker.getUser(), worker.getIp(), 22);
+        else session = jsch.getSession(worker.getUser(), worker.getIp(), worker.getPort());
 
         //session.setPassword(password);
 

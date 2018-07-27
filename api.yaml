@@ -1309,6 +1309,10 @@ definitions:
         type: string
         description: The name of the Key, which the EPM will use for ssh in to the Worker. This refers to the name provided when uploading the Key to the EPM.
         example: key1
+      port:
+        type: integer
+        description: The ssh port of the worker, where the EPM can reach it.
+        default: 22
   Key:
     description: 'A private key for executing commands on a worker.'
     type: object
