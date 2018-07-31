@@ -34,7 +34,7 @@ public class WorkerLauncher {
         if (keyRepository.findOneByName(worker.getKeyname()) == null)
             throw new NotFoundException("The key was not found!");
 
-        if (worker.getUser().equals("") || worker.getEpmIp().equals("") || worker.getIp().equals(null))
+        if (worker.getUser().equals("") || worker.getIp().equals(""))
             throw new NotFoundException(
                     "To register a worker the PoP must provide the InferaceEndpoint"
                             + " and InterfaceInfo containing user, IP of the EPM and passphrase information");

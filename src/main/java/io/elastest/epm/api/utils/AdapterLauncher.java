@@ -11,11 +11,13 @@ import io.elastest.epm.repository.KeyRepository;
 import io.elastest.epm.repository.PoPRepository;
 
 import java.io.*;
+import java.util.Objects;
 
 import io.elastest.epm.repository.WorkerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,6 +32,9 @@ public class AdapterLauncher {
     private KeyRepository keyRepository;
     @Autowired
     private SSHHelper sshHelper;
+
+    @Value("${et.public.host}")
+    private String epmIp;
 
     private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
@@ -70,9 +75,17 @@ public class AdapterLauncher {
             case "docker-compose":
                 installationIs = new FileInputStream("configuration_scripts/install_docker_compose.sh");
                 sshHelper.sendFile(session, installationIs, "docker_compose.sh");
-                sshHelper.executeCommand(
-                        session,
-                        "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp());
+
+                if (!epmIp.equals("")) {
+                    sshHelper.executeCommand(
+                            session,
+                            "sudo su root ./docker_compose.sh " + epmIp + " " + worker.getIp());
+                }
+                else {
+                    sshHelper.executeCommand(
+                            session,
+                            "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp());
+                }
                 PoP composePop = new PoP();
                 composePop.setInterfaceEndpoint(worker.getIp());
                 composePop.setName("compose-" + worker.getIp());
@@ -82,8 +95,14 @@ public class AdapterLauncher {
             case "docker":
                 installationIs = new FileInputStream("configuration_scripts/install_docker.sh");
                 sshHelper.sendFile(session, installationIs, "docker.sh");
-                sshHelper.executeCommand(
-                        session, "sudo su root ./docker.sh " + worker.getEpmIp() + " " + worker.getIp());
+                if (!epmIp.equals("")) {
+                    sshHelper.executeCommand(session, "sudo su root ./docker.sh " + epmIp + " " + worker.getIp());
+
+                }
+                else {
+                    sshHelper.executeCommand(session, "sudo su root ./docker.sh " + worker.getEpmIp() + " " + worker.getIp());
+
+                }
                 break;
         }
         session.disconnect();
