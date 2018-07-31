@@ -22,6 +22,7 @@ services:
             - ET_EMP_INFLUXDB_API=http://emp-influxdb:8086/
             - ET_EMP_INFLUXDB_HOST=emp-influxdb
             - ET_EMP_INFLUXDB_GRAPHITE_PORT=2003
+            - ET_PUBLIC_HOST=localhost
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
         expose:
