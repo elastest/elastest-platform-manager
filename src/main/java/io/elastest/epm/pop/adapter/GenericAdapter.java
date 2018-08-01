@@ -79,6 +79,10 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         InputStream is2 = new ByteArrayInputStream(baos.toByteArray());
 
         Map<String, Object> values = Utils.extractMetadata(is1);
+        if (values == null) {
+            throw new NotFoundException("No metadata found in the package: The metadata has to be in the root of the tar.");
+        }
+
         String type = "";
         if (values.containsKey("type")) {
             type = String.valueOf(values.get("type"));
