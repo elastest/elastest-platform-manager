@@ -38,7 +38,7 @@ public class AdapterLauncher {
 
     private static final Logger log = LoggerFactory.getLogger(AdapterLauncher.class);
 
-    public String startAdapter(String workerId, String type) throws NotFoundException, JSchException, SftpException, IOException {
+    public String startAdapter(String workerId, String type) throws NotFoundException, JSchException, SftpException, IOException, InterruptedException {
         Worker worker = workerRepository.findOne(workerId);
         if (worker == null) throw new NotFoundException("No worker with id: " + workerId + " registered.");
 
@@ -62,7 +62,7 @@ public class AdapterLauncher {
     }
 
     public void startAdapter(Worker worker, Key key, String type)
-            throws JSchException, IOException, SftpException {
+            throws JSchException, IOException, SftpException, InterruptedException {
 
         Session session = sshHelper.createSession(worker, key);
 

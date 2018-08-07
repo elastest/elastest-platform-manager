@@ -146,6 +146,44 @@ paths:
           description: Forbidden
         '404':
           description: Not Found/keys
+  /workers/create:
+    post:
+      tags:
+        - Package
+      summary: Creates a new worker.
+      description: Receives a package that can be used for creating a new worker.
+      operationId: createWorker
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: formData
+          name: file
+          description: Package in a multipart form
+          required: true
+          type: file
+      responses:
+        '200':
+          description: Workers created
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Worker'
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+          schema:
+            type: string
   /workers/{id}:
     delete:
       tags:

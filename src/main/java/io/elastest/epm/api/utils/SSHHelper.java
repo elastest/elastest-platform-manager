@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.net.ConnectException;
 
 @Component
 public class SSHHelper {
@@ -60,7 +61,7 @@ public class SSHHelper {
         }
     }
 
-    public Session createSession(Worker worker, Key key) throws JSchException, IOException {
+    public Session createSession(Worker worker, Key key) throws JSchException, IOException, InterruptedException {
         final File tempFile = File.createTempFile("private", "");
         tempFile.deleteOnExit();
         try (FileOutputStream out = new FileOutputStream(tempFile)) {
@@ -84,7 +85,20 @@ public class SSHHelper {
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
 
-        session.connect();
+        boolean connected = false;
+        int timeout = 12;
+        while (!connected && timeout > 0) {
+            try {
+                session.connect();
+                connected = true;
+            }
+            catch (Exception e) {
+                log.debug("Couldnt connect yet: trying again in 5 seconds...");
+                timeout--;
+                Thread.sleep(5 * 1000);
+            }
+        }
+        if (!connected) throw new ConnectException("Connection timed out. Could not reach worker.");
         return session;
     }
 }

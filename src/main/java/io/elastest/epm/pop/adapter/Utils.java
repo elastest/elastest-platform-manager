@@ -11,6 +11,7 @@ import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.VduRepository;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import io.grpc.ManagedChannel;
@@ -76,6 +77,48 @@ public class Utils {
         return temp;
     }
 
+    public static Map<String, Object> extractMetadata(InputStream p)
+            throws ArchiveException, IOException {
+        ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
+
+        Map<String, Object> values = null;
+        TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
+        while (entry != null) {
+            if (entry.getName().toLowerCase().equals("metadata.yaml")) {
+                byte[] content = new byte[(int) entry.getSize()];
+                t.read(content, 0, content.length);
+                Yaml yaml = new Yaml();
+
+                values = yaml.load(new String(content));
+                break;
+            }
+            entry = (TarArchiveEntry) t.getNextEntry();
+        }
+        t.close();
+
+        return values;
+    }
+
+    public static String extractKey(InputStream p)
+            throws ArchiveException, IOException {
+        ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
+
+        String key = "";
+        TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
+        while (entry != null) {
+            if (entry.getName().toLowerCase().equals("key")) {
+                byte[] content = new byte[(int) entry.getSize()];
+                t.read(content, 0, content.length);
+                key = new String(content, StandardCharsets.UTF_8);
+                break;
+            }
+            entry = (TarArchiveEntry) t.getNextEntry();
+        }
+        t.close();
+
+        return key;
+    }
+
     public ResourceGroup parseRGProto(ResourceGroupProto rg, PoP pop) {
         ResourceGroup resourceGroup = new ResourceGroup();
         resourceGroup.setName(rg.getName());
@@ -109,28 +152,6 @@ public class Utils {
         }
 
         return resourceGroup;
-    }
-
-    public static Map<String, Object> extractMetadata(InputStream p)
-            throws ArchiveException, IOException {
-        ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
-
-        Map<String, Object> values = null;
-        TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
-        while (entry != null) {
-            if (entry.getName().toLowerCase().equals("metadata.yaml")) {
-                byte[] content = new byte[(int) entry.getSize()];
-                t.read(content, 0, content.length);
-                Yaml yaml = new Yaml();
-
-                values = yaml.load(new String(content));
-                break;
-            }
-            entry = (TarArchiveEntry) t.getNextEntry();
-        }
-        t.close();
-
-        return values;
     }
 
     public static ResourceGroup extractResourceGroup(InputStream p)

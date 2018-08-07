@@ -10,15 +10,20 @@ import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.WorkerRepository;
 import io.swagger.annotations.ApiParam;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @javax.annotation.Generated(
         value = "io.swagger.codegen.languages.SpringCodegen",
@@ -35,6 +40,12 @@ public class WorkersApiController implements WorkersApi {
     private AdapterLauncher adapterLauncher;
     @Autowired
     private WorkerLauncher workerLauncher;
+
+    public ResponseEntity<List<Worker>> createWorker(@ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
+            throws Exception {
+        List<Worker> workers = workerLauncher.createWorker(file.getInputStream());
+        return new ResponseEntity<List<Worker>>(workers, HttpStatus.OK);
+    }
 
     public ResponseEntity<String> deleteWorker(
             @ApiParam(value = "ID of Worker", required = true) @PathVariable("id") String id)
