@@ -5,6 +5,7 @@ import com.jcraft.jsch.Session;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Adapter;
 import io.elastest.epm.model.Key;
+import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.Worker;
 import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.generated.FileMessage;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class WorkerLauncher {
@@ -110,7 +112,24 @@ public class WorkerLauncher {
         newKey.setKey(key);
         keyRepository.save(newKey);
 
-        Adapter adapter = adapterRepository.findFirstByType("ansible");
+        Map<String, Object> values = Utils.extractMetadata(is1);
+        if (values == null) {
+            throw new NotFoundException("No metadata found in the package: The metadata has to be in the root of the tar.");
+        }
+        if (values.containsKey("type") && !values.get("type").equals("ansible"))
+            throw new Exception("Only ansible packages are supported for worker creation at the moment!");
+
+        PoP poP = null;
+        if (values.containsKey("pop")) {
+            poP = poPRepository.findOneByName(String.valueOf(values.get("pop")));
+        }
+        Adapter adapter;
+        if (poP != null && !poP.getName().equals("ansible-dummy")) {
+            adapter = adapterRepository.findAdapterForTypeAndIp("ansible", poP.getInterfaceEndpoint());
+        }
+        else {
+            adapter = adapterRepository.findFirstByType("ansible");
+        }
         if (adapter == null) throw new NotFoundException("No ansible adapter was registered. Please register an ansible adapter to be able to create a worker.");
 
         OperationHandlerGrpc.OperationHandlerBlockingStub client = utils.getAdapterClient(adapter);

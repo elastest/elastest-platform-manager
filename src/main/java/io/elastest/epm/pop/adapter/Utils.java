@@ -95,6 +95,8 @@ public class Utils {
             entry = (TarArchiveEntry) t.getNextEntry();
         }
         t.close();
+        p.reset();
+        p.close();
 
         return values;
     }
@@ -115,6 +117,8 @@ public class Utils {
             entry = (TarArchiveEntry) t.getNextEntry();
         }
         t.close();
+        p.reset();
+        p.close();
 
         return key;
     }
