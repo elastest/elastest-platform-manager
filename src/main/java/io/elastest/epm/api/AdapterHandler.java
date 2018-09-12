@@ -30,13 +30,6 @@ public class AdapterHandler extends AdapterHandlerGrpc.AdapterHandlerImplBase {
         Adapter adapter = new Adapter();
         adapter.setEndpoint(request.getEndpoint());
         adapter.setType(request.getType());
-        if (adapter.getType().equals("ansible") && poPRepository.findOneByName("ansible-dummy") == null) {
-            PoP ansibleDummyPop = new PoP();
-            ansibleDummyPop.setName("ansible-dummy");
-            ansibleDummyPop.addInterfaceInfoItem(new KeyValuePair("type", "ansible"));
-            ansibleDummyPop.setInterfaceEndpoint("dummy");
-            poPRepository.save(ansibleDummyPop);
-        }
         adapterRepository.save(adapter);
 
         log.debug(String.valueOf(adapter));

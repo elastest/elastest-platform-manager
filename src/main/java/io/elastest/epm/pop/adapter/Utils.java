@@ -185,6 +185,8 @@ public class Utils {
         String type = extractTypeFromPoP(poP);
         if (type.equals("docker-compose"))
             return adapterRepository.findAdapterForTypeAndIp(extractTypeFromPoP(poP), poP.getInterfaceEndpoint());
+        else if (type.equals("aws") || type.equals("openstack"))
+            return adapterRepository.findFirstByType("ansible");
         else return adapterRepository.findFirstByType(type);
     }
 

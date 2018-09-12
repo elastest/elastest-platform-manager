@@ -233,6 +233,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         return io.elastest.epm.pop.generated.PoP.newBuilder()
                 .setName(poP.getName())
                 .setInterfaceEndpoint(poP.getInterfaceEndpoint())
+                .addAllAuth(parseInterfaceInfo(poP))
                 .build();
     }
 
@@ -252,6 +253,14 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
                 .setPoPName(vdu.getPoPName())
                 .addAllMetadata(metadataEntries)
                 .build();
+    }
+
+    private ArrayList<MetadataEntry> parseInterfaceInfo(PoP poP) {
+        ArrayList<MetadataEntry> out = new ArrayList<>();
+        for (KeyValuePair info : poP.getInterfaceInfo()) {
+            out.add(MetadataEntry.newBuilder().setKey(info.getKey()).setValue(info.getValue()).build());
+        }
+        return out;
     }
 
     private ArrayList<MetadataEntry> parseLaunchOptions() {
