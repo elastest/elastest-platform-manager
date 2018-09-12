@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -131,7 +132,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         TerminateMessage terminateMessage = TerminateMessage.newBuilder()
                 .setResourceId(resourceGroup.getName())
                 .setPop(parsePoP(poP))
-                .setVdu(parseVDU(resourceGroup.getVdus().get(0)))
+                .addAllVdu(parseVDUs(resourceGroup.getVdus()))
                 .build();
         composeClient.remove(terminateMessage);
 
@@ -235,6 +236,14 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
                 .setInterfaceEndpoint(poP.getInterfaceEndpoint())
                 .addAllAuth(parseInterfaceInfo(poP))
                 .build();
+    }
+
+    private ArrayList<io.elastest.epm.pop.generated.VDU> parseVDUs(List<VDU> vduList) {
+        ArrayList<io.elastest.epm.pop.generated.VDU> parsedVDUs = new ArrayList<>();
+        for (VDU vdu: vduList) {
+            parsedVDUs.add(parseVDU(vdu));
+        }
+        return parsedVDUs;
     }
 
     private io.elastest.epm.pop.generated.VDU parseVDU(VDU vdu) {

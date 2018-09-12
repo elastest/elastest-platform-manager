@@ -12,7 +12,7 @@ message FileMessage {
 message TerminateMessage {
     string resource_id = 1;
     PoP pop = 2;
-    VDU vdu = 3;
+    repeated VDU vdu = 3;
 }
 
 message ResourceIdentifier {
