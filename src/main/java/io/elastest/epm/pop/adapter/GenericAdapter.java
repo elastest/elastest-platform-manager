@@ -13,10 +13,7 @@ import io.elastest.epm.pop.generated.*;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
 import io.elastest.epm.properties.DockerProperties;
-import io.elastest.epm.repository.NetworkRepository;
-import io.elastest.epm.repository.PoPRepository;
-import io.elastest.epm.repository.ResourceGroupRepository;
-import io.elastest.epm.repository.VduRepository;
+import io.elastest.epm.repository.*;
 import io.elastest.epm.tosca.templates.service.Metadata;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.io.FileUtils;
@@ -57,6 +54,9 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
 
     @Autowired
     private DockerProperties dockerProperties;
+
+    @Autowired
+    private KeyRepository keyRepository;
 
     @Autowired
     private Utils utils;
@@ -252,6 +252,11 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         for(KeyValuePair kvp : vdu.getMetadata()) {
             metadataEntries.add(MetadataEntry.newBuilder().setKey(kvp.getKey()).setValue(kvp.getValue()).build());
         }
+        String key = "";
+        io.elastest.epm.model.Key vduKey;
+        if (vdu.getKey() != null && (vduKey = keyRepository.findOneByName(vdu.getKey())) != null) {
+            key = vduKey.getKey();
+        }
 
         return io.elastest.epm.pop.generated.VDU.newBuilder()
                 .setName(vdu.getName())
@@ -261,6 +266,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
                 .setNetName(vdu.getName())
                 .setPoPName(vdu.getPoPName())
                 .addAllMetadata(metadataEntries)
+                .setKey(Key.newBuilder().setKey(ByteString.copyFromUtf8(key)).build())
                 .build();
     }
 

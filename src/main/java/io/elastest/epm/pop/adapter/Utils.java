@@ -7,6 +7,7 @@ import io.elastest.epm.pop.generated.MetadataEntry;
 import io.elastest.epm.pop.generated.OperationHandlerGrpc;
 import io.elastest.epm.pop.generated.ResourceGroupProto;
 import io.elastest.epm.repository.AdapterRepository;
+import io.elastest.epm.repository.KeyRepository;
 import io.elastest.epm.repository.NetworkRepository;
 import io.elastest.epm.repository.VduRepository;
 
@@ -38,6 +39,9 @@ public class Utils {
 
     @Autowired
     private VduRepository vduRepository;
+
+    @Autowired
+    private KeyRepository keyRepository;
 
     public static File convert(MultipartFile file) throws IOException {
         File convFile = new File(file.getOriginalFilename());
@@ -137,16 +141,27 @@ public class Utils {
             resourceGroup.addNetworksItem(network);
         }
 
-        for (io.elastest.epm.pop.generated.VDU vduCompose : rg.getVdusList()) {
+        for (io.elastest.epm.pop.generated.VDU vduProto : rg.getVdusList()) {
 
             VDU vdu = new VDU();
-            vdu.setName(vduCompose.getName());
-            vdu.setImageName(vduCompose.getImageName());
-            vdu.setComputeId(vduCompose.getComputeId());
-            vdu.setNetName(vduCompose.getNetName());
+            vdu.setName(vduProto.getName());
+            vdu.setImageName(vduProto.getImageName());
+            vdu.setComputeId(vduProto.getComputeId());
+            vdu.setNetName(vduProto.getNetName());
             vdu.setPoPName(pop.getName());
-            vdu.setIp(vduCompose.getIp());
-            for (MetadataEntry metadataEntryCompose : vduCompose.getMetadataList()) {
+            vdu.setIp(vduProto.getIp());
+
+            if (vduProto.getKey() != null) {
+                Key newKey = new Key();
+                if (vduProto.getKey().getKey().isValidUtf8())
+                    newKey.setKey(vduProto.getKey().getKey().toStringUtf8());
+                else newKey.setKey(vduProto.getKey().getKey().toString());
+                newKey.setName(vdu.getName() + "-key-" + String.valueOf((int) (Math.random() * 1000000)));
+                keyRepository.save(newKey);
+                vdu.setKey(newKey.getName());
+            }
+
+            for (MetadataEntry metadataEntryCompose : vduProto.getMetadataList()) {
                 KeyValuePair kvp =
                         new KeyValuePair(metadataEntryCompose.getKey(), metadataEntryCompose.getValue());
                 vdu.addMetadataItem(kvp);

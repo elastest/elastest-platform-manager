@@ -1426,6 +1426,10 @@ definitions:
           - undeploying
           - undeployed
           - error
+      key:
+        type: string
+        description: The name of the key saved in EPM, which can be used to execute runtime operations on this VDU.
+        example: vdu_1-key
   ResourceGroup:
     description: 'A Resource Group defines a bundle of VDUs and virtual networks which belongs together. It includes also the Point-of-Presences where the virtual resources have to be allocated.'
     type: object
