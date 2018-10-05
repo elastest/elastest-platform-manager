@@ -19,7 +19,7 @@ Source code and documentation can be found [here][epm-adapter-docker-compose].
 
 ## Ansible Adapter
 
-The Ansible Adapter is still under development and currently only supports launching Virtual Machines in OpenStack. 
+The Ansible Adapter is currently supports launching Virtual Machines in OpenStack and AWS. 
 The Virtual Resources are defined using plays and are packaged together with a metadata file and optionally a public
 key. The source code and more detailed information can be found [here][epm-adapter-ansible] 
 
