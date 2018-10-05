@@ -13,10 +13,7 @@ import io.elastest.epm.pop.generated.*;
 import io.elastest.epm.pop.interfaces.PackageManagementInterface;
 import io.elastest.epm.pop.interfaces.RuntimeManagmentInterface;
 import io.elastest.epm.properties.DockerProperties;
-import io.elastest.epm.repository.NetworkRepository;
-import io.elastest.epm.repository.PoPRepository;
-import io.elastest.epm.repository.ResourceGroupRepository;
-import io.elastest.epm.repository.VduRepository;
+import io.elastest.epm.repository.*;
 import io.elastest.epm.tosca.templates.service.Metadata;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.io.FileUtils;
@@ -34,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -56,6 +54,9 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
 
     @Autowired
     private DockerProperties dockerProperties;
+
+    @Autowired
+    private KeyRepository keyRepository;
 
     @Autowired
     private Utils utils;
@@ -131,7 +132,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         TerminateMessage terminateMessage = TerminateMessage.newBuilder()
                 .setResourceId(resourceGroup.getName())
                 .setPop(parsePoP(poP))
-                .setVdu(parseVDU(resourceGroup.getVdus().get(0)))
+                .addAllVdu(parseVDUs(resourceGroup.getVdus()))
                 .build();
         composeClient.remove(terminateMessage);
 
@@ -233,7 +234,16 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         return io.elastest.epm.pop.generated.PoP.newBuilder()
                 .setName(poP.getName())
                 .setInterfaceEndpoint(poP.getInterfaceEndpoint())
+                .addAllAuth(parseInterfaceInfo(poP))
                 .build();
+    }
+
+    private ArrayList<io.elastest.epm.pop.generated.VDU> parseVDUs(List<VDU> vduList) {
+        ArrayList<io.elastest.epm.pop.generated.VDU> parsedVDUs = new ArrayList<>();
+        for (VDU vdu: vduList) {
+            parsedVDUs.add(parseVDU(vdu));
+        }
+        return parsedVDUs;
     }
 
     private io.elastest.epm.pop.generated.VDU parseVDU(VDU vdu) {
@@ -241,6 +251,11 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         ArrayList<MetadataEntry> metadataEntries = new ArrayList<>();
         for(KeyValuePair kvp : vdu.getMetadata()) {
             metadataEntries.add(MetadataEntry.newBuilder().setKey(kvp.getKey()).setValue(kvp.getValue()).build());
+        }
+        String key = "";
+        io.elastest.epm.model.Key vduKey;
+        if (vdu.getKey() != null && (vduKey = keyRepository.findOneByName(vdu.getKey())) != null) {
+            key = vduKey.getKey();
         }
 
         return io.elastest.epm.pop.generated.VDU.newBuilder()
@@ -251,7 +266,16 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
                 .setNetName(vdu.getName())
                 .setPoPName(vdu.getPoPName())
                 .addAllMetadata(metadataEntries)
+                .setKey(Key.newBuilder().setKey(ByteString.copyFromUtf8(key)).build())
                 .build();
+    }
+
+    private ArrayList<MetadataEntry> parseInterfaceInfo(PoP poP) {
+        ArrayList<MetadataEntry> out = new ArrayList<>();
+        for (KeyValuePair info : poP.getInterfaceInfo()) {
+            out.add(MetadataEntry.newBuilder().setKey(info.getKey()).setValue(info.getValue()).build());
+        }
+        return out;
     }
 
     private ArrayList<MetadataEntry> parseLaunchOptions() {

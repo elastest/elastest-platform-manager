@@ -17,7 +17,7 @@ pop: pop-name # OPTIONAL: specify the name of the pop for deploying the package
 Here are examples of the supported descriptors:
 * [Docker-Compose file](https://docs.docker.com/compose/compose-file/)
 * [Resource Group (interal format for docker)](../../descriptors/json/resource_group.json)
-* [Ansible play (OpenStack)](https://github.com/mpauls/epm-adapter-ansible/blob/master/plays/openstack_launch.yml)
+* [Ansible play (OpenStack / AWS)](https://github.com/mpauls/epm-adapter-ansible/blob/master/plays/openstack_launch.yml)
 
 3. Create a **tar** package with the following structure
 

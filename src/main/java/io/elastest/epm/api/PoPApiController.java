@@ -45,7 +45,7 @@ public class PoPApiController implements PoPApi {
             throws AdapterException {
         // do some magic!
         PoP poP = popManagement.registerPoP(body);
-        poP.setStatus(PoP.StatusEnum.ACTIVE);
+        //poP.setStatus(PoP.StatusEnum.ACTIVE);
         return new ResponseEntity<PoP>(poP, HttpStatus.OK);
     }
 

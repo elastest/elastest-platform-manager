@@ -95,6 +95,9 @@ public class VDU {
     @JsonProperty("status")
     private StatusEnum status = null;
 
+    @JsonProperty("key")
+    private String key = null;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JsonProperty("metadata")
     private List<KeyValuePair> metadata = new ArrayList<KeyValuePair>();
@@ -261,6 +264,27 @@ public class VDU {
         this.status = status;
     }
 
+    public VDU key(String key) {
+        this.key = key;
+        return this;
+    }
+
+    /**
+     * The name of the key saved in EPM, which can be used to execute runtime operations on this VDU.
+     * @return key
+     **/
+    @ApiModelProperty(example = "vdu_1-key", value = "The name of the key saved in EPM, which can be used to execute runtime operations on this VDU.")
+
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+
     public VDU metadata(List<KeyValuePair> metadata) {
         this.metadata = metadata;
         return this;
@@ -326,12 +350,14 @@ public class VDU {
                 && Objects.equals(this.poPName, VDU.poPName)
                 && Objects.equals(this.status, VDU.status)
                 && Objects.equals(this.metadata, VDU.metadata)
-                && Objects.equals(this.events, VDU.events);
+                && Objects.equals(this.events, VDU.events)
+                && Objects.equals(this.key, VDU.key);
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, imageName, ip, netName, poPName, status, metadata, events);
+        return Objects.hash(id, name, imageName, ip, netName, poPName, status, metadata, events, key);
     }
 
     @Override
@@ -348,6 +374,7 @@ public class VDU {
         sb.append("    status: ").append(toIndentedString(status)).append("\n");
         sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
         sb.append("    events: ").append(toIndentedString(events)).append("\n");
+        sb.append("    key: ").append(toIndentedString(key)).append("\n");
         sb.append("}");
         return sb.toString();
     }
