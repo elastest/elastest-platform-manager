@@ -65,6 +65,7 @@ public class CoreTest {
   @Autowired VDU vdu;
   @Autowired ResourceGroup resourceGroup;
   @Autowired Adapter adapter;
+  @Autowired Key key;
 
   @Before
   public void init() {
@@ -158,6 +159,21 @@ public class CoreTest {
 
     return poPRepository;
   }
+
+    @Bean
+    KeyRepository keyRepository() {
+        KeyRepository keyRepository = mock(KeyRepository.class);
+
+        List<Key> keys = new ArrayList<>();
+        keys.add(key);
+        when(keyRepository.findOneByName(key.getName())).thenReturn(key);
+        when(keyRepository.save(key)).thenReturn(key);
+        when(keyRepository.findAll()).thenReturn(keys);
+        when(keyRepository.findOne(key.getId())).thenReturn(key);
+        doNothing().when(keyRepository).delete(key.getId());
+
+        return keyRepository;
+    }
 
   @Bean
   AdapterRepository adapterRepository() {
