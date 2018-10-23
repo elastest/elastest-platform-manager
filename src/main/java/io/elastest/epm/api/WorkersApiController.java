@@ -1,6 +1,9 @@
 package io.elastest.epm.api;
 
 import com.google.common.collect.Lists;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
+import io.elastest.epm.api.body.WorkerFromVDU;
 import io.elastest.epm.api.utils.AdapterLauncher;
 import io.elastest.epm.api.utils.WorkerLauncher;
 import io.elastest.epm.exception.NotFoundException;
@@ -16,6 +19,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.apache.commons.compress.archivers.ArchiveException;
+import org.mariadb.jdbc.internal.logging.Logger;
+import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class WorkersApiController implements WorkersApi {
 
+    private Logger log = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private WorkerRepository workerRepository;
     @Autowired
@@ -41,18 +48,26 @@ public class WorkersApiController implements WorkersApi {
     @Autowired
     private WorkerLauncher workerLauncher;
 
-    public ResponseEntity<List<Worker>> createWorker(@ApiParam(value = "file detail") @RequestPart("file") MultipartFile file)
-            throws Exception {
-        List<Worker> workers = workerLauncher.createWorker(file.getInputStream());
-        return new ResponseEntity<List<Worker>>(workers, HttpStatus.OK);
+    @Override
+    public ResponseEntity<Worker> createWorker(@ApiParam(value = "Body to create Worker from VDU" ,required=true )  @Valid @RequestBody WorkerFromVDU workerFromVDU) {
+        try {
+            System.out.print(workerFromVDU.toString());
+            log.debug("ID: " + workerFromVDU.getVduId());
+            Worker worker = workerLauncher.createWorker(workerFromVDU);
+            return new ResponseEntity<Worker>(worker, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<Worker>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     public ResponseEntity<String> deleteWorker(
-            @ApiParam(value = "ID of Worker", required = true) @PathVariable("id") String id)
-            throws NotFoundException {
+            @ApiParam(value = "ID of Worker", required = true) @PathVariable("id") String id) {
         // do some magic!
         if (workerRepository.findOne(id) != null) workerRepository.delete(id);
-        else throw new NotFoundException("No worker with id: " + id + " registered.");
+        else {
+            return new ResponseEntity<String>("Could not find worker with id: " + id, HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<String>(HttpStatus.OK);
     }
 
@@ -64,18 +79,38 @@ public class WorkersApiController implements WorkersApi {
 
     public ResponseEntity<String> installAdapter(
             @ApiParam(value = "ID of Worker", required = true) @PathVariable("id") String id,
-            @ApiParam(value = "type of adapter", required = true) @PathVariable("type") String type)
-            throws Exception {
+            @ApiParam(value = "type of adapter", required = true) @PathVariable("type") String type) {
         // do some magic!
-        String response = adapterLauncher.startAdapter(id, type);
+        String response = null;
+        try {
+            response = adapterLauncher.startAdapter(id, type);
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (JSchException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (SftpException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (InterruptedException e) {
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         return new ResponseEntity<String>(response, HttpStatus.OK);
     }
 
     public ResponseEntity<Worker> registerWorker(
-            @ApiParam(value = "worker in a json", required = true) @Valid @RequestBody Worker body)
-            throws Exception {
+            @ApiParam(value = "worker in a json", required = true) @Valid @RequestBody Worker body) {
 
-        Worker w = workerLauncher.configureWorker(body, keyRepository.findOneByName(body.getKeyname()));
+        Worker w = null;
+        try {
+            w = workerLauncher.configureWorker(body);
+        } catch (Exception e) {
+            return new ResponseEntity<Worker>(HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<Worker>(w, HttpStatus.OK);
     }
 }

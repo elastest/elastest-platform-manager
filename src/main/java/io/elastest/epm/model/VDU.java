@@ -342,38 +342,41 @@ public class VDU {
             return false;
         }
         VDU VDU = (VDU) o;
-        return Objects.equals(this.id, VDU.id)
-                && Objects.equals(this.name, VDU.name)
-                && Objects.equals(this.imageName, VDU.imageName)
-                && Objects.equals(this.ip, VDU.ip)
-                && Objects.equals(this.netName, VDU.netName)
-                && Objects.equals(this.poPName, VDU.poPName)
-                && Objects.equals(this.status, VDU.status)
-                && Objects.equals(this.metadata, VDU.metadata)
-                && Objects.equals(this.events, VDU.events)
-                && Objects.equals(this.key, VDU.key);
+        return Objects.equals(this.computeId, VDU.computeId) &&
+                Objects.equals(this.events, VDU.events) &&
+                Objects.equals(this.id, VDU.id) &&
+                Objects.equals(this.imageName, VDU.imageName) &&
+                Objects.equals(this.ip, VDU.ip) &&
+                Objects.equals(this.metadata, VDU.metadata) &&
+                Objects.equals(this.name, VDU.name) &&
+                Objects.equals(this.netName, VDU.netName) &&
+                Objects.equals(this.poPName, VDU.poPName) &&
+                Objects.equals(this.status, VDU.status) &&
+                Objects.equals(this.key, VDU.key);
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, imageName, ip, netName, poPName, status, metadata, events, key);
+        return Objects.hash(computeId, events, id, imageName, ip, metadata, name, netName, poPName, status, key);
     }
+
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class VDU {\n");
 
+        sb.append("    computeId: ").append(toIndentedString(computeId)).append("\n");
+        sb.append("    events: ").append(toIndentedString(events)).append("\n");
         sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    imageName: ").append(toIndentedString(imageName)).append("\n");
         sb.append("    ip: ").append(toIndentedString(ip)).append("\n");
+        sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
+        sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    netName: ").append(toIndentedString(netName)).append("\n");
         sb.append("    poPName: ").append(toIndentedString(poPName)).append("\n");
         sb.append("    status: ").append(toIndentedString(status)).append("\n");
-        sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
-        sb.append("    events: ").append(toIndentedString(events)).append("\n");
         sb.append("    key: ").append(toIndentedString(key)).append("\n");
         sb.append("}");
         return sb.toString();

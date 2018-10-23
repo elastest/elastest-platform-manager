@@ -42,7 +42,12 @@ public class AdapterLauncher {
         Worker worker = workerRepository.findOne(workerId);
         if (worker == null) throw new NotFoundException("No worker with id: " + workerId + " registered.");
 
-        if (keyRepository.findOneByName(worker.getKeyname()) == null)
+        return startAdapter(worker, type);
+    }
+
+    public String startAdapter(Worker worker, String type) throws NotFoundException, JSchException, SftpException, IOException, InterruptedException {
+
+        if (keyRepository.findOneByName(worker.getAuthCredentials().getKey()) == null)
             throw new NotFoundException("The key was not found!");
 
         switch (type) {
@@ -50,18 +55,18 @@ public class AdapterLauncher {
                 return "Available adapters setups: docker-compose, docker, ansible";
             case "docker":
                 startAdapter(
-                        worker, keyRepository.findOneByName(worker.getKeyname()), type);
+                        worker, keyRepository.findOneByName(worker.getAuthCredentials().getKey()), type);
                 return "Adapter started.";
             case "ansible":
                 return "Not implemented yet.";
             case "docker-compose":
                 startAdapter(
-                        worker, keyRepository.findOneByName(worker.getKeyname()), type);
+                        worker, keyRepository.findOneByName(worker.getAuthCredentials().getKey()), type);
                 return "Adapter started.";
         }
     }
 
-    public void startAdapter(Worker worker, Key key, String type)
+    private void startAdapter(Worker worker, Key key, String type)
             throws JSchException, IOException, SftpException, InterruptedException {
 
         Session session = sshHelper.createSession(worker, key);
