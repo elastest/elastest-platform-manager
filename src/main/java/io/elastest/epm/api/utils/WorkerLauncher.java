@@ -125,19 +125,23 @@ public class WorkerLauncher {
         log.debug("Creating worker from vdu: " + workerFromVDU.getVduId());
         VDU vdu = vduRepository.findOne(workerFromVDU.getVduId());
         if (vdu != null) {
-            Worker worker = new Worker();
-            AuthCredentials authCredentials = new AuthCredentials();
-            authCredentials.setKey(vdu.getKey());
-            worker.setIp(vdu.getIp());
-            worker.setEpmIp(epmIp);
-            authCredentials.setUser("ubuntu");
-            authCredentials.setPassword("");
-            authCredentials.setPassphrase("");
-            worker.setAuthCredentials(authCredentials);
-            worker.setType(workerFromVDU.getType());
-            return configureWorker(worker);
+            return workerFromVDU(vdu, workerFromVDU.getType());
         }
         log.debug("VDU NOT FOUND!");
         return null;
+    }
+
+    public Worker workerFromVDU(VDU vdu, List<String> type) throws Exception {
+        Worker worker = new Worker();
+        AuthCredentials authCredentials = new AuthCredentials();
+        authCredentials.setKey(vdu.getKey());
+        worker.setIp(vdu.getIp());
+        worker.setEpmIp(epmIp);
+        authCredentials.setUser("ubuntu");
+        authCredentials.setPassword("");
+        authCredentials.setPassphrase("");
+        worker.setAuthCredentials(authCredentials);
+        worker.setType(type);
+        return configureWorker(worker);
     }
 }

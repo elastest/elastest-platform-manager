@@ -41,11 +41,11 @@ public class ClusterApiController implements ClusterApi {
 
     public ResponseEntity<String> addWorker(@ApiParam(value = "ID of Cluster",required=true) @PathVariable("id") String id,@ApiParam(value = "The ID of either a Worker or a VDU, which will be added to the cluster",required=true) @PathVariable("machineId") String machineId) {
 
-        return new ResponseEntity<String>(clusterLauncher.addWorker(id, machineId), HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     public ResponseEntity<Cluster> createCluster(@ApiParam(value = "Body to create Cluster from ResourceGroup" ,required=true )  @Valid @RequestBody ClusterFromResourceGroup clusterFromResourceGroup) {
-        return new ResponseEntity<Cluster>(clusterLauncher.createCluster(clusterFromResourceGroup), HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<Cluster>(clusterLauncher.createCluster(clusterFromResourceGroup), HttpStatus.OK);
 
     }
 
@@ -61,7 +61,7 @@ public class ClusterApiController implements ClusterApi {
 
     public ResponseEntity<String> setUpCluster(@ApiParam(value = "ID of Cluster",required=true) @PathVariable("id") String id,@ApiParam(value = "type of technology",required=true) @PathVariable("type") String type) {
 
-        return new ResponseEntity<String>(clusterLauncher.install(id, type), HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
     }
 
 }

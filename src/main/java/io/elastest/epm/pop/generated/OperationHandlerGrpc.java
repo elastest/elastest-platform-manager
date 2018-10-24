@@ -1,19 +1,11 @@
 package io.elastest.epm.pop.generated;
 
-import static io.grpc.stub.ClientCalls.asyncUnaryCall;
-import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
-import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
-import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
-import static io.grpc.stub.ClientCalls.blockingUnaryCall;
-import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
-import static io.grpc.stub.ClientCalls.futureUnaryCall;
 import static io.grpc.MethodDescriptor.generateFullMethodName;
+import static io.grpc.stub.ClientCalls.asyncUnaryCall;
+import static io.grpc.stub.ClientCalls.blockingUnaryCall;
+import static io.grpc.stub.ClientCalls.futureUnaryCall;
 import static io.grpc.stub.ServerCalls.asyncUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncServerStreamingCall;
-import static io.grpc.stub.ServerCalls.asyncClientStreamingCall;
-import static io.grpc.stub.ServerCalls.asyncBidiStreamingCall;
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall;
 
 /**
  */
@@ -22,11 +14,7 @@ import static io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall;
         comments = "Source: client.proto")
 public final class OperationHandlerGrpc {
 
-    private OperationHandlerGrpc() {
-    }
-
     public static final String SERVICE_NAME = "OperationHandler";
-
     // Static method descriptors that strictly reflect the proto.
     @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
     public static final io.grpc.MethodDescriptor<FileMessage,
@@ -148,6 +136,32 @@ public final class OperationHandlerGrpc {
                     .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                             Status.getDefaultInstance()))
                     .build();
+    @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+    public static final io.grpc.MethodDescriptor<CreateClusterMessage,
+            StringResponse> METHOD_CREATE_CLUSTER =
+            io.grpc.MethodDescriptor.<CreateClusterMessage, StringResponse>newBuilder()
+                    .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+                    .setFullMethodName(generateFullMethodName(
+                            "OperationHandler", "CreateCluster"))
+                    .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                            CreateClusterMessage.getDefaultInstance()))
+                    .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                            StringResponse.getDefaultInstance()))
+                    .build();
+    private static final int METHODID_CREATE = 0;
+    private static final int METHODID_REMOVE = 1;
+    private static final int METHODID_STOP = 2;
+    private static final int METHODID_CHECK_IF_RESOURCE_EXISTS = 3;
+    private static final int METHODID_CHECK_IF_RESOURCE_RUNNING = 4;
+    private static final int METHODID_START = 5;
+    private static final int METHODID_EXECUTE_COMMAND = 6;
+    private static final int METHODID_DOWNLOAD_FILE = 7;
+    private static final int METHODID_UPLOAD_FILE = 8;
+    private static final int METHODID_CHECK_STATUS = 9;
+    private static final int METHODID_CREATE_CLUSTER = 10;
+    private static volatile io.grpc.ServiceDescriptor serviceDescriptor;
+    private OperationHandlerGrpc() {
+    }
 
     /**
      * Creates a new async stub that supports all call types for the service
@@ -170,6 +184,32 @@ public final class OperationHandlerGrpc {
     public static OperationHandlerFutureStub newFutureStub(
             io.grpc.Channel channel) {
         return new OperationHandlerFutureStub(channel);
+    }
+
+    public static io.grpc.ServiceDescriptor getServiceDescriptor() {
+        io.grpc.ServiceDescriptor result = serviceDescriptor;
+        if (result == null) {
+            synchronized (OperationHandlerGrpc.class) {
+                result = serviceDescriptor;
+                if (result == null) {
+                    serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
+                            .setSchemaDescriptor(new OperationHandlerDescriptorSupplier())
+                            .addMethod(METHOD_CREATE)
+                            .addMethod(METHOD_REMOVE)
+                            .addMethod(METHOD_STOP)
+                            .addMethod(METHOD_CHECK_IF_RESOURCE_EXISTS)
+                            .addMethod(METHOD_CHECK_IF_RESOURCE_RUNNING)
+                            .addMethod(METHOD_START)
+                            .addMethod(METHOD_EXECUTE_COMMAND)
+                            .addMethod(METHOD_DOWNLOAD_FILE)
+                            .addMethod(METHOD_UPLOAD_FILE)
+                            .addMethod(METHOD_CHECK_STATUS)
+                            .addMethod(METHOD_CREATE_CLUSTER)
+                            .build();
+                }
+            }
+        }
+        return result;
     }
 
     /**
@@ -246,6 +286,13 @@ public final class OperationHandlerGrpc {
             asyncUnimplementedUnaryCall(METHOD_CHECK_STATUS, responseObserver);
         }
 
+        /**
+         */
+        public void createCluster(CreateClusterMessage request,
+                                  io.grpc.stub.StreamObserver<StringResponse> responseObserver) {
+            asyncUnimplementedUnaryCall(METHOD_CREATE_CLUSTER, responseObserver);
+        }
+
         @java.lang.Override
         public final io.grpc.ServerServiceDefinition bindService() {
             return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
@@ -319,6 +366,13 @@ public final class OperationHandlerGrpc {
                                             Empty,
                                             Status>(
                                             this, METHODID_CHECK_STATUS)))
+                    .addMethod(
+                            METHOD_CREATE_CLUSTER,
+                            asyncUnaryCall(
+                                    new MethodHandlers<
+                                            CreateClusterMessage,
+                                            StringResponse>(
+                                            this, METHODID_CREATE_CLUSTER)))
                     .build();
         }
     }
@@ -420,6 +474,14 @@ public final class OperationHandlerGrpc {
             asyncUnaryCall(
                     getChannel().newCall(METHOD_CHECK_STATUS, getCallOptions()), request, responseObserver);
         }
+
+        /**
+         */
+        public void createCluster(CreateClusterMessage request,
+                                  io.grpc.stub.StreamObserver<StringResponse> responseObserver) {
+            asyncUnaryCall(
+                    getChannel().newCall(METHOD_CREATE_CLUSTER, getCallOptions()), request, responseObserver);
+        }
     }
 
     /**
@@ -508,6 +570,13 @@ public final class OperationHandlerGrpc {
         public Status checkStatus(Empty request) {
             return blockingUnaryCall(
                     getChannel(), METHOD_CHECK_STATUS, getCallOptions(), request);
+        }
+
+        /**
+         */
+        public StringResponse createCluster(CreateClusterMessage request) {
+            return blockingUnaryCall(
+                    getChannel(), METHOD_CREATE_CLUSTER, getCallOptions(), request);
         }
     }
 
@@ -608,18 +677,15 @@ public final class OperationHandlerGrpc {
             return futureUnaryCall(
                     getChannel().newCall(METHOD_CHECK_STATUS, getCallOptions()), request);
         }
-    }
 
-    private static final int METHODID_CREATE = 0;
-    private static final int METHODID_REMOVE = 1;
-    private static final int METHODID_STOP = 2;
-    private static final int METHODID_CHECK_IF_RESOURCE_EXISTS = 3;
-    private static final int METHODID_CHECK_IF_RESOURCE_RUNNING = 4;
-    private static final int METHODID_START = 5;
-    private static final int METHODID_EXECUTE_COMMAND = 6;
-    private static final int METHODID_DOWNLOAD_FILE = 7;
-    private static final int METHODID_UPLOAD_FILE = 8;
-    private static final int METHODID_CHECK_STATUS = 9;
+        /**
+         */
+        public com.google.common.util.concurrent.ListenableFuture<StringResponse> createCluster(
+                CreateClusterMessage request) {
+            return futureUnaryCall(
+                    getChannel().newCall(METHOD_CREATE_CLUSTER, getCallOptions()), request);
+        }
+    }
 
     private static final class MethodHandlers<Req, Resp> implements
             io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -678,6 +744,10 @@ public final class OperationHandlerGrpc {
                     serviceImpl.checkStatus((Empty) request,
                             (io.grpc.stub.StreamObserver<Status>) responseObserver);
                     break;
+                case METHODID_CREATE_CLUSTER:
+                    serviceImpl.createCluster((CreateClusterMessage) request,
+                            (io.grpc.stub.StreamObserver<StringResponse>) responseObserver);
+                    break;
                 default:
                     throw new AssertionError();
             }
@@ -699,32 +769,5 @@ public final class OperationHandlerGrpc {
         public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
             return Client.getDescriptor();
         }
-    }
-
-    private static volatile io.grpc.ServiceDescriptor serviceDescriptor;
-
-    public static io.grpc.ServiceDescriptor getServiceDescriptor() {
-        io.grpc.ServiceDescriptor result = serviceDescriptor;
-        if (result == null) {
-            synchronized (OperationHandlerGrpc.class) {
-                result = serviceDescriptor;
-                if (result == null) {
-                    serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
-                            .setSchemaDescriptor(new OperationHandlerDescriptorSupplier())
-                            .addMethod(METHOD_CREATE)
-                            .addMethod(METHOD_REMOVE)
-                            .addMethod(METHOD_STOP)
-                            .addMethod(METHOD_CHECK_IF_RESOURCE_EXISTS)
-                            .addMethod(METHOD_CHECK_IF_RESOURCE_RUNNING)
-                            .addMethod(METHOD_START)
-                            .addMethod(METHOD_EXECUTE_COMMAND)
-                            .addMethod(METHOD_DOWNLOAD_FILE)
-                            .addMethod(METHOD_UPLOAD_FILE)
-                            .addMethod(METHOD_CHECK_STATUS)
-                            .build();
-                }
-            }
-        }
-        return result;
     }
 }

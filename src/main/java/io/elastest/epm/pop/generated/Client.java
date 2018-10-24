@@ -58,6 +58,10 @@ public final class Client {
   static final com.google.protobuf.Descriptors.Descriptor internal_static_Key_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_Key_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_CreateClusterMessage_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_CreateClusterMessage_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
     return descriptor;
@@ -95,23 +99,27 @@ public final class Client {
           + "\n\004cidr\030\003 \001(\t\022\021\n\tnetworkId\030\004 \001(\t\"f\n\022Resou"
           + "rceGroupProto\022\014\n\004name\030\001 \001(\t\022\022\n\004pops\030\002 \003("
           + "\0132\004.PoP\022\032\n\010networks\030\003 \003(\0132\010.Network\022\022\n\004v"
-          + "dus\030\004 \003(\0132\004.VDU\"\022\n\003Key\022\013\n\003key\030\001 \001(\0142\354\003\n\020"
-          + "OperationHandler\022-\n\006Create\022\014.FileMessage",
-      "\032\023.ResourceGroupProto\"\000\022%\n\006Remove\022\021.Term"
+          + "dus\030\004 \003(\0132\004.VDU\"\022\n\003Key\022\013\n\003key\030\001 \001(\014\"N\n\024C"
+          + "reateClusterMessage\022\021\n\tmaster_ip\030\001 \001(\t\022\020",
+      "\n\010nodes_ip\030\002 \003(\t\022\021\n\003key\030\003 \001(\0132\004.Key2\247\004\n\020"
+          + "OperationHandler\022-\n\006Create\022\014.FileMessage"
+          + "\032\023.ResourceGroupProto\"\000\022%\n\006Remove\022\021.Term"
           + "inateMessage\032\006.Empty\"\000\022%\n\004Stop\022\023.Resourc"
           + "eIdentifier\032\006.Empty\"\000\022?\n\025CheckIfResource"
           + "Exists\022\023.ResourceIdentifier\032\017.StringResp"
           + "onse\"\000\022@\n\026CheckIfResourceRunning\022\023.Resou"
           + "rceIdentifier\032\017.StringResponse\"\000\022&\n\005Star"
           + "t\022\023.ResourceIdentifier\032\006.Empty\"\000\0224\n\016Exec"
-          + "uteCommand\022\017.RuntimeMessage\032\017.StringResp"
-          + "onse\"\000\022/\n\014DownloadFile\022\017.RuntimeMessage\032"
-          + "\014.FileMessage\"\000\022\'\n\nUploadFile\022\017.RuntimeM",
-      "essage\032\006.Empty\"\000\022 \n\013CheckStatus\022\006.Empty\032"
-          + "\007.Status\"\0002y\n\016AdapterHandler\0227\n\017Register"
-          + "Adapter\022\r.AdapterProto\032\023.ResourceIdentif"
-          + "ier\"\000\022.\n\rDeleteAdapter\022\023.ResourceIdentif"
-          + "ier\032\006.Empty\"\000B\002P\001b\006proto3"
+          + "uteCommand\022\017.RuntimeMessage\032\017.StringResp",
+      "onse\"\000\022/\n\014DownloadFile\022\017.RuntimeMessage\032"
+          + "\014.FileMessage\"\000\022\'\n\nUploadFile\022\017.RuntimeM"
+          + "essage\032\006.Empty\"\000\022 \n\013CheckStatus\022\006.Empty\032"
+          + "\007.Status\"\000\0229\n\rCreateCluster\022\025.CreateClus"
+          + "terMessage\032\017.StringResponse\"\0002y\n\016Adapter"
+          + "Handler\0227\n\017RegisterAdapter\022\r.AdapterProt"
+          + "o\032\023.ResourceIdentifier\"\000\022.\n\rDeleteAdapte"
+          + "r\022\023.ResourceIdentifier\032\006.Empty\"\000B\002P\001b\006pr"
+          + "oto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -224,6 +232,13 @@ public final class Client {
             internal_static_Key_descriptor,
             new String[] {
               "Key",
+            });
+    internal_static_CreateClusterMessage_descriptor = getDescriptor().getMessageTypes().get(15);
+    internal_static_CreateClusterMessage_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_CreateClusterMessage_descriptor,
+            new String[] {
+              "MasterIp", "NodesIp", "Key",
             });
   }
 
