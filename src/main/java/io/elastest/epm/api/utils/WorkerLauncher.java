@@ -1,7 +1,10 @@
 package io.elastest.epm.api.utils;
 
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 import io.elastest.epm.api.body.WorkerFromVDU;
+import io.elastest.epm.exception.BadRequestException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.AuthCredentials;
 import io.elastest.epm.model.Key;
@@ -22,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +33,9 @@ import java.util.List;
 @Component
 public class WorkerLauncher {
 
+    @Autowired
+    PoPRepository poPRepository;
     private Logger log = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
     private ElastestProperties elastestProperties;
     @Autowired
@@ -44,8 +49,6 @@ public class WorkerLauncher {
     @Autowired
     private Utils utils;
     @Autowired
-    PoPRepository poPRepository;
-    @Autowired
     private AdapterLauncher adapterLauncher;
 
     @Autowired
@@ -55,12 +58,14 @@ public class WorkerLauncher {
     private String epmIp;
 
     public Worker configureWorker(Worker worker)
-            throws Exception {
+            throws IOException, NotFoundException, BadRequestException, InterruptedException,
+            JSchException, SftpException {
 
         Key key = keyRepository.findOneByName(worker.getAuthCredentials().getKey());
 
         if (workerRepository.findOneByIp(worker.getIp()) != null)
-            throw new Exception("There is already a worker registered at the ip: " + worker.getIp());
+            throw new BadRequestException(
+                    "There is already a worker registered at the ip: " + worker.getIp());
 
         if (keyRepository.findOneByName(worker.getAuthCredentials().getKey()) == null)
             throw new NotFoundException("The key was not found!");
@@ -84,16 +89,19 @@ public class WorkerLauncher {
                     " "
                             + elastestProperties.getEmp().getEndPoint()
                             + ":"
-                            + elastestProperties.getEmp().getPort() + " "
-                            + elastestProperties.getEmp().getTopic() + " "
-                            + elastestProperties.getEmp().getSeriesName() + " "
+                            + elastestProperties.getEmp().getPort()
+                            + " "
+                            + elastestProperties.getEmp().getTopic()
+                            + " "
+                            + elastestProperties.getEmp().getSeriesName()
+                            + " "
                             + worker.getIp();
             sshHelper.executeCommand(session, "sudo su root ./preconfigure.sh " + empConfig);
         }
         session.disconnect();
 
         if (worker.getType() != null && worker.getType().size() > 0) {
-            for (String type: worker.getType()) {
+            for (String type : worker.getType()) {
                 adapterLauncher.startAdapter(worker, type);
             }
         }
@@ -101,10 +109,11 @@ public class WorkerLauncher {
         return workerRepository.save(worker);
     }
 
-    private List<Worker> resourceGroupToWorkers(ResourceGroupProto resourceGroupProto, Key key) throws Exception {
+    private List<Worker> resourceGroupToWorkers(ResourceGroupProto resourceGroupProto, Key key)
+            throws Exception {
         List<Worker> workers = new ArrayList<>();
 
-        for(io.elastest.epm.pop.generated.VDU vdu : resourceGroupProto.getVdusList()) {
+        for (io.elastest.epm.pop.generated.VDU vdu : resourceGroupProto.getVdusList()) {
             Worker worker = new Worker();
             AuthCredentials authCredentials = new AuthCredentials();
             authCredentials.setKey(key.getName());
@@ -131,17 +140,22 @@ public class WorkerLauncher {
         return null;
     }
 
-    public Worker workerFromVDU(VDU vdu, List<String> type) throws Exception {
-        Worker worker = new Worker();
-        AuthCredentials authCredentials = new AuthCredentials();
-        authCredentials.setKey(vdu.getKey());
-        worker.setIp(vdu.getIp());
-        worker.setEpmIp(epmIp);
-        authCredentials.setUser("ubuntu");
-        authCredentials.setPassword("");
-        authCredentials.setPassphrase("");
-        worker.setAuthCredentials(authCredentials);
-        worker.setType(type);
-        return configureWorker(worker);
+    public Worker workerFromVDU(VDU vdu, List<String> type)
+            throws InterruptedException, BadRequestException, IOException, JSchException,
+            NotFoundException, SftpException {
+        Worker worker = workerRepository.findOneByIp(vdu.getIp());
+        if (worker == null) {
+            worker = new Worker();
+            AuthCredentials authCredentials = new AuthCredentials();
+            authCredentials.setKey(vdu.getKey());
+            worker.setIp(vdu.getIp());
+            worker.setEpmIp(epmIp);
+            authCredentials.setUser("ubuntu");
+            authCredentials.setPassword("");
+            authCredentials.setPassphrase("");
+            worker.setAuthCredentials(authCredentials);
+            worker.setType(type);
+            return configureWorker(worker);
+        } else return worker;
     }
 }
