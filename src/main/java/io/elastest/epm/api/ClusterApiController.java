@@ -46,8 +46,28 @@ public class ClusterApiController implements ClusterApi {
             )
             @PathVariable("machineId")
                     String machineId) {
-
-        return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
+        try {
+            Cluster cluster = clusterLauncher.addNode(id, machineId);
+            return new ResponseEntity<String>(cluster.toString(), HttpStatus.OK);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+        } catch (SftpException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+        } catch (BadRequestException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+        } catch (JSchException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+        }
     }
 
     public ResponseEntity<Cluster> createCluster(

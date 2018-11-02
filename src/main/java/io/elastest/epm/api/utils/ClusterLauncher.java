@@ -12,13 +12,15 @@ import io.elastest.epm.model.ResourceGroup;
 import io.elastest.epm.model.VDU;
 import io.elastest.epm.model.Worker;
 import io.elastest.epm.pop.adapter.Utils;
-import io.elastest.epm.pop.generated.CreateClusterMessage;
+import io.elastest.epm.pop.generated.InstallMessage;
 import io.elastest.epm.pop.generated.Key;
 import io.elastest.epm.pop.generated.OperationHandlerGrpc;
 import io.elastest.epm.pop.generated.StringResponse;
 import io.elastest.epm.repository.ClusterRepository;
 import io.elastest.epm.repository.KeyRepository;
 import io.elastest.epm.repository.ResourceGroupRepository;
+import io.elastest.epm.repository.VduRepository;
+import io.elastest.epm.repository.WorkerRepository;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,10 @@ public class ClusterLauncher {
 
     @Autowired
     ResourceGroupRepository resourceGroupRepository;
+    @Autowired
+    VduRepository vduRepository;
+    @Autowired
+    WorkerRepository workerRepository;
     @Autowired
     Utils utils;
     @Autowired
@@ -93,8 +99,9 @@ public class ClusterLauncher {
                     for (Worker node : cluster.getNodes()) {
                         nodeIps.add(node.getIp());
                     }
-                    CreateClusterMessage createClusterMessage =
-                            CreateClusterMessage.newBuilder()
+                    InstallMessage createClusterMessage =
+                            InstallMessage.newBuilder()
+                                    .setType("kubernetes")
                                     .setMasterIp(cluster.getMaster().getIp())
                                     .addAllNodesIp(nodeIps)
                                     .setKey(Key.newBuilder().setKey(ByteString.copyFromUtf8(key.getKey())).build())
@@ -111,6 +118,45 @@ public class ClusterLauncher {
                 }
             default:
                 return cluster;
+        }
+    }
+
+
+    public Cluster addNode(String clusterId, String id) throws InterruptedException, SftpException,
+            BadRequestException, JSchException, IOException, NotFoundException {
+
+        Cluster cluster = clusterRepository.findOne(clusterId);
+        if (cluster == null) throw new NotFoundException("No cluster found with id: " + clusterId);
+
+        VDU vdu;
+        Worker worker = (vdu = vduRepository.findOne(id)) == null ? workerRepository.findOne(id) : workerLauncher.workerFromVDU(vdu, cluster.getMaster().getType());
+
+        log.debug("Adding node to Cluster: " + cluster.getId());
+        Adapter adapter = utils.getAdapter("ansible");
+        try {
+            io.elastest.epm.model.Key key =
+                    keyRepository.findOneByName(cluster.getMaster().getAuthCredentials().getKey());
+
+            OperationHandlerGrpc.OperationHandlerBlockingStub client =
+                    utils.getAdapterClient(adapter);
+
+            InstallMessage addNodeMessage =
+                    InstallMessage.newBuilder()
+                            .setType("kubernetes-node")
+                            .setMasterIp(cluster.getMaster().getIp())
+                            .addNodesIp(worker.getIp())
+                            .setKey(Key.newBuilder().setKey(ByteString.copyFromUtf8(key.getKey())).build())
+                            .build();
+            StringResponse s = client.createCluster(addNodeMessage);
+            int status = Integer.parseInt(s.getResponse());
+            if (status == 0) {
+                // add node
+                cluster.addNodesItem(worker);
+            }
+            return clusterRepository.save(cluster);
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            return cluster;
         }
     }
 }
