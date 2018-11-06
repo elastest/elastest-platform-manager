@@ -1,11 +1,17 @@
 package io.elastest.epm.api.utils;
 
+import com.google.protobuf.ByteString;
 import com.jcraft.jsch.*;
 import io.elastest.epm.exception.NotFoundException;
+import io.elastest.epm.model.Adapter;
 import io.elastest.epm.model.Key;
 import io.elastest.epm.model.KeyValuePair;
 import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.Worker;
+import io.elastest.epm.pop.adapter.Utils;
+import io.elastest.epm.pop.generated.InstallMessage;
+import io.elastest.epm.pop.generated.OperationHandlerGrpc;
+import io.elastest.epm.pop.generated.StringResponse;
 import io.elastest.epm.properties.ElastestProperties;
 import io.elastest.epm.repository.KeyRepository;
 import io.elastest.epm.repository.PoPRepository;
@@ -32,6 +38,8 @@ public class AdapterLauncher {
     private KeyRepository keyRepository;
     @Autowired
     private SSHHelper sshHelper;
+    @Autowired
+    Utils utils;
 
     @Value("${et.public.host}")
     private String epmIp;
@@ -67,7 +75,7 @@ public class AdapterLauncher {
     }
 
     private void startAdapter(Worker worker, Key key, String type)
-            throws JSchException, IOException, SftpException, InterruptedException {
+            throws JSchException, IOException, SftpException, InterruptedException, NotFoundException {
 
         Session session = sshHelper.createSession(worker, key);
 
@@ -78,7 +86,7 @@ public class AdapterLauncher {
 
         switch (type) {
             case "docker-compose":
-                installationIs = new FileInputStream("configuration_scripts/install_docker_compose.sh");
+                /*installationIs = new FileInputStream("configuration_scripts/install_docker_compose.sh");
                 sshHelper.sendFile(session, installationIs, "docker_compose.sh");
 
                 if (!epmIp.equals("")) {
@@ -90,12 +98,28 @@ public class AdapterLauncher {
                     sshHelper.executeCommand(
                             session,
                             "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp());
+                }*/
+                Adapter adapter = utils.getAdapter("ansible");
+
+                OperationHandlerGrpc.OperationHandlerBlockingStub client =
+                        utils.getAdapterClient(adapter);
+
+                InstallMessage addNodeMessage =
+                        InstallMessage.newBuilder()
+                                .setType("docker-compose")
+                                .setMasterIp(worker.getIp())
+                                .addNodesIp(worker.getIp())
+                                .setKey(io.elastest.epm.pop.generated.Key.newBuilder().setKey(ByteString.copyFromUtf8(key.getKey())).build())
+                                .build();
+                StringResponse s = client.createCluster(addNodeMessage);
+                int status = Integer.parseInt(s.getResponse());
+                if (status == 0) {
+                    PoP composePop = new PoP();
+                    composePop.setInterfaceEndpoint(worker.getIp());
+                    composePop.setName("compose-" + worker.getIp());
+                    composePop.addInterfaceInfoItem(new KeyValuePair("type", "docker-compose"));
+                    poPRepository.save(composePop);
                 }
-                PoP composePop = new PoP();
-                composePop.setInterfaceEndpoint(worker.getIp());
-                composePop.setName("compose-" + worker.getIp());
-                composePop.addInterfaceInfoItem(new KeyValuePair("type", "docker-compose"));
-                poPRepository.save(composePop);
                 break;
             case "docker":
                 installationIs = new FileInputStream("configuration_scripts/install_docker.sh");
