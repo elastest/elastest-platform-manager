@@ -27,11 +27,12 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock:ro
         expose:
             - 8180
-        ports:
-            - 8180:8180
-            - 50050:50050
+            - 50050
         networks:
             - elastest
+        labels:
+            - io.elastest.type=core
+
     epm-adapter-docker-compose:
         container_name: elastest-epm-adapter-docker-compose
         image: elastest/epm-adapter-docker-compose
@@ -40,10 +41,13 @@ services:
             - elastest-platform-manager
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:rw
-        ports:
-            - 50051:50051
+        expose:
+            - 50051
         networks:
             - elastest
+        labels:
+            - io.elastest.type=core
+
     epm-adapter-ansible:
         container_name: elastest-epm-adapter-ansible
         image: elastest/epm-adapter-ansible
@@ -52,10 +56,11 @@ services:
             - elastest-platform-manager
         expose:
             - 50052
-        ports:
-            - 50052:50052
         networks:
             - elastest
+        labels:
+            - io.elastest.type=core
+
     epm-adapter-docker:
         container_name: elastest-epm-adapter-docker
         image: elastest/epm-adapter-docker
@@ -66,10 +71,10 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock:rw
         expose:
             - 50053
-        ports:
-            - 50053:50053
         networks:
             - elastest
+        labels:
+            - io.elastest.type=core
 
 networks:
     elastest:
