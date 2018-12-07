@@ -86,19 +86,6 @@ public class AdapterLauncher {
 
         switch (type) {
             case "docker-compose":
-                /*installationIs = new FileInputStream("configuration_scripts/install_docker_compose.sh");
-                sshHelper.sendFile(session, installationIs, "docker_compose.sh");
-
-                if (!epmIp.equals("")) {
-                    sshHelper.executeCommand(
-                            session,
-                            "sudo su root ./docker_compose.sh " + epmIp + " " + worker.getIp());
-                }
-                else {
-                    sshHelper.executeCommand(
-                            session,
-                            "sudo su root ./docker_compose.sh " + worker.getEpmIp() + " " + worker.getIp());
-                }*/
                 Adapter adapter = utils.getAdapter("ansible");
 
                 OperationHandlerGrpc.OperationHandlerBlockingStub client =
@@ -108,7 +95,7 @@ public class AdapterLauncher {
                         InstallMessage.newBuilder()
                                 .setType("docker-compose")
                                 .setMasterIp(worker.getIp())
-                                .addNodesIp(worker.getIp())
+                                .addNodesIp(epmIp)
                                 .setKey(io.elastest.epm.pop.generated.Key.newBuilder().setKey(ByteString.copyFromUtf8(key.getKey())).build())
                                 .build();
                 StringResponse s = client.createCluster(addNodeMessage);
