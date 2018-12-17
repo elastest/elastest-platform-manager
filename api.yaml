@@ -150,6 +150,8 @@ paths:
       summary: Creates a new worker.
       description: Receives a package that can be used for creating a new worker.
       operationId: createWorker
+      tags:
+        - Worker
       consumes:
         - application/json
       produces:
@@ -280,6 +282,8 @@ paths:
       summary: Creates a new cluster.
       description: Receives an Identifier for a ResourceGroup and an array of types to setup the Resource Group as a cluster.
       operationId: createCluster
+      tags:
+        - Cluster
       consumes:
         - application/json
       produces:
@@ -365,6 +369,8 @@ paths:
     get:
       summary: Adds a worker to the cluster.
       operationId: addWorker
+      tags:
+        - Cluster
       produces:
         - application/json
       parameters:
