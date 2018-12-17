@@ -136,8 +136,7 @@ public class WorkerLauncher {
         if (vdu != null) {
             return workerFromVDU(vdu, workerFromVDU.getType());
         }
-        log.debug("VDU NOT FOUND!");
-        return null;
+        throw new NotFoundException("VDU with id: " + workerFromVDU.getVduId() + " not found");
     }
 
     public Worker workerFromVDU(VDU vdu, List<String> type)

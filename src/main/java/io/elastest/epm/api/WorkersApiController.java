@@ -51,7 +51,6 @@ public class WorkersApiController implements WorkersApi {
     @Override
     public ResponseEntity<Worker> createWorker(@ApiParam(value = "Body to create Worker from VDU" ,required=true )  @Valid @RequestBody WorkerFromVDU workerFromVDU) {
         try {
-            System.out.print(workerFromVDU.toString());
             log.debug("ID: " + workerFromVDU.getVduId());
             Worker worker = workerLauncher.createWorker(workerFromVDU);
             return new ResponseEntity<Worker>(worker, HttpStatus.OK);

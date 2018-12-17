@@ -3,7 +3,34 @@
 **Note:** Only **Ubuntu** VMs are supported as workers at the moment. The worker registration has been tested with
  Ubuntu 14.04 and Ubuntu 16.04. 
  
-This page will show you how the EPM can make use of Workers for deploying packages in a few simple steps:
+This page will show you how the EPM can make use of Workers for deploying packages in a few simple steps.
+
+There are two options for making use of a worker:
+1) Launch a machine using a package and register the VDU as a Worker
+2) Register an already existing Worker
+
+## Launch Worker
+
+## Launch a Resource Group
+
+A Resource Group can be launched using an **ansible** or **docker-compose** package. 
+Please refer to this doc to see how: [Launch Package](#package)
+
+## From VDU to Worker
+
+Once you have a deployed and registered Resource Group with at least one VDU, you can transform this VDU into a worker 
+in the following way:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d '{"vduId":"<VDU_ID>", "type":["docker-compose"]}' localhost:8180/v1/workers/create
+```
+
+You need to replace <VDU_ID> with the id of the VDU which will become a Worker. 
+In this example the worker will become a docker-compose worker, which means that docker-compose will be installed and the 
+EPM Docker-Compose Adapter will be started on top of it. Otherwise type can be left as an empty list and later on the worker
+can be configured. 
+
+## Register Already existing Worker
 
 ### Register Key 
 
@@ -69,7 +96,7 @@ elastest.emp.topic = user-1-emp_worker
 elastest.emp.seriesName = sys-stats
 ```
 
-### Worker setup
+## Worker setup
 
 Now that the worker is successfully registered in EPM it is available to setup the EPM adapters on the worker. 
 
@@ -96,3 +123,5 @@ Using the private key provided earlier the EPM will do the following:
 1) Install docker if not already available
 2) Activate the Remote API option in docker, so that the adapter can reach the docker environment remotely
 3) Create a PoP for the registered Docker Environment
+
+[installation_guide]: package.md
