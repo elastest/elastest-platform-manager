@@ -154,7 +154,7 @@ public class WorkerLauncher {
             authCredentials.setPassword("");
             authCredentials.setPassphrase("");
             worker.setAuthCredentials(authCredentials);
-            worker.setType(type);
+            worker.setType(new ArrayList<>(type));
             return configureWorker(worker);
         } else return worker;
     }

@@ -65,7 +65,6 @@ public class ClusterLauncher {
         }
 
         List<String> type = clusterFromResourceGroup.getType();
-        //type.add("kubernetes");
         Cluster cluster = new Cluster();
         Worker master = workerLauncher.workerFromVDU(masterVDU, type);
         cluster.setMaster(master);
