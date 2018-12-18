@@ -137,7 +137,7 @@ try {
 ```
 
 [adapters]: adapters.md
-[workers]: usage/workers.md
-[workers]: usage/clusters.md
-[package]: usage/package.md
-[runtime]: usage/runtime.md
+[workers]: workers.md
+[workers]: clusters.md
+[package]: package.md
+[runtime]: runtime.md
