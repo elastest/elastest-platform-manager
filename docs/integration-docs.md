@@ -73,13 +73,13 @@ The EPM offers SDKs for developers in order to integrate with other components. 
 
 The Development Guide can be found [here][development_guide].
 
-[installation_guide]: installation.md
-[usage_guide]: usage.md
-[sdk_guide]: sdks.md
-[adapters_guide]: adapters.md
+[installation_guide]: usage/installation.md
+[usage_guide]: usage/usage.md
+[sdk_guide]: usage/sdks.md
+[adapters_guide]: usage/adapters.md
 [api_online]: http://elastest.io/docs/api/epm/
 [api_overview]: api/overview.md
 [api_definitions]: api/definitions.md
 [api_paths]: api/paths.md
-[development_guide]: development.md
+[development_guide]: dev-docs.md
 

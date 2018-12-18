@@ -72,12 +72,12 @@ public class SSHHelper {
 
         JSch jsch = new JSch();
 
-        jsch.addIdentity(tempFile.getAbsolutePath(), worker.getPassphrase().getBytes());
+        jsch.addIdentity(tempFile.getAbsolutePath(), worker.getAuthCredentials().getPassphrase().getBytes());
 
         Session session;
-        if (worker.getPort() == null)
-            session = jsch.getSession(worker.getUser(), worker.getIp(), 22);
-        else session = jsch.getSession(worker.getUser(), worker.getIp(), worker.getPort());
+        if (worker.getAuthCredentials().getPort() == null)
+            session = jsch.getSession(worker.getAuthCredentials().getUser(), worker.getIp(), 22);
+        else session = jsch.getSession(worker.getAuthCredentials().getUser(), worker.getIp(), worker.getAuthCredentials().getPort());
 
         //session.setPassword(password);
 

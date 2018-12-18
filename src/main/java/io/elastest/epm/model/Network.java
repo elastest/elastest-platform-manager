@@ -27,11 +27,9 @@ public class Network {
     @JsonProperty("id")
     private String id = null;
 
-    @Column(unique = true)
     @JsonProperty("name")
     private String name = null;
 
-    @Column(unique = true)
     @JsonProperty("networkId")
     private String networkId = null;
 

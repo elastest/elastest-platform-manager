@@ -1,40 +1,41 @@
 package io.elastest.epm.api.utils;
 
-import com.google.protobuf.ByteString;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
+import io.elastest.epm.api.body.WorkerFromVDU;
+import io.elastest.epm.exception.BadRequestException;
 import io.elastest.epm.exception.NotFoundException;
-import io.elastest.epm.model.Adapter;
+import io.elastest.epm.model.AuthCredentials;
 import io.elastest.epm.model.Key;
-import io.elastest.epm.model.PoP;
+import io.elastest.epm.model.VDU;
 import io.elastest.epm.model.Worker;
 import io.elastest.epm.pop.adapter.Utils;
-import io.elastest.epm.pop.generated.FileMessage;
-import io.elastest.epm.pop.generated.OperationHandlerGrpc;
 import io.elastest.epm.pop.generated.ResourceGroupProto;
-import io.elastest.epm.pop.generated.VDU;
 import io.elastest.epm.properties.ElastestProperties;
 import io.elastest.epm.repository.AdapterRepository;
 import io.elastest.epm.repository.KeyRepository;
 import io.elastest.epm.repository.PoPRepository;
+import io.elastest.epm.repository.VduRepository;
 import io.elastest.epm.repository.WorkerRepository;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.mariadb.jdbc.internal.logging.Logger;
+import org.mariadb.jdbc.internal.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class WorkerLauncher {
 
+    @Autowired
+    PoPRepository poPRepository;
+    private Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private ElastestProperties elastestProperties;
     @Autowired
@@ -48,22 +49,28 @@ public class WorkerLauncher {
     @Autowired
     private Utils utils;
     @Autowired
-    PoPRepository poPRepository;
+    private AdapterLauncher adapterLauncher;
 
+    @Autowired
+    private VduRepository vduRepository;
 
     @Value("${et.public.host}")
     private String epmIp;
 
-    public Worker configureWorker(Worker worker, Key key)
-            throws Exception {
+    public Worker configureWorker(Worker worker)
+            throws IOException, NotFoundException, BadRequestException, InterruptedException,
+            JSchException, SftpException {
+
+        Key key = keyRepository.findOneByName(worker.getAuthCredentials().getKey());
 
         if (workerRepository.findOneByIp(worker.getIp()) != null)
-            throw new Exception("There is already a worker registered at the ip: " + worker.getIp());
+            throw new BadRequestException(
+                    "There is already a worker registered at the ip: " + worker.getIp());
 
-        if (keyRepository.findOneByName(worker.getKeyname()) == null)
+        if (keyRepository.findOneByName(worker.getAuthCredentials().getKey()) == null)
             throw new NotFoundException("The key was not found!");
 
-        if (worker.getUser().equals("") || worker.getIp().equals(""))
+        if (worker.getAuthCredentials().getUser().equals("") || worker.getIp().equals(""))
             throw new NotFoundException(
                     "To register a worker the PoP must provide the InferaceEndpoint"
                             + " and InterfaceInfo containing user, IP of the EPM and passphrase information");
@@ -82,80 +89,72 @@ public class WorkerLauncher {
                     " "
                             + elastestProperties.getEmp().getEndPoint()
                             + ":"
-                            + elastestProperties.getEmp().getPort() + " "
-                            + elastestProperties.getEmp().getTopic() + " "
-                            + elastestProperties.getEmp().getSeriesName() + " "
+                            + elastestProperties.getEmp().getPort()
+                            + " "
+                            + elastestProperties.getEmp().getTopic()
+                            + " "
+                            + elastestProperties.getEmp().getSeriesName()
+                            + " "
                             + worker.getIp();
             sshHelper.executeCommand(session, "sudo su root ./preconfigure.sh " + empConfig);
         }
         session.disconnect();
+
+        if (worker.getType() != null && worker.getType().size() > 0) {
+            for (String type : worker.getType()) {
+                adapterLauncher.startAdapter(worker, type);
+            }
+        }
+
         return workerRepository.save(worker);
     }
 
-    public List<Worker> createWorker(InputStream data) throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        byte[] buffer = new byte[1024];
-        int len;
-        while ((len = data.read(buffer)) > -1) {
-            baos.write(buffer, 0, len);
-        }
-        baos.flush();
-        InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
-        InputStream is2 = new ByteArrayInputStream(baos.toByteArray());
-
-        String key = Utils.extractKey(is1);
-        if (key.equals(""))
-            throw new NotFoundException("Key file not found: the private key must be in the root directory of the package and have the name: key");
-        Key newKey = new Key();
-        newKey.setName("key-" + (int) (Math.random() * 1000000));
-        newKey.setKey(key);
-        keyRepository.save(newKey);
-
-        Map<String, Object> values = Utils.extractMetadata(is1);
-        if (values == null) {
-            throw new NotFoundException("No metadata found in the package: The metadata has to be in the root of the tar.");
-        }
-        if (values.containsKey("type") && !values.get("type").equals("ansible"))
-            throw new Exception("Only ansible packages are supported for worker creation at the moment!");
-
-        PoP poP = null;
-        if (values.containsKey("pop")) {
-            poP = poPRepository.findOneByName(String.valueOf(values.get("pop")));
-        }
-        Adapter adapter;
-        if (poP != null && !poP.getName().equals("ansible-dummy")) {
-            adapter = adapterRepository.findAdapterForTypeAndIp("ansible", poP.getInterfaceEndpoint());
-        }
-        else {
-            adapter = adapterRepository.findFirstByType("ansible");
-        }
-        if (adapter == null) throw new NotFoundException("No ansible adapter was registered. Please register an ansible adapter to be able to create a worker.");
-
-        OperationHandlerGrpc.OperationHandlerBlockingStub client = utils.getAdapterClient(adapter);
-        ByteString p = ByteString.copyFrom(IOUtils.toByteArray(is2));
-        FileMessage fileMessage =
-                FileMessage.newBuilder().setFile(p).build();
-        ResourceGroupProto rg = client.create(fileMessage);
-
-        return resourceGroupToWorkers(rg, newKey);
-    }
-
-    private List<Worker> resourceGroupToWorkers(ResourceGroupProto resourceGroupProto, Key key) throws Exception {
+    private List<Worker> resourceGroupToWorkers(ResourceGroupProto resourceGroupProto, Key key)
+            throws Exception {
         List<Worker> workers = new ArrayList<>();
 
-        for(VDU vdu : resourceGroupProto.getVdusList()) {
+        for (io.elastest.epm.pop.generated.VDU vdu : resourceGroupProto.getVdusList()) {
             Worker worker = new Worker();
-            worker.setKeyname(key.getName());
+            AuthCredentials authCredentials = new AuthCredentials();
+            authCredentials.setKey(key.getName());
             worker.setIp(vdu.getIp());
             worker.setEpmIp(epmIp);
             // TODO: FIX
-            worker.setUser("ubuntu");
-            worker.setPassword("");
-            worker.setPassphrase("");
-            workers.add(configureWorker(worker, key));
+            authCredentials.setUser("ubuntu");
+            authCredentials.setPassword("");
+            authCredentials.setPassphrase("");
+            worker.setAuthCredentials(authCredentials);
+            workers.add(configureWorker(worker));
         }
 
         return workers;
+    }
+
+    public Worker createWorker(WorkerFromVDU workerFromVDU) throws Exception {
+        log.debug("Creating worker from vdu: " + workerFromVDU.getVduId());
+        VDU vdu = vduRepository.findOne(workerFromVDU.getVduId());
+        if (vdu != null) {
+            return workerFromVDU(vdu, workerFromVDU.getType());
+        }
+        throw new NotFoundException("VDU with id: " + workerFromVDU.getVduId() + " not found");
+    }
+
+    public Worker workerFromVDU(VDU vdu, List<String> type)
+            throws InterruptedException, BadRequestException, IOException, JSchException,
+            NotFoundException, SftpException {
+        Worker worker = workerRepository.findOneByIp(vdu.getIp());
+        if (worker == null) {
+            worker = new Worker();
+            AuthCredentials authCredentials = new AuthCredentials();
+            authCredentials.setKey(vdu.getKey());
+            worker.setIp(vdu.getIp());
+            worker.setEpmIp(epmIp);
+            authCredentials.setUser("ubuntu");
+            authCredentials.setPassword("");
+            authCredentials.setPassphrase("");
+            worker.setAuthCredentials(authCredentials);
+            worker.setType(new ArrayList<>(type));
+            return configureWorker(worker);
+        } else return worker;
     }
 }

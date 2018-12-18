@@ -96,7 +96,6 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-
   /workers:
     get:
       tags:
@@ -148,28 +147,39 @@ paths:
           description: Not Found/keys
   /workers/create:
     post:
-      tags:
-        - Package
       summary: Creates a new worker.
       description: Receives a package that can be used for creating a new worker.
       operationId: createWorker
+      tags:
+        - Worker
       consumes:
-        - multipart/form-data
+        - application/json
       produces:
         - application/json
       parameters:
-        - in: formData
-          name: file
-          description: Package in a multipart form
+        - in: body
+          name: workerFromVDU
+          description: Body to create Worker from VDU
           required: true
-          type: file
+          schema:
+            type: object
+            required:
+              - type
+              - vduId
+            properties:
+              type:
+                type: array
+                description: "The types of the worker."
+                items:
+                  type: string
+              vduId:
+                type: string
+                description: "The id of vdu from which to create the worker."
       responses:
         '200':
           description: Workers created
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Worker'
+            $ref: '#/definitions/Worker'
         '201':
           description: Created
         '400':
@@ -188,7 +198,7 @@ paths:
     delete:
       tags:
         - Worker
-      summary: Deletes a Resource Group.
+      summary: Deletes a Worker.
       description: Deletes the Worker that matches with a given ID.
       operationId: deleteWorker
       produces:
@@ -218,6 +228,171 @@ paths:
           description: Worker not found
           schema:
              type: string
+
+  /cluster/{id}/{type}:
+    get:
+      tags:
+        - Cluster
+      summary: Sets up the specified cluster to install the specified technology and connected it.
+      operationId: setUpCluster
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of Cluster
+          required: true
+          type: string
+        - name: type
+          in: path
+          description: type of technology
+          required: true
+          type: string
+          example: "kubernetes"
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /cluster:
+    get:
+      tags:
+        - Cluster
+      summary: Returns all clusters
+      operationId: getAllClusters
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Cluster'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /cluster/create:
+    post:
+      summary: Creates a new cluster.
+      description: Receives an Identifier for a ResourceGroup and an array of types to setup the Resource Group as a cluster.
+      operationId: createCluster
+      tags:
+        - Cluster
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: clusterFromResourceGroup
+          description: Body to create Cluster from ResourceGroup
+          required: true
+          schema:
+            type: object
+            required:
+              - type
+              - resourceGroupId
+              - masterId
+            properties:
+              type:
+                type: array
+                description: "The types of the worker."
+                example: "kubernetes"
+                items:
+                  type: string
+              resourceGroupId:
+                type: string
+                description: "The id of vdu from which to create the worker."
+              masterId:
+                type: string
+                description: "The ID of the VDU which will serve as the master node. This should be an ID of a VDU which belongs to the specified Ressource Group."
+      responses:
+        '200':
+          description: Cluster created
+          schema:
+            $ref: '#/definitions/Cluster'
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+          schema:
+            type: string
+  /cluster/{id}:
+    delete:
+      tags:
+        - Cluster
+      summary: Deletes a Cluster.
+      description: Deletes the Cluster that matches with a given ID.
+      operationId: deleteCluster
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: path
+          description: ID of Cluster
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Cluster deleted successfully
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Cluster not found
+          schema:
+             type: string
+  /cluster/{id}/add/{machineId}:
+    get:
+      summary: Adds a worker to the cluster.
+      operationId: addWorker
+      tags:
+        - Cluster
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of Cluster
+          required: true
+          type: string
+        - name: machineId
+          in: path
+          description: The ID of either a Worker or a VDU, which will be added to the cluster
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   /keys:
     get:
       tags:
@@ -1314,43 +1489,6 @@ definitions:
         example: testPoPName
         description: Human-readable identifier of this PoP information element
     description: This entity contains information about the Point-of-Presence (PoP)
-  Worker:
-    description: 'A worker object for registering a machine where adapters can be deployed.'
-    type: object
-    required:
-      - ip
-      - user
-      - passphrase
-      - epmIp
-      - keyname
-    properties:
-      id:
-        type: string
-        description: Identifier for the Adapter.
-      ip:
-        type: string
-        description: The IP where the Worker is reachable. The EPM will try to ssh in to the Worker at this IP.
-      user:
-        type: string
-        description: This is the user, which the EPM will use when trying to ssh in to the Worker.
-        example: ubuntu
-      passphrase:
-        type: string
-        description: This is the Passphrase of the Key provided for connecting to the Worker.
-      password:
-        type: string
-        description: This is the password of the user, which can be left blank if no password is needed.
-      epmIp:
-        type: string
-        description: This is the IP where the EPM is reachable for the Worker. This is needed because the Worker has to be able to reach the EPM for registering adapters.
-      keyname:
-        type: string
-        description: The name of the Key, which the EPM will use for ssh in to the Worker. This refers to the name provided when uploading the Key to the EPM.
-        example: key1
-      port:
-        type: integer
-        description: The ssh port of the worker, where the EPM can reach it.
-        default: 22
   Key:
     description: 'A private key for executing commands on a worker.'
     type: object
@@ -1430,6 +1568,7 @@ definitions:
         type: string
         description: The name of the key saved in EPM, which can be used to execute runtime operations on this VDU.
         example: vdu_1-key
+
   ResourceGroup:
     description: 'A Resource Group defines a bundle of VDUs and virtual networks which belongs together. It includes also the Point-of-Presences where the virtual resources have to be allocated.'
     type: object
@@ -1454,3 +1593,68 @@ definitions:
         description: The Networks in the Resource Group.
         items:
           $ref: '#/definitions/Network'
+  AuthCredentials:
+    description: 'Everything needed for accessing a machine using SSH'
+    type: object
+    required:
+      - user
+    properties:
+      id:
+        type: string
+      key:
+        type: string
+        description: The name of the key saved in EPM, which can be used to execute runtime operations on this VDU.
+        example: vdu_1-key
+      user:
+        type: string
+        description: This is the user, which the EPM will use when trying to ssh in to the Worker.
+        example: ubuntu
+      passphrase:
+        type: string
+        description: This is the Passphrase of the Key provided for connecting to the Worker.
+      password:
+        type: string
+        description: This is the password of the user, which can be left blank if no password is needed.
+      port:
+        type: integer
+        description: The ssh port of the worker, where the EPM can reach it.
+        default: 22
+  Worker:
+    type: object
+    properties:
+      id:
+        type: string
+      ip:
+        type: string
+      vduId:
+        type: string
+        description: The vduId if the worker was created from a vdu.
+      epmIp:
+        type: string
+        description: This is the IP where the EPM is reachable for the Worker. This is needed because the Worker has to be able to reach the EPM for registering adapters.
+      type:
+        type: array
+        description: The types which this worker supports at the moment when this information is requested.
+        items:
+          type: string
+      authCredentials:
+        $ref: '#/definitions/AuthCredentials'
+  Cluster:
+    type: object
+    required:
+      - type
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+        example: 'kubernetes'
+        description: 'Type of the Cluster.'
+      master:
+        $ref: '#/definitions/Worker'
+      nodes:
+        type: array
+        items:
+          $ref: '#/definitions/Worker'
+      resourceGroupId:
+        type: string

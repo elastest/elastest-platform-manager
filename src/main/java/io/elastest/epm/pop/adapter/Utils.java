@@ -131,12 +131,12 @@ public class Utils {
         ResourceGroup resourceGroup = new ResourceGroup();
         resourceGroup.setName(rg.getName());
 
-        for (io.elastest.epm.pop.generated.Network networkCompose : rg.getNetworksList()) {
+        for (io.elastest.epm.pop.generated.Network networkProto : rg.getNetworksList()) {
             Network network = new Network();
-            network.setName(networkCompose.getName());
-            network.setCidr(networkCompose.getCidr());
+            network.setName(networkProto.getName()+ "-" + String.valueOf((int) (Math.random() * 1000000)));
+            network.setCidr(networkProto.getCidr());
             network.setPoPName(pop.getName());
-            network.setNetworkId(networkCompose.getNetworkId());
+            network.setNetworkId(networkProto.getNetworkId());
             networkRepository.save(network);
             resourceGroup.addNetworksItem(network);
         }
