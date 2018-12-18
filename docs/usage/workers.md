@@ -14,7 +14,7 @@ There are two options for making use of a worker:
 ## Launch a Resource Group
 
 A Resource Group can be launched using an **ansible** or **docker-compose** package. 
-Please refer to this doc to see how: [Launch Package](#package)
+Please refer to this doc to see how: [Launch Package][package]
 
 ## From VDU to Worker
 

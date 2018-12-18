@@ -25,7 +25,7 @@ by the EPM and its components.
 
 Using the EPM you can start a Kubernetes Cluster either from already running machines or directly on a running OpenStack.
 Furthermore you can add new nodes to a cluster when needed. More information about how Clusters are managed in the EPM can be 
-found [here](clusters).
+found [here][clusters].
 
 ## Creating and Launching a package
 

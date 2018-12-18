@@ -8,7 +8,7 @@ There are two options for creating a Kubernetes Cluster using the EPM:
 
 ## Starting a Kubernetes Cluster on OpenStack
 
-1. Start any given number of Virtual Machines using an ansible package on Open Stack as shown [here](package)
+1. Start any given number of Virtual Machines using an ansible package on Open Stack as shown [here][package]
 2. After the Package is started the EPM will return a Resource Group as JSON - you will need the ID of the Resource Group
 and the ID of the VDU which will become the Master Node
 3.  Install and Register the Cluster
@@ -138,6 +138,6 @@ try {
 
 [adapters]: adapters.md
 [workers]: workers.md
-[workers]: clusters.md
+[clusters]: clusters.md
 [package]: package.md
 [runtime]: runtime.md
