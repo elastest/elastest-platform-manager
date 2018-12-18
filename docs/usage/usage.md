@@ -21,6 +21,12 @@ The EPM supports the use of remote workers by providing ways to manage them and 
 virtual resources on top of them. This [page][workers] explains how to register and configure a worker to be made usable
 by the EPM and its components.
 
+# Clusters
+
+Using the EPM you can start a Kubernetes Cluster either from already running machines or directly on a running OpenStack.
+Furthermore you can add new nodes to a cluster when needed. More information about how Clusters are managed in the EPM can be 
+found [here](clusters).
+
 ## Creating and Launching a package
 
 After providing the necessary environment and starting the chosen adapter the user can start Virtual Resources by 
@@ -47,14 +53,15 @@ In the following you can find a valid TOSCA template:
 * [TOSCA template][tosca_template]
 
 [sdks]: sdks.md
-[json_network]: ../descriptors/json/network.json
-[json_vdu]: ../descriptors/json/vdu.json
-[json_pop]: ../descriptors/json/pop.json
-[json_resourcegroup]: ../descriptors/json/resource_group.json
-[json_command]: ../descriptors/json/command.json
-[tosca_template]: ../descriptors/tosca/service_template.yaml
-[local_docker]: usage/local_docker.md
+[json_network]: ../../descriptors/json/network.json
+[json_vdu]: ../../descriptors/json/vdu.json
+[json_pop]: ../../descriptors/json/pop.json
+[json_resourcegroup]: ../../descriptors/json/resource_group.json
+[json_command]: ../../descriptors/json/command.json
+[tosca_template]: ../../descriptors/tosca/service_template.yaml
+[local_docker]: local_docker.md
 [adapters]: adapters.md
-[workers]: usage/workers.md
-[package]: usage/package.md
-[runtime]: usage/runtime.md
+[workers]: workers.md
+[workers]: clusters.md
+[package]: package.md
+[runtime]: runtime.md

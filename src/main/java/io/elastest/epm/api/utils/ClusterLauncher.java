@@ -57,6 +57,9 @@ public class ClusterLauncher {
             NotFoundException, SftpException {
         ResourceGroup rg =
                 resourceGroupRepository.findOne(clusterFromResourceGroup.getResourceGroupId());
+        if (rg == null) {
+            throw new NotFoundException("No resource group with id: " + clusterFromResourceGroup.getResourceGroupId() + " was found");
+        }
         List<VDU> nodes = new ArrayList<>();
         VDU masterVDU = null;
         for (VDU vdu : rg.getVdus()) {

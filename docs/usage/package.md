@@ -65,4 +65,4 @@ docker_password: pass
 
 Besides that in the compose file the user should specify the correct path of the image of the private registry.
 
-[adapters]: ../adapters.md
+[adapters]: adapters.md

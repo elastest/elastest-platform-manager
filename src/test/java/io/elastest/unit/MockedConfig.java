@@ -85,7 +85,6 @@ public class MockedConfig {
     Worker worker = new Worker();
     worker.setEpmIp("mocked_epm_id");
     worker.setIp("mocked_ip");
-    worker.setKeyname("mocked_keyname");
     log.info("Worker: " + worker);
     return worker;
   }

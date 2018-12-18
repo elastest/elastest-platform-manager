@@ -104,6 +104,6 @@ Mailing List] and through [StackOverflow] using the tag *elastest*.
 [ElasTest Twitter]: https://twitter.com/elastestio
 [GitHub ElasTest Group]: https://github.com/elastest
 [GitHub ElasTest Bugtracker]: https://github.com/elastest/bugtracker
-[Repository Doc]: docs/index.md
+[Repository Doc]: docs/integration-docs.md
 [StackOverflow]: http://stackoverflow.com/questions/tagged/elastest
 
