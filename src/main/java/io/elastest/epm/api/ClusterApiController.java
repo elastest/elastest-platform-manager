@@ -110,6 +110,19 @@ public class ClusterApiController implements ClusterApi {
         return new ResponseEntity<List<Cluster>>(clusters, HttpStatus.OK);
     }
 
+    public ResponseEntity<Cluster> removeNode(@ApiParam(value = "ID of Cluster",required=true) @PathVariable("id") String id,
+                                             @ApiParam(value = "The ID of a Worker",required=true) @PathVariable("workerId") String workerId) {
+
+        try {
+            Cluster cluster = clusterLauncher.removeNode(id, workerId);
+            return new ResponseEntity<Cluster>(cluster, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            log.error(e.getMessage());
+            return new ResponseEntity<Cluster>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
     public ResponseEntity<String> setUpCluster(
             @ApiParam(value = "ID of Cluster", required = true) @PathVariable("id") String id,
             @ApiParam(value = "type of technology", required = true) @PathVariable("type") String type) {

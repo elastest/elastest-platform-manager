@@ -161,4 +161,55 @@ public class ClusterLauncher {
             return cluster;
         }
     }
+
+    public Cluster removeNode(String clusterId, String nodeId) throws NotFoundException {
+        Cluster cluster = clusterRepository.findOne(clusterId);
+        if (cluster == null) throw new NotFoundException("No cluster found with id: " + clusterId);
+
+        Worker node = null;
+        for( Worker w: cluster.getNodes()) {
+            if ( w.getId().equals(nodeId) ) {
+                node = w;
+            }
+        }
+        if (node == null) throw new NotFoundException("No node found with id: " + nodeId);
+
+        log.info("Removing node from Cluster: " + cluster.getId());
+        //if (node.getVduId().equals("") || vduRepository.findOne(node.getVduId()) == null) {
+
+            // Disable node
+            Adapter adapter = utils.getAdapter("ansible");
+            try {
+                io.elastest.epm.model.Key key =
+                        keyRepository.findOneByName(node.getAuthCredentials().getKey());
+
+                OperationHandlerGrpc.OperationHandlerBlockingStub client =
+                        utils.getAdapterClient(adapter);
+
+                InstallMessage removeNodeMessage =
+                        InstallMessage.newBuilder()
+                                .setType("kubernetes-node-remove")
+                                .setMasterIp(cluster.getMaster().getIp())
+                                .addNodesIp(node.getIp())
+                                .setKey(Key.newBuilder().setKey(ByteString.copyFromUtf8(key.getKey())).build())
+                                .build();
+
+                StringResponse s = client.createCluster(removeNodeMessage);
+                int status = Integer.parseInt(s.getResponse());
+                if (status == 0) {
+                    // add node
+                    cluster.getNodes().remove(node);
+                }
+                return clusterRepository.save(cluster);
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+                return cluster;
+            }
+        /*}
+        else {
+            // Shutdown node
+
+
+        }*/
+    }
 }

@@ -78,6 +78,18 @@ public interface ClusterApi {
         method = RequestMethod.GET)
     ResponseEntity<List<Cluster>> getAllClusters();
 
+    @ApiOperation(value = "Removes a worker to the cluster.", nickname = "removeNode", notes = "", response = Cluster.class, tags={ "Cluster", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Cluster.class),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 403, message = "Forbidden") })
+    @RequestMapping(value = "/cluster/{id}/remove/{workerId}",
+            produces = { "application/json" },
+            method = RequestMethod.DELETE)
+    ResponseEntity<Cluster> removeNode(@ApiParam(value = "ID of Cluster",required=true) @PathVariable("id") String id,@ApiParam(value = "The ID of a Worker",required=true) @PathVariable("workerId") String workerId);
+
+
+
 
     @ApiOperation(value = "Sets up the specified cluster to install the specified technology and connected it.", nickname = "setUpCluster", notes = "", response = String.class, tags={ "Cluster", })
     @ApiResponses(value = { 
