@@ -8,6 +8,7 @@ import io.elastest.epm.exception.BadRequestException;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Adapter;
 import io.elastest.epm.model.Cluster;
+import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.ResourceGroup;
 import io.elastest.epm.model.VDU;
 import io.elastest.epm.model.Worker;
@@ -16,8 +17,10 @@ import io.elastest.epm.pop.generated.InstallMessage;
 import io.elastest.epm.pop.generated.Key;
 import io.elastest.epm.pop.generated.OperationHandlerGrpc;
 import io.elastest.epm.pop.generated.StringResponse;
+import io.elastest.epm.pop.generated.TerminateMessage;
 import io.elastest.epm.repository.ClusterRepository;
 import io.elastest.epm.repository.KeyRepository;
+import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.ResourceGroupRepository;
 import io.elastest.epm.repository.VduRepository;
 import io.elastest.epm.repository.WorkerRepository;
@@ -49,6 +52,9 @@ public class ClusterLauncher {
     private ClusterRepository clusterRepository;
     @Autowired
     private KeyRepository keyRepository;
+    @Autowired
+    private PoPRepository poPRepository;
+
     @Value("${et.public.host}")
     private String epmIp;
 
@@ -173,43 +179,47 @@ public class ClusterLauncher {
             }
         }
         if (node == null) throw new NotFoundException("No node found with id: " + nodeId);
+        Adapter adapter = utils.getAdapter("ansible");
+        OperationHandlerGrpc.OperationHandlerBlockingStub client =
+                utils.getAdapterClient(adapter);
 
+        VDU nodeVDU;
         log.info("Removing node from Cluster: " + cluster.getId());
-        //if (node.getVduId().equals("") || vduRepository.findOne(node.getVduId()) == null) {
 
-            // Disable node
-            Adapter adapter = utils.getAdapter("ansible");
-            try {
-                io.elastest.epm.model.Key key =
-                        keyRepository.findOneByName(node.getAuthCredentials().getKey());
+        // Disable node
+        io.elastest.epm.model.Key key =
+                keyRepository.findOneByName(node.getAuthCredentials().getKey());
 
-                OperationHandlerGrpc.OperationHandlerBlockingStub client =
-                        utils.getAdapterClient(adapter);
+        InstallMessage removeNodeMessage =
+                InstallMessage.newBuilder()
+                        .setType("kubernetes-node-remove")
+                        .setMasterIp(cluster.getMaster().getIp())
+                        .addNodesIp(node.getIp())
+                        .setKey(Key.newBuilder().setKey(ByteString.copyFromUtf8(key.getKey())).build())
+                        .build();
 
-                InstallMessage removeNodeMessage =
-                        InstallMessage.newBuilder()
-                                .setType("kubernetes-node-remove")
-                                .setMasterIp(cluster.getMaster().getIp())
-                                .addNodesIp(node.getIp())
-                                .setKey(Key.newBuilder().setKey(ByteString.copyFromUtf8(key.getKey())).build())
-                                .build();
+        StringResponse s = client.createCluster(removeNodeMessage);
+        int status = Integer.parseInt(s.getResponse());
+        if (status == 0) {
+            // add node
+            cluster.getNodes().remove(node);
+        }
 
-                StringResponse s = client.createCluster(removeNodeMessage);
-                int status = Integer.parseInt(s.getResponse());
-                if (status == 0) {
-                    // add node
-                    cluster.getNodes().remove(node);
-                }
-                return clusterRepository.save(cluster);
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-                return cluster;
-            }
-        /*}
-        else {
+        /*if ((nodeVDU = vduRepository.findOne(node.getVduId())) != null) {
+            PoP poP = poPRepository.findOneByName(nodeVDU.getPoPName());
+            if (poP == null) throw new NotFoundException("Pop not found for VDU " + nodeVDU);
+
             // Shutdown node
+            TerminateMessage terminateMessage = TerminateMessage.newBuilder()
+                    .setResourceId(nodeVDU.getId())
+                    .setPop(utils.parsePoP(poP))
+                    .addVdu(utils.parseVDU(nodeVDU))
+                    .build();
+            client.remove(terminateMessage);
 
 
         }*/
+        
+        return clusterRepository.save(cluster);
     }
 }

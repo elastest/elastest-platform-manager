@@ -1,6 +1,7 @@
 package io.elastest.epm.pop.adapter;
 
 import com.google.gson.Gson;
+import com.google.protobuf.ByteString;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
 import io.elastest.epm.pop.generated.MetadataEntry;
@@ -13,6 +14,7 @@ import io.elastest.epm.repository.VduRepository;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Map;
 
 import io.grpc.ManagedChannel;
@@ -171,6 +173,47 @@ public class Utils {
         }
 
         return resourceGroup;
+    }
+
+    public io.elastest.epm.pop.generated.PoP parsePoP(PoP poP) {
+        return io.elastest.epm.pop.generated.PoP.newBuilder()
+                .setName(poP.getName())
+                .setInterfaceEndpoint(poP.getInterfaceEndpoint())
+                .addAllAuth(parseInterfaceInfo(poP))
+                .build();
+    }
+
+
+    private ArrayList<MetadataEntry> parseInterfaceInfo(PoP poP) {
+        ArrayList<MetadataEntry> out = new ArrayList<>();
+        for (KeyValuePair info : poP.getInterfaceInfo()) {
+            out.add(MetadataEntry.newBuilder().setKey(info.getKey()).setValue(info.getValue()).build());
+        }
+        return out;
+    }
+
+    public io.elastest.epm.pop.generated.VDU parseVDU(VDU vdu) {
+
+        ArrayList<MetadataEntry> metadataEntries = new ArrayList<>();
+        for(KeyValuePair kvp : vdu.getMetadata()) {
+            metadataEntries.add(MetadataEntry.newBuilder().setKey(kvp.getKey()).setValue(kvp.getValue()).build());
+        }
+        String key = "";
+        io.elastest.epm.model.Key vduKey;
+        if (vdu.getKey() != null && (vduKey = keyRepository.findOneByName(vdu.getKey())) != null) {
+            key = vduKey.getKey();
+        }
+
+        return io.elastest.epm.pop.generated.VDU.newBuilder()
+                .setName(vdu.getName())
+                .setImageName(vdu.getName())
+                .setComputeId(vdu.getComputeId())
+                .setIp(vdu.getIp())
+                .setNetName(vdu.getName())
+                .setPoPName(vdu.getPoPName())
+                .addAllMetadata(metadataEntries)
+                .setKey(io.elastest.epm.pop.generated.Key.newBuilder().setKey(ByteString.copyFromUtf8(key)).build())
+                .build();
     }
 
     public static ResourceGroup extractResourceGroup(InputStream p)
