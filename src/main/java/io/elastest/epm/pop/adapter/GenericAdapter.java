@@ -114,7 +114,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         FileMessage fileMessage =
                 FileMessage.newBuilder()
                         .setFile(p)
-                        .setPop(parsePoP(poP))
+                        .setPop(utils.parsePoP(poP))
                         .addAllMetadata(parseLaunchOptions())
                         .build();
         log.debug("Sending message");
@@ -131,7 +131,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         OperationHandlerGrpc.OperationHandlerBlockingStub composeClient = getClient(poP);
         TerminateMessage terminateMessage = TerminateMessage.newBuilder()
                 .setResourceId(resourceGroup.getName())
-                .setPop(parsePoP(poP))
+                .setPop(utils.parsePoP(poP))
                 .addAllVdu(parseVDUs(resourceGroup.getVdus()))
                 .build();
         composeClient.remove(terminateMessage);
@@ -147,8 +147,8 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         log.debug("Downloading file");
         RuntimeMessage dockerRuntimeMessage =
                 RuntimeMessage.newBuilder()
-                        .setVdu(parseVDU(vdu))
-                        .setPop(parsePoP(pop))
+                        .setVdu(utils.parseVDU(vdu))
+                        .setPop(utils.parsePoP(pop))
                         .addAllProperty(new ArrayList<String>())
                         .addProperty(filepath)
                         .build();
@@ -162,8 +162,8 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
 
         RuntimeMessage dockerRuntimeMessage =
                 RuntimeMessage.newBuilder()
-                        .setVdu(parseVDU(vdu))
-                        .setPop(parsePoP(pop))
+                        .setVdu(utils.parseVDU(vdu))
+                        .setPop(utils.parsePoP(pop))
                         .addAllProperty(new ArrayList<String>())
                         .addProperty(command)
                         .build();
@@ -177,8 +177,8 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         ResourceIdentifier resourceIdentifier =
                 ResourceIdentifier.newBuilder()
                         .setResourceId(vdu.getComputeId())
-                        .setPop(parsePoP(pop))
-                        .setVdu(parseVDU(vdu))
+                        .setPop(utils.parsePoP(pop))
+                        .setVdu(utils.parseVDU(vdu))
                         .build();
         client.start(resourceIdentifier);
     }
@@ -188,8 +188,8 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         OperationHandlerGrpc.OperationHandlerBlockingStub client = getClient(pop);
         ResourceIdentifier resourceIdentifier =
                 ResourceIdentifier.newBuilder().setResourceId(vdu.getComputeId())
-                        .setPop(parsePoP(pop))
-                        .setVdu(parseVDU(vdu)).build();
+                        .setPop(utils.parsePoP(pop))
+                        .setVdu(utils.parseVDU(vdu)).build();
         client.stop(resourceIdentifier);
     }
 
@@ -199,8 +199,8 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
 
         RuntimeMessage dockerRuntimeMessage =
                 RuntimeMessage.newBuilder()
-                        .setVdu(parseVDU(vdu))
-                        .setPop(parsePoP(pop))
+                        .setVdu(utils.parseVDU(vdu))
+                        .setPop(utils.parsePoP(pop))
                         .addAllProperty(new ArrayList<String>())
                         .addProperty("withPath")
                         .addProperty(hostPath)
@@ -220,8 +220,8 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
 
         RuntimeMessage dockerRuntimeMessage =
                 RuntimeMessage.newBuilder()
-                        .setVdu(parseVDU(vdu))
-                        .setPop(parsePoP(pop))
+                        .setVdu(utils.parseVDU(vdu))
+                        .setPop(utils.parsePoP(pop))
                         .addAllProperty(new ArrayList<String>())
                         .addProperty(remotePath)
                         .setFile(ByteString.copyFrom(FileUtils.readFileToByteArray(output)))
@@ -230,53 +230,14 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
         log.debug(String.valueOf("File deletion: " + output.delete()));
     }
 
-    private io.elastest.epm.pop.generated.PoP parsePoP(PoP poP) {
-        return io.elastest.epm.pop.generated.PoP.newBuilder()
-                .setName(poP.getName())
-                .setInterfaceEndpoint(poP.getInterfaceEndpoint())
-                .addAllAuth(parseInterfaceInfo(poP))
-                .build();
-    }
-
     private ArrayList<io.elastest.epm.pop.generated.VDU> parseVDUs(List<VDU> vduList) {
         ArrayList<io.elastest.epm.pop.generated.VDU> parsedVDUs = new ArrayList<>();
         for (VDU vdu: vduList) {
-            parsedVDUs.add(parseVDU(vdu));
+            parsedVDUs.add(utils.parseVDU(vdu));
         }
         return parsedVDUs;
     }
 
-    private io.elastest.epm.pop.generated.VDU parseVDU(VDU vdu) {
-
-        ArrayList<MetadataEntry> metadataEntries = new ArrayList<>();
-        for(KeyValuePair kvp : vdu.getMetadata()) {
-            metadataEntries.add(MetadataEntry.newBuilder().setKey(kvp.getKey()).setValue(kvp.getValue()).build());
-        }
-        String key = "";
-        io.elastest.epm.model.Key vduKey;
-        if (vdu.getKey() != null && (vduKey = keyRepository.findOneByName(vdu.getKey())) != null) {
-            key = vduKey.getKey();
-        }
-
-        return io.elastest.epm.pop.generated.VDU.newBuilder()
-                .setName(vdu.getName())
-                .setImageName(vdu.getName())
-                .setComputeId(vdu.getComputeId())
-                .setIp(vdu.getIp())
-                .setNetName(vdu.getName())
-                .setPoPName(vdu.getPoPName())
-                .addAllMetadata(metadataEntries)
-                .setKey(Key.newBuilder().setKey(ByteString.copyFromUtf8(key)).build())
-                .build();
-    }
-
-    private ArrayList<MetadataEntry> parseInterfaceInfo(PoP poP) {
-        ArrayList<MetadataEntry> out = new ArrayList<>();
-        for (KeyValuePair info : poP.getInterfaceInfo()) {
-            out.add(MetadataEntry.newBuilder().setKey(info.getKey()).setValue(info.getValue()).build());
-        }
-        return out;
-    }
 
     private ArrayList<MetadataEntry> parseLaunchOptions() {
         String enabled = "False";
