@@ -33,6 +33,6 @@ command inside the root directory of the EPM:
 docker-compose -f docker-compose-epm.yml up
 ```
 
-[epm-adapter-docker-compose]: https://github.com/mpauls/epm-adapter-docker-compose
-[epm-adapter-docker]: https://github.com/mpauls/epm-adapter-docker
-[epm-adapter-ansible]: https://github.com/mpauls/epm-adapter-ansible
+[epm-adapter-docker-compose]: https://github.com/tub-elastest/epm-adapter-docker-compose
+[epm-adapter-docker]: https://github.com/tub-elastest/epm-adapter-docker
+[epm-adapter-ansible]: https://github.com/tub-elastest/epm-adapter-ansible

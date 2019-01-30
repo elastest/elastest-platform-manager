@@ -28,7 +28,7 @@ Prerequisites:
 Clone the repository and install the needed tools:
 
 ```bash
-git clone https://github.com/mpauls/epm-client-docker-compose
+git clone https://github.com/tub-elastest/epm-client-docker-compose
 pip install docker-compose grpcio grpcio-tools
 ```
 Then you can start it from the "run.py" file. 
