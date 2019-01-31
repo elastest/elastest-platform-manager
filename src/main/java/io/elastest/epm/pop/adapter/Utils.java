@@ -90,7 +90,7 @@ public class Utils {
         Map<String, Object> values = null;
         TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
         while (entry != null) {
-            if (entry.getName().toLowerCase().equals("metadata.yaml")) {
+            if (entry.getName().toLowerCase().equals("metadata.yaml") || entry.getName().toLowerCase().equals("metadata.yml")) {
                 byte[] content = new byte[(int) entry.getSize()];
                 t.read(content, 0, content.length);
                 Yaml yaml = new Yaml();
