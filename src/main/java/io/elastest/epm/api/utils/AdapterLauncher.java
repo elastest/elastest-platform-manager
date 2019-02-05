@@ -10,13 +10,17 @@ import io.elastest.epm.model.PoP;
 import io.elastest.epm.model.Worker;
 import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.generated.InstallMessage;
+import io.elastest.epm.pop.generated.MetadataEntry;
 import io.elastest.epm.pop.generated.OperationHandlerGrpc;
 import io.elastest.epm.pop.generated.StringResponse;
 import io.elastest.epm.properties.ElastestProperties;
+import io.elastest.epm.properties.KeystoneProperties;
 import io.elastest.epm.repository.KeyRepository;
 import io.elastest.epm.repository.PoPRepository;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import io.elastest.epm.repository.WorkerRepository;
@@ -40,6 +44,8 @@ public class AdapterLauncher {
     private SSHHelper sshHelper;
     @Autowired
     Utils utils;
+    @Autowired
+    private KeystoneProperties keystoneProperties;
 
     @Value("${et.public.host}")
     private String epmIp;
@@ -90,6 +96,16 @@ public class AdapterLauncher {
 
                 OperationHandlerGrpc.OperationHandlerBlockingStub client =
                         utils.getAdapterClient(adapter);
+                List<MetadataEntry> metadataEntries = new ArrayList<>();
+                if(keystoneProperties.isEnabled()) {
+                    metadataEntries.add(MetadataEntry.newBuilder().setKey("KEYSTONE_ENDPOINT").setValue(keystoneProperties.getEndpoint()).build());
+                    metadataEntries.add(MetadataEntry.newBuilder().setKey("KEYSTONE_PORT").setValue(keystoneProperties.getPort()).build());
+                    metadataEntries.add(MetadataEntry.newBuilder().setKey("KEYSTONE_VERSION").setValue(keystoneProperties.getVersion()).build());
+                    metadataEntries.add(MetadataEntry.newBuilder().setKey("KEYSTONE_USERNAME").setValue(keystoneProperties.getUsername()).build());
+                    metadataEntries.add(MetadataEntry.newBuilder().setKey("KEYSTONE_PASSWORD").setValue(keystoneProperties.getPassword()).build());
+                    metadataEntries.add(MetadataEntry.newBuilder().setKey("KEYSTONE_DOMAIN").setValue(keystoneProperties.getDomain()).build());
+                    metadataEntries.add(MetadataEntry.newBuilder().setKey("KEYSTONE_ENABLED").setValue(String.valueOf(keystoneProperties.isEnabled())).build());
+                }
 
                 InstallMessage addNodeMessage =
                         InstallMessage.newBuilder()
@@ -97,6 +113,7 @@ public class AdapterLauncher {
                                 .setMasterIp(worker.getIp())
                                 .addNodesIp(epmIp)
                                 .setKey(io.elastest.epm.pop.generated.Key.newBuilder().setKey(ByteString.copyFromUtf8(key.getKey())).build())
+                                .addAllMetadata(metadataEntries)
                                 .build();
                 StringResponse s = client.createCluster(addNodeMessage);
                 int status = Integer.parseInt(s.getResponse());
