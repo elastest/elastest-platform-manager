@@ -33,6 +33,8 @@ public class ElastestProperties {
 
         private String seriesName = "";
 
+        private Kubernetes kubernetes;
+
         public boolean isEnabled() {
             return enabled;
         }
@@ -44,7 +46,7 @@ public class ElastestProperties {
         @Override
         public String toString() {
             return "EMP{" + "enabled=" + enabled + ", address='" + endpoint + ":" + port + ", topic=" + topic + ", seriesName="
-                    + seriesName + '\'' + '}';
+                    + seriesName + ", kubernetes=" + kubernetes + '\'' + '}';
         }
 
         public String getEndPoint() {
@@ -77,6 +79,72 @@ public class ElastestProperties {
 
         public void setSeriesName(String seriesName) {
             this.seriesName = seriesName;
+        }
+
+        public Kubernetes getKubernetes() {
+            return kubernetes;
+        }
+
+        public void setKubernetes(Kubernetes kubernetes) {
+            this.kubernetes = kubernetes;
+        }
+
+        public static class Kubernetes {
+            private boolean enabled;
+
+            private String endpoint;
+
+            private String port;
+
+            private String topic = "";
+
+            private String seriesName = "";
+
+            public boolean isEnabled() {
+                return enabled;
+            }
+
+            public void setEnabled(boolean enabled) {
+                this.enabled = enabled;
+            }
+
+            @Override
+            public String toString() {
+                return "Kubernetes{" + "enabled=" + enabled + ", address='" + endpoint + ":" + port + ", topic=" + topic + ", seriesName="
+                        + seriesName + '\'' + '}';
+            }
+
+            public String getEndPoint() {
+                return endpoint;
+            }
+
+            public String getPort() {
+                return port;
+            }
+
+            public void setEndpoint(String endpoint) {
+                this.endpoint = endpoint;
+            }
+
+            public void setPort(String port) {
+                this.port = port;
+            }
+
+            public String getTopic() {
+                return topic;
+            }
+
+            public void setTopic(String topic) {
+                this.topic = topic;
+            }
+
+            public String getSeriesName() {
+                return seriesName;
+            }
+
+            public void setSeriesName(String seriesName) {
+                this.seriesName = seriesName;
+            }
         }
     }
 }

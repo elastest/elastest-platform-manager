@@ -2,11 +2,14 @@ package io.elastest.epm.pop.adapter;
 
 import com.google.gson.Gson;
 import com.google.protobuf.ByteString;
+import io.elastest.epm.api.utils.AdapterLauncher;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.*;
+import io.elastest.epm.pop.adapter.exception.AdapterException;
 import io.elastest.epm.pop.generated.MetadataEntry;
 import io.elastest.epm.pop.generated.OperationHandlerGrpc;
 import io.elastest.epm.pop.generated.ResourceGroupProto;
+import io.elastest.epm.properties.DockerProperties;
 import io.elastest.epm.repository.AdapterRepository;
 import io.elastest.epm.repository.KeyRepository;
 import io.elastest.epm.repository.NetworkRepository;
@@ -44,6 +47,12 @@ public class Utils {
 
     @Autowired
     private KeyRepository keyRepository;
+
+    @Autowired
+    private AdapterLauncher adapterLauncher;
+
+    @Autowired
+    private DockerProperties dockerProperties;
 
     public static File convert(MultipartFile file) throws IOException {
         File convFile = new File(file.getOriginalFilename());
@@ -241,17 +250,34 @@ public class Utils {
 
     public Adapter getAdapterSpecific(PoP poP) throws NotFoundException {
         String type = extractTypeFromPoP(poP);
-        if (type.equals("docker-compose"))
-            return adapterRepository.findAdapterForTypeAndIp(extractTypeFromPoP(poP), poP.getInterfaceEndpoint());
-        else if (type.equals("aws") || type.equals("openstack"))
-            return adapterRepository.findFirstByType("ansible");
-        else return adapterRepository.findFirstByType(type);
+        if (type.equals("docker-compose")) {
+            return adapterRepository.findAdapterForTypeAndIp("docker-compose", poP.getInterfaceEndpoint());
+        }
+        return adapterRepository.findFirstByType(type);
     }
 
-    public OperationHandlerGrpc.OperationHandlerBlockingStub getAdapterClient(Adapter adapter) throws NotFoundException {
+    public OperationHandlerGrpc.OperationHandlerBlockingStub getAdapterClient(Adapter adapter, String type) throws NotFoundException {
         if (adapter == null) {
-            throw new NotFoundException("No * adapter registered! Please start the docker adapter and provide the " +
-                    "needed information to be able to deploy docker packages.");
+            if (type.equals("ansible") && !dockerProperties.getRegistration().getAddress().startsWith("unix://")) {
+                try {
+                    adapter = adapterLauncher.launchLocalAnsibleAdapter();
+                } catch (AdapterException e) {
+                    throw new NotFoundException("No * adapter registered! Please start the " + type + " adapter and provide the " +
+                            "needed information to be able to deploy " + type + " packages.");
+                }
+            }
+            else if (type.equals("docker-compose")) {
+                try {
+                    adapter = adapterLauncher.launchRandomDockerComposeAdapter();
+                } catch (AdapterException e) {
+                    throw new NotFoundException("No * adapter registered! Please start the " + type + " adapter and provide the " +
+                            "needed information to be able to deploy " + type + " packages.");
+                }
+            }
+            else {
+                throw new NotFoundException("No * adapter registered! Please start the " + type + " adapter and provide the " +
+                        "needed information to be able to deploy " + type + " packages.");
+            }
         }
         String ip = adapter.getEndpoint().split(":")[0];
         int port = Integer.parseInt(adapter.getEndpoint().split(":")[1]);
@@ -261,13 +287,19 @@ public class Utils {
         return OperationHandlerGrpc.newBlockingStub(channel);
     }
 
-    public String extractTypeFromPoP(PoP poP) {
+    public String extractTypeFromPoP(PoP poP) throws NotFoundException {
         String type = null;
         for (KeyValuePair kvp : poP.getInterfaceInfo()) {
             if (kvp.getKey().equals("type")) {
                 type = kvp.getValue();
                 break;
             }
+        }
+        if (type == null){
+            throw new NotFoundException("No type found in PoP: " + poP);
+        }
+        if ( (type.equals("aws") || type.equals("openstack"))) {
+            return "ansible";
         }
         return type;
     }

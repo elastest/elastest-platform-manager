@@ -62,7 +62,7 @@ public class GenericAdapter implements PackageManagementInterface, RuntimeManagm
     private Utils utils;
 
     private OperationHandlerGrpc.OperationHandlerBlockingStub getClient(PoP poP) throws NotFoundException {
-        return utils.getAdapterClient(utils.getAdapterSpecific(poP));
+        return utils.getAdapterClient(utils.getAdapterSpecific(poP),  utils.extractTypeFromPoP(poP));
     }
 
     @Override

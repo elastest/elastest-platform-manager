@@ -15,9 +15,11 @@ import io.elastest.epm.model.Worker;
 import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.pop.generated.InstallMessage;
 import io.elastest.epm.pop.generated.Key;
+import io.elastest.epm.pop.generated.MetadataEntry;
 import io.elastest.epm.pop.generated.OperationHandlerGrpc;
 import io.elastest.epm.pop.generated.StringResponse;
 import io.elastest.epm.pop.generated.TerminateMessage;
+import io.elastest.epm.properties.ElastestProperties;
 import io.elastest.epm.repository.ClusterRepository;
 import io.elastest.epm.repository.KeyRepository;
 import io.elastest.epm.repository.PoPRepository;
@@ -54,6 +56,8 @@ public class ClusterLauncher {
     private KeyRepository keyRepository;
     @Autowired
     private PoPRepository poPRepository;
+    @Autowired
+    private ElastestProperties elastestProperties;
 
     @Value("${et.public.host}")
     private String epmIp;
@@ -102,17 +106,28 @@ public class ClusterLauncher {
                     io.elastest.epm.model.Key key =
                             keyRepository.findOneByName(cluster.getMaster().getAuthCredentials().getKey());
                     OperationHandlerGrpc.OperationHandlerBlockingStub client =
-                            utils.getAdapterClient(adapter);
+                            utils.getAdapterClient(adapter, "ansible");
                     List<String> nodeIps = new ArrayList<>();
                     for (Worker node : cluster.getNodes()) {
                         nodeIps.add(node.getIp());
                     }
+                    List<MetadataEntry> metadataEntries = new ArrayList<>();
+                    log.debug(elastestProperties.toString());
+                    if(elastestProperties.getEmp().getKubernetes().isEnabled()) {
+                        log.debug("EPM Kubernetes is enabled");
+                        metadataEntries.add(MetadataEntry.newBuilder().setKey("EMP_ENDPOINT").setValue(elastestProperties.getEmp().getKubernetes().getEndPoint()).build());
+                        metadataEntries.add(MetadataEntry.newBuilder().setKey("EMP_PORT").setValue(elastestProperties.getEmp().getKubernetes().getPort()).build());
+                        metadataEntries.add(MetadataEntry.newBuilder().setKey("EMP_TOPIC").setValue(elastestProperties.getEmp().getKubernetes().getTopic()).build());
+                        metadataEntries.add(MetadataEntry.newBuilder().setKey("EMP_SERIES").setValue(elastestProperties.getEmp().getKubernetes().getSeriesName()).build());
+                    }
+
                     InstallMessage createClusterMessage =
                             InstallMessage.newBuilder()
                                     .setType("kubernetes")
                                     .setMasterIp(cluster.getMaster().getIp())
                                     .addAllNodesIp(nodeIps)
                                     .setKey(Key.newBuilder().setKey(ByteString.copyFromUtf8(key.getKey())).build())
+                                    .addAllMetadata(metadataEntries)
                                     .build();
                     StringResponse s = client.createCluster(createClusterMessage);
                     int status = Integer.parseInt(s.getResponse());
@@ -146,7 +161,7 @@ public class ClusterLauncher {
                     keyRepository.findOneByName(cluster.getMaster().getAuthCredentials().getKey());
 
             OperationHandlerGrpc.OperationHandlerBlockingStub client =
-                    utils.getAdapterClient(adapter);
+                    utils.getAdapterClient(adapter, "ansible");
 
             InstallMessage addNodeMessage =
                     InstallMessage.newBuilder()
@@ -181,7 +196,7 @@ public class ClusterLauncher {
         if (node == null) throw new NotFoundException("No node found with id: " + nodeId);
         Adapter adapter = utils.getAdapter("ansible");
         OperationHandlerGrpc.OperationHandlerBlockingStub client =
-                utils.getAdapterClient(adapter);
+                utils.getAdapterClient(adapter, "ansible");
 
         VDU nodeVDU;
         log.info("Removing node from Cluster: " + cluster.getId());
