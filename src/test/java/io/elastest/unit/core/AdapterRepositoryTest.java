@@ -1,7 +1,9 @@
 package io.elastest.unit.core;
 
+import io.elastest.epm.api.utils.AdapterLauncher;
 import io.elastest.epm.exception.NotFoundException;
 import io.elastest.epm.model.Adapter;
+import io.elastest.epm.pop.adapter.Utils;
 import io.elastest.epm.repository.AdapterRepositoryImpl;
 import io.elastest.unit.MockedConfig;
 import org.junit.*;
@@ -25,9 +27,13 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 public class AdapterRepositoryTest {
 
   private final Logger log = LoggerFactory.getLogger(AdapterRepositoryTest.class);
-  //@Autowired AdapterRepository adapterRepository;
 
   @Autowired AdapterRepositoryImpl adapterRepositoryImpl;
+
+  @Autowired
+  Utils utils;
+
+  @Autowired AdapterLauncher adapterLauncher;
 
   @Autowired Adapter adapter;
 

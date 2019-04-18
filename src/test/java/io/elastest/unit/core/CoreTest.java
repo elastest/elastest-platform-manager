@@ -3,6 +3,8 @@ package io.elastest.unit.core;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+import io.elastest.epm.api.utils.AdapterLauncher;
+import io.elastest.epm.api.utils.SSHHelper;
 import io.elastest.epm.core.NetworkManagement;
 import io.elastest.epm.core.PoPManagement;
 import io.elastest.epm.core.ResourceGroupManagement;
@@ -27,6 +29,7 @@ import io.elastest.epm.pop.model.network.NetworkSubnet;
 import io.elastest.epm.pop.model.network.VirtualNetwork;
 import io.elastest.epm.pop.model.network.VirtualNetworkInterface;
 import io.elastest.epm.properties.DockerProperties;
+import io.elastest.epm.properties.KeystoneProperties;
 import io.elastest.epm.repository.*;
 import io.elastest.unit.MockedConfig;
 import java.io.IOException;
@@ -65,6 +68,7 @@ public class CoreTest {
   @Autowired VDU vdu;
   @Autowired ResourceGroup resourceGroup;
   @Autowired Adapter adapter;
+  @Autowired Worker worker;
   @Autowired Key key;
 
   @Before
@@ -190,6 +194,20 @@ public class CoreTest {
   }
 
   @Bean
+  WorkerRepository workerRepository() {
+      WorkerRepository workerRepository = mock(WorkerRepository.class);
+      List<Worker> workers = new ArrayList<>();
+      workers.add(worker);
+
+      when(workerRepository.save(worker)).thenReturn(worker);
+      when(workerRepository.findAll()).thenReturn(workers);
+      when(workerRepository.findOne(pop.getId())).thenReturn(worker);
+      doNothing().when(workerRepository).delete(pop.getId());
+
+      return workerRepository;
+  }
+
+  @Bean
   AdapterRepositoryImpl adapterRepositoryImpl() {
     AdapterRepositoryImpl adapterRepositoryImpl = new AdapterRepositoryImpl();
     return adapterRepositoryImpl;
@@ -247,6 +265,21 @@ public class CoreTest {
   Utils utils() {
     return new Utils();
   }
+
+  @Bean
+  AdapterLauncher adapterLauncher() {
+      return new AdapterLauncher();
+  }
+
+  @Bean
+    SSHHelper sshHelper() {
+      return new SSHHelper();
+  }
+
+    @Bean
+    KeystoneProperties keystoneProperties() {
+        return new KeystoneProperties();
+    }
 
   @Bean
   @Qualifier("mocked_dockerAdapter")
