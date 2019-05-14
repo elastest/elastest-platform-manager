@@ -26,8 +26,9 @@ import io.elastest.epm.repository.PoPRepository;
 import io.elastest.epm.repository.ResourceGroupRepository;
 import io.elastest.epm.repository.VduRepository;
 import io.elastest.epm.repository.WorkerRepository;
-import org.mariadb.jdbc.internal.logging.Logger;
-import org.mariadb.jdbc.internal.logging.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -49,7 +50,6 @@ public class ClusterLauncher {
     Utils utils;
     @Autowired
     WorkerLauncher workerLauncher;
-    private Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private ClusterRepository clusterRepository;
     @Autowired
@@ -58,6 +58,8 @@ public class ClusterLauncher {
     private PoPRepository poPRepository;
     @Autowired
     private ElastestProperties elastestProperties;
+
+    private Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Value("${et.public.host}")
     private String epmIp;
@@ -130,9 +132,11 @@ public class ClusterLauncher {
                                     .addAllMetadata(metadataEntries)
                                     .build();
                     StringResponse s = client.createCluster(createClusterMessage);
-                    int status = Integer.parseInt(s.getResponse());
-                    if (status == 0) {
+                    log.debug("RESPONSE: " + s.getResponse());
+                    if( !StringUtils.isNumeric(s.getResponse()) && !s.getResponse().equals("")) {
+                        log.debug("Setting type and key");
                         cluster.setType("kubernetes");
+                        cluster.setKey(s.getResponse());
                     }
                     return clusterRepository.save(cluster);
                 } catch (NotFoundException e) {

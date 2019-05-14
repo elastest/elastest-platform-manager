@@ -6,15 +6,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import io.elastest.epm.repository.IdGenerator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.ArrayList;
-import java.util.List;
+import io.elastest.epm.model.Worker;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.validation.Valid;
@@ -24,16 +25,19 @@ import javax.validation.constraints.*;
  * Cluster
  */
 @Validated
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2018-10-12T12:05:16.662+02:00")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2019-05-09T12:17:33.009+02:00")
 @Entity
 public class Cluster   {
-
   @JsonProperty("id")
   @Id
   private String id = null;
 
   @JsonProperty("type")
   private String type = null;
+
+  @JsonProperty("key")
+  @Column(length = 5000)
+  private String key = null;
 
   @JsonProperty("master")
   @OneToOne(cascade = CascadeType.ALL)
@@ -52,7 +56,7 @@ public class Cluster   {
     return this;
   }
 
-  /**
+   /**
    * Get id
    * @return id
   **/
@@ -72,7 +76,7 @@ public class Cluster   {
     return this;
   }
 
-  /**
+   /**
    * Type of the Cluster.
    * @return type
   **/
@@ -88,12 +92,32 @@ public class Cluster   {
     this.type = type;
   }
 
+  public Cluster key(String key) {
+    this.key = key;
+    return this;
+  }
+
+   /**
+   * This is the key itself as String.
+   * @return key
+  **/
+  @ApiModelProperty(value = "This is the key itself as String.")
+
+
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
   public Cluster master(Worker master) {
     this.master = master;
     return this;
   }
 
-  /**
+   /**
    * Get master
    * @return master
   **/
@@ -122,7 +146,7 @@ public class Cluster   {
     return this;
   }
 
-  /**
+   /**
    * Get nodes
    * @return nodes
   **/
@@ -143,7 +167,7 @@ public class Cluster   {
     return this;
   }
 
-  /**
+   /**
    * Get resourceGroupId
    * @return resourceGroupId
   **/
@@ -158,10 +182,11 @@ public class Cluster   {
     this.resourceGroupId = resourceGroupId;
   }
 
-    @PrePersist
-    public void ensureId() {
-        id = IdGenerator.createUUID();
-    }
+  @PrePersist
+  public void ensureId() {
+      id = IdGenerator.createUUID();
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -174,6 +199,7 @@ public class Cluster   {
     Cluster cluster = (Cluster) o;
     return Objects.equals(this.id, cluster.id) &&
         Objects.equals(this.type, cluster.type) &&
+        Objects.equals(this.key, cluster.key) &&
         Objects.equals(this.master, cluster.master) &&
         Objects.equals(this.nodes, cluster.nodes) &&
         Objects.equals(this.resourceGroupId, cluster.resourceGroupId);
@@ -181,7 +207,7 @@ public class Cluster   {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, type, master, nodes, resourceGroupId);
+    return Objects.hash(id, type, key, master, nodes, resourceGroupId);
   }
 
   @Override
@@ -191,6 +217,7 @@ public class Cluster   {
     
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
+    sb.append("    key: ").append(toIndentedString(key)).append("\n");
     sb.append("    master: ").append(toIndentedString(master)).append("\n");
     sb.append("    nodes: ").append(toIndentedString(nodes)).append("\n");
     sb.append("    resourceGroupId: ").append(toIndentedString(resourceGroupId)).append("\n");

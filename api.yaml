@@ -1678,6 +1678,9 @@ definitions:
         type: string
         example: 'kubernetes'
         description: 'Type of the Cluster.'
+      key:
+        type: string
+        description: This is the key itself as String.
       master:
         $ref: '#/definitions/Worker'
       nodes:
