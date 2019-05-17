@@ -117,6 +117,7 @@ public class ClusterLauncher {
                     log.debug(elastestProperties.toString());
                     if(elastestProperties.getEmp().getKubernetes().isEnabled()) {
                         log.debug("EPM Kubernetes is enabled");
+                        metadataEntries.add(MetadataEntry.newBuilder().setKey("EMP_ENABLED").setValue(String.valueOf(elastestProperties.getEmp().getKubernetes().isEnabled())).build());
                         metadataEntries.add(MetadataEntry.newBuilder().setKey("EMP_ENDPOINT").setValue(elastestProperties.getEmp().getKubernetes().getEndPoint()).build());
                         metadataEntries.add(MetadataEntry.newBuilder().setKey("EMP_PORT").setValue(elastestProperties.getEmp().getKubernetes().getPort()).build());
                         metadataEntries.add(MetadataEntry.newBuilder().setKey("EMP_TOPIC").setValue(elastestProperties.getEmp().getKubernetes().getTopic()).build());
