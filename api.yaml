@@ -277,6 +277,36 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+    post:
+      tags:
+        - Cluster
+      summary: Registers the cluster and saves the information.
+      description: This registers a cluster with the information provided.
+      operationId: registerCluster
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: cluster in a json
+          required: true
+          schema:
+            $ref: '#/definitions/Cluster'
+      responses:
+        '200':
+          description: Cluster registered OK
+          schema:
+            $ref: '#/definitions/Cluster'
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found/keys
   /cluster/create:
     post:
       summary: Creates a new cluster.

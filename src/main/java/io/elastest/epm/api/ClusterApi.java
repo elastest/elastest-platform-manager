@@ -78,6 +78,20 @@ public interface ClusterApi {
         method = RequestMethod.GET)
     ResponseEntity<List<Cluster>> getAllClusters();
 
+    @ApiOperation(value = "Registers the cluster and saves the information.", notes = "This registers a cluster with the information provided.", response = Cluster.class, tags={ "Cluster", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Cluster registered OK", response = Cluster.class),
+            @ApiResponse(code = 201, message = "Created", response = Void.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = Void.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = Void.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = Void.class),
+            @ApiResponse(code = 404, message = "Not Found/keys", response = Void.class) })
+
+    @RequestMapping(value = "/cluster",
+            consumes = { "application/json" },
+            method = RequestMethod.POST)
+    ResponseEntity<Cluster> registerCluster(@ApiParam(value = "cluster in a json" ,required=true )  @Valid @RequestBody Cluster body);
+
     @ApiOperation(value = "Removes a worker to the cluster.", nickname = "removeNode", notes = "", response = Cluster.class, tags={ "Cluster", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Cluster.class),

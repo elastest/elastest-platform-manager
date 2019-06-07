@@ -110,6 +110,11 @@ public class ClusterApiController implements ClusterApi {
         return new ResponseEntity<List<Cluster>>(clusters, HttpStatus.OK);
     }
 
+    public ResponseEntity<Cluster> registerCluster(@ApiParam(value = "cluster in a json" ,required=true )  @Valid @RequestBody Cluster body) {
+        log.debug("Registering adapter");
+        return new ResponseEntity<Cluster>(clusterRepository.save(body), HttpStatus.OK);
+    }
+
     public ResponseEntity<Cluster> removeNode(@ApiParam(value = "ID of Cluster",required=true) @PathVariable("id") String id,
                                              @ApiParam(value = "The ID of a Worker",required=true) @PathVariable("workerId") String workerId) {
 
