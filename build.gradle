@@ -9,7 +9,7 @@ buildscript {
 }
 plugins {
     id "nebula.os-package" version "2.2.6"
-    id 'com.github.sherter.google-java-format' version '0.6'
+    //id 'com.github.sherter.google-java-format' version '0.6'
     id "com.google.protobuf" version "0.8.4"
 }
 group 'io.elastest.epm'
@@ -17,6 +17,7 @@ group 'io.elastest.epm'
 repositories {
     mavenCentral()
 }
+
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'docker'
@@ -44,7 +45,8 @@ project.ext {
     applicationVersionFull = "${applicationVersion}"
 }
 dependencies {
-    compile group: 'org.pacesys', name: 'openstack4j', version: '3.1.0'
+
+
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: springBootVersion
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
 
@@ -98,6 +100,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.jcraft/jsch
     compile group: 'com.jcraft', name: 'jsch', version: '0.1.54'
+
+    compile group: 'org.pacesys', name: 'openstack4j', version: '3.2.0'
 
 
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
@@ -183,4 +187,4 @@ task buildDockerFromScratch(type: Docker) {
 }
 buildDocker.dependsOn(build)
 
-compileJava.dependsOn tasks.googleJavaFormat
+//compileJava.dependsOn tasks.googleJavaFormat
