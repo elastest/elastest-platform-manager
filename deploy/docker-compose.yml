@@ -60,6 +60,9 @@ services:
             - elastest
         labels:
             - io.elastest.type=core
+        environment:
+          - EPM_PORT_FROM=1001
+          - EPM_PORT_TO=61000
 
     epm-adapter-docker:
         container_name: elastest-epm-adapter-docker
